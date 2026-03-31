@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Financiera - Interés Compuesto v2</title>
+    <title>Terminal Financiera - Interés Compuesto v3</title>
     <style>
         :root {
             --neon-green: #39ff14;
@@ -17,34 +17,75 @@
             background-color: var(--bg-color);
             color: var(--neon-cyan);
             font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background-image:
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
             background-size: 25px 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
-        .terminal-container {
+        /* Contenedor principal para poner elementos lado a lado */
+        .main-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .terminal-container, .table-container {
             background: rgba(10, 10, 12, 0.95);
             padding: 30px;
             border: 2px solid var(--neon-pink);
             box-shadow: 0 0 15px var(--neon-pink), inset 0 0 10px var(--neon-pink);
             border-radius: 4px;
-            width: 380px;
-            text-align: center;
         }
 
-        h1 {
+        .terminal-container {
+            width: 380px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* Estilos para el nuevo contenedor de la tabla */
+        .table-container {
+            flex-grow: 1;
+            min-width: 300px;
+            max-width: 500px;
+            max-height: 550px;
+            overflow-y: auto; /* Permite hacer scroll si son muchos años */
+            display: none; /* Oculto por defecto hasta calcular */
+        }
+
+        /* Estilos de la barra de scroll (Webkit) */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: var(--bg-color);
+            border-left: 1px solid var(--neon-pink);
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--neon-pink);
+        }
+
+        h1, h2 {
             font-size: 1.4em;
             color: var(--neon-green);
             text-shadow: 0 0 5px var(--neon-green), 0 0 10px var(--neon-green);
+            margin-top: 0;
             margin-bottom: 25px;
             letter-spacing: 2px;
             text-transform: uppercase;
+            text-align: center;
         }
 
         .input-group {
@@ -123,90 +164,160 @@
             margin-top: 20px;
             text-align: right;
         }
+
+        /* Estilos de la tabla retro punk */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        th, td {
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 10px;
+            text-align: right;
+        }
+
+        th {
+            background: black;
+            color: var(--neon-pink);
+            text-shadow: 0 0 3px var(--neon-pink);
+            position: sticky;
+            top: 0;
+            text-align: center;
+        }
+
+        td {
+            color: #fff;
+        }
+
+        td:first-child {
+            text-align: center;
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+
+        .highlight {
+            color: var(--neon-cyan);
+        }
     </style>
 </head>
 <body>
 
-    <div class="terminal-container">
-        <h1>SYS.CALC // INTERÉS_V2</h1>
+    <div class="main-wrapper">
+        <div class="terminal-container">
+            <h1>SYS.CALC // v3.0</h1>
 
-        <div class="input-group">
-            <label for="principal">Capital Inicial (P)</label>
-            <input type="number" id="principal" placeholder="Ej. 5000" required>
+            <div class="input-group">
+                <label for="principal">Capital Inicial (P)</label>
+                <input type="number" id="principal" placeholder="Ej. 5000" required>
+            </div>
+
+            <div class="input-group">
+                <label for="pmt">Aportación Anual (Ahorro)</label>
+                <input type="number" id="pmt" placeholder="Ej. 1200" value="0">
+            </div>
+
+            <div class="input-group">
+                <label for="rate">Tasa de Interés Anual (%)</label>
+                <input type="number" id="rate" placeholder="Ej. 10" step="0.01" required>
+            </div>
+
+            <div class="input-group">
+                <label for="frequency">Capitalización (n)</label>
+                <select id="frequency">
+                    <option value="12">Mensual (12 veces/año)</option>
+                    <option value="4">Trimestral (4 veces/año)</option>
+                    <option value="2">Semestral (2 veces/año)</option>
+                    <option value="1">Anual (1 vez/año)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="time">Tiempo en Años (t)</label>
+                <input type="number" id="time" placeholder="Ej. 5" required>
+            </div>
+
+            <button onclick="executeCalculation()">EJECUTAR SECUENCIA</button>
+
+            <div id="result">Esperando parámetros...</div>
+
+            <div class="sys-msg">STATUS: ONLINE</div>
         </div>
 
-        <div class="input-group">
-            <label for="pmt">Aportación Anual (Opcional)</label>
-            <input type="number" id="pmt" placeholder="Ej. 1200 (100 al mes)" value="0">
+        <div class="table-container" id="table-container">
+            <h2>PROYECCIÓN DE DATOS</h2>
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>AÑO</th>
+                        <th>INVERSIÓN TOTAL</th>
+                        <th>INTERÉS ACUMULADO</th>
+                        <th>BALANCE FINAL</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    </tbody>
+            </table>
         </div>
-
-        <div class="input-group">
-            <label for="rate">Tasa de Interés Anual (%)</label>
-            <input type="number" id="rate" placeholder="Ej. 10" step="0.01" required>
-        </div>
-
-        <div class="input-group">
-            <label for="frequency">Capitalización (n)</label>
-            <select id="frequency">
-                <option value="12">Mensual (12 veces/año)</option>
-                <option value="4">Trimestral (4 veces/año)</option>
-                <option value="2">Semestral (2 veces/año)</option>
-                <option value="1">Anual (1 vez/año)</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label for="time">Tiempo en Años (t)</label>
-            <input type="number" id="time" placeholder="Ej. 5" required>
-        </div>
-
-        <button onclick="executeCalculation()">EJECUTAR SECUENCIA</button>
-
-        <div id="result">Esperando parámetros...</div>
-
-        <div class="sys-msg">v2.0 - ONLINE</div>
     </div>
 
     <script>
         function executeCalculation() {
             const P = parseFloat(document.getElementById('principal').value);
-            // Extraemos el valor de la nueva casilla, si está vacía ponemos 0
             const PMT = parseFloat(document.getElementById('pmt').value) || 0; 
             const r_percent = parseFloat(document.getElementById('rate').value);
             const n = parseFloat(document.getElementById('frequency').value);
             const t = parseFloat(document.getElementById('time').value);
 
-            if (isNaN(P) || isNaN(r_percent) || isNaN(n) || isNaN(t)) {
+            if (isNaN(P) || isNaN(r_percent) || isNaN(n) || isNaN(t) || t <= 0) {
                 document.getElementById('result').innerHTML = "<span style='color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);'>ERROR: FALTAN PARÁMETROS.</span>";
                 return;
             }
 
             const r = r_percent / 100;
-
-            // 1. Calculamos el interés compuesto del Capital Inicial
-            const base = 1 + (r / n);
-            const exponent = n * t;
-            const fvPrincipal = P * Math.pow(base, exponent);
             
-            // 2. Calculamos el valor futuro de las Aportaciones Anuales
-            let fvAportaciones = 0;
-            if (PMT > 0) {
-                // Tasa Anual Efectiva (para alinear la capitalización con el pago anual)
-                const EAR = Math.pow(1 + (r / n), n) - 1; 
-                fvAportaciones = PMT * ((Math.pow(1 + EAR, t) - 1) / EAR);
+            // Lógica para la tabla de amortización año con año
+            let currentBalance = P;
+            let totalInvested = P;
+            
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = ''; // Limpiar la tabla antes de imprimir nuevos datos
+
+            for (let year = 1; year <= t; year++) {
+                // Calcular crecimiento del balance actual durante 1 año
+                let balanceAfterCompounding = currentBalance * Math.pow(1 + (r / n), n);
+                
+                // Sumar la aportación anual al final del año
+                currentBalance = balanceAfterCompounding + PMT;
+                
+                // Actualizar el total de dinero salido de tu bolsillo
+                totalInvested += PMT;
+                
+                // Calcular el interés acumulado histórico
+                let accumulatedInterest = currentBalance - totalInvested;
+
+                // Crear la fila de la tabla
+                let row = `<tr>
+                    <td>[ ${year} ]</td>
+                    <td>$${totalInvested.toFixed(2)}</td>
+                    <td class="highlight">$${accumulatedInterest.toFixed(2)}</td>
+                    <td>$${currentBalance.toFixed(2)}</td>
+                </tr>`;
+                
+                tableBody.innerHTML += row;
             }
 
-            // 3. Sumamos ambos resultados
-            const A = fvPrincipal + fvAportaciones;
-            
-            // Desglosamos cuánto dinero salió de tu bolsillo vs cuánto es ganancia pura
-            const totalInvertido = P + (PMT * t);
-            const interestEarned = A - totalInvertido;
+            // Mostrar el contenedor de la tabla
+            document.getElementById('table-container').style.display = 'block';
+
+            // Resumen en la terminal izquierda
+            const finalInterest = currentBalance - totalInvested;
 
             document.getElementById('result').innerHTML = 
-                `> MONTO TOTAL AL FINAL: <br><span style="font-size: 1.4em; color: #fff;">$${A.toFixed(2)}</span><br><br>` +
-                `<span style="font-size: 0.8em; color: var(--neon-cyan);">> TOTAL INVERTIDO POR TI: $${totalInvertido.toFixed(2)}</span><br>` +
-                `<span style="font-size: 0.8em; color: var(--neon-pink);">> GANANCIA (INTERÉS): $${interestEarned.toFixed(2)}</span>`;
+                `> BALANCE FINAL: <br><span style="font-size: 1.4em; color: #fff;">$${currentBalance.toFixed(2)}</span><br><br>` +
+                `<span style="font-size: 0.8em; color: var(--neon-cyan);">> TOTAL INVERTIDO: $${totalInvested.toFixed(2)}</span><br>` +
+                `<span style="font-size: 0.8em; color: var(--neon-pink);">> GANANCIA PURA: $${finalInterest.toFixed(2)}</span>`;
         }
     </script>
 
