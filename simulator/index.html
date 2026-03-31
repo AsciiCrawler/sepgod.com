@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terminal Financiera - Interés Compuesto v4</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --neon-green: #39ff14;
@@ -201,6 +202,24 @@
         .highlight {
             color: var(--neon-cyan);
         }
+
+        /* Para que el layout principal permita elementos abajo */
+body { flex-direction: column; }
+
+/* Contenedor nuevo para el gráfico */
+.chart-container {
+    background: rgba(10, 10, 12, 0.95);
+    padding: 20px;
+    border: 2px solid var(--neon-cyan);
+    box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan);
+    border-radius: 4px;
+    width: 100%;
+    max-width: 910px;
+    margin-top: 30px;
+    display: none;
+    box-sizing: border-box;
+}
+        
     </style>
 </head>
 <body>
@@ -268,7 +287,13 @@
         </div>
     </div>
 
+    <div class="chart-container" id="chart-container">
+    <h2>GRÁFICO DE CRECIMIENTO</h2>
+    <canvas id="growthChart"></canvas>
+</div>
+
     <script>
+        let myChart = null;
         function executeCalculation() {
             const P = parseFloat(document.getElementById('principal').value);
             let PMT = parseFloat(document.getElementById('pmt').value) || 0; 
@@ -289,35 +314,57 @@
             let totalInvested = P;
             
             const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = ''; 
+          const tableBody = document.getElementById('table-body');
+tableBody.innerHTML = ''; 
 
-            for (let year = 1; year <= t; year++) {
-                // Cálculo de interés compuesto del año
-                let balanceAfterCompounding = currentBalance * Math.pow(1 + (r / n), n);
-                currentBalance = balanceAfterCompounding + PMT;
-                totalInvested += PMT;
-                let accumulatedInterest = currentBalance - totalInvested;
+// NUEVO: Arreglos para el gráfico
+let chartLabels = [0];
+let chartDataInvested = [P];
+let chartDataNominal = [P];
+let chartDataReal = [P];
 
-                // Cálculo del poder adquisitivo real ajustado a la inflación de ese año
-                let realPurchasingPower = currentBalance / Math.pow(1 + inflationRate, year);
+for (let year = 1; year <= t; year++) {
+    let balanceAfterCompounding = currentBalance * Math.pow(1 + (r / n), n);
+    currentBalance = balanceAfterCompounding + PMT;
+    totalInvested += PMT;
+    let accumulatedInterest = currentBalance - totalInvested;
+    let realPurchasingPower = currentBalance / Math.pow(1 + inflationRate, year);
 
-                let row = `<tr>
-                    <td>[ ${year} ]</td>
-                    <td>$${totalInvested.toFixed(2)}</td>
-                    <td class="highlight">$${accumulatedInterest.toFixed(2)}</td>
-                    <td>$${currentBalance.toFixed(2)}</td>
-                    <td style="color: var(--neon-yellow);">$${realPurchasingPower.toFixed(2)}</td>
-                </tr>`;
-                
-                tableBody.innerHTML += row;
-                // Aumentar la aportación para el año siguiente
-                PMT = PMT * (1 + stepUpRate);
-            }
+    let row = `<tr>
+        <td>[ ${year} ]</td>
+        <td>$${totalInvested.toFixed(2)}</td>
+        <td class="highlight">$${accumulatedInterest.toFixed(2)}</td>
+        <td>$${currentBalance.toFixed(2)}</td>
+        <td style="color: var(--neon-yellow);">$${realPurchasingPower.toFixed(2)}</td>
+    </tr>`;
+    tableBody.innerHTML += row;
 
-            document.getElementById('table-container').style.display = 'block';
+    // NUEVO: Guardar datos iterados
+    chartLabels.push(year);
+    chartDataInvested.push(totalInvested.toFixed(2));
+    chartDataNominal.push(currentBalance.toFixed(2));
+    chartDataReal.push(realPurchasingPower.toFixed(2));
 
-            const finalInterest = currentBalance - totalInvested;
-            const finalRealBalance = currentBalance / Math.pow(1 + inflationRate, t);
+    PMT = PMT * (1 + stepUpRate);
+}
+
+document.getElementById('table-container').style.display = 'block';
+document.getElementById('chart-container').style.display = 'block'; // Mostrar gráfico
+
+const finalInterest = currentBalance - totalInvested;
+const finalRealBalance = currentBalance / Math.pow(1 + inflationRate, t);
+
+document.getElementById('result').innerHTML = 
+    `<span style="color: #fff; font-size: 0.9em;">> BALANCE NOMINAL FINAL:</span><br>` +
+    `<span style="font-size: 1.4em; color: #fff; display: block; margin-bottom: 10px;">$${currentBalance.toFixed(2)}</span>` +
+    `<span style="font-size: 0.85em; color: var(--neon-cyan);">> TOTAL INVERTIDO: $${totalInvested.toFixed(2)}</span><br>` +
+    `<span style="font-size: 0.85em; color: var(--neon-pink);">> GANANCIA PURA: $${finalInterest.toFixed(2)}</span><br><br>` +
+    `<span style="color: var(--neon-yellow); font-size: 0.9em; text-shadow: 0 0 5px var(--neon-yellow);">> PODER ADQUISITIVO REAL:</span><br>` +
+    `<span style="font-size: 1.4em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block;">$${finalRealBalance.toFixed(2)}</span>` +
+    `<span style="font-size: 0.7em; color: rgba(255,255,255,0.6);">(Descontando 4% inflación anual)</span>`;
+
+// NUEVO: Dibujar el gráfico al final de la secuencia
+renderChart(chartLabels, chartDataInvested, chartDataNominal, chartDataReal);
 
             // Resumen formateado en la terminal
             document.getElementById('result').innerHTML = 
@@ -331,6 +378,33 @@
                 `<span style="font-size: 1.4em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block;">$${finalRealBalance.toFixed(2)}</span>` +
                 `<span style="font-size: 0.7em; color: rgba(255,255,255,0.6);">(Descontando 4% inflación anual)</span>`;
         }
+
+        function renderChart(labels, dataInvested, dataNominal, dataReal) {
+    const ctx = document.getElementById('growthChart').getContext('2d');
+    if (myChart !== null) myChart.destroy();
+
+    myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Total Invertido', data: dataInvested, borderColor: '#ff007f', backgroundColor: 'rgba(255, 0, 127, 0.1)', borderWidth: 2, fill: true, tension: 0.3 },
+                { label: 'Balance Nominal', data: dataNominal, borderColor: '#00f3ff', backgroundColor: 'rgba(0, 243, 255, 0.1)', borderWidth: 2, fill: true, tension: 0.3 },
+                { label: 'Real (-4% Inflación)', data: dataReal, borderColor: '#ffea00', backgroundColor: 'rgba(255, 234, 0, 0.1)', borderWidth: 2, fill: true, tension: 0.3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#00f3ff', font: { family: "'Courier New', Courier, monospace" } } } },
+            scales: {
+                x: { grid: { color: 'rgba(0, 243, 255, 0.1)' }, ticks: { color: '#39ff14', font: { family: "'Courier New', Courier, monospace" } }, title: { display: true, text: 'AÑOS', color: '#ff007f', font: { family: "'Courier New', Courier, monospace" } } },
+                y: { grid: { color: 'rgba(0, 243, 255, 0.1)' }, ticks: { color: '#39ff14', font: { family: "'Courier New', Courier, monospace" }, callback: function(value) { return '$' + value; } } }
+            }
+        }
+    });
+}
+
+        
     </script>
 
 </body>
