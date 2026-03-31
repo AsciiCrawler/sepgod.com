@@ -270,9 +270,9 @@
 
     <script>
         function executeCalculation() {
+            const P = parseFloat(document.getElementById('principal').value);
             let PMT = parseFloat(document.getElementById('pmt').value) || 0; 
             const stepUpRate = (parseFloat(document.getElementById('step-up').value) || 0) / 100;
-            const PMT = parseFloat(document.getElementById('pmt').value) || 0; 
             const r_percent = parseFloat(document.getElementById('rate').value);
             const n = parseFloat(document.getElementById('frequency').value);
             const t = parseFloat(document.getElementById('time').value);
