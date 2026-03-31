@@ -1,1 +1,644 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Supervivencia de Dividendos: Imperio Sepgodlandia</title>
+    <style>
+        /* =========================================================
+           SISTEMA DE DISEÑO RETRO TERMINAL CRT
+           ========================================================= */
+        :root {
+            /* Paleta estricta de terminal fosforescente oscura */
+            --bg-color: #050505;
+            --text-main: #e0e0e0;
+            --text-green: #00ff00;
+            --text-red: #ff3333;
+            --text-amber: #ffb000;
+            --font-stack: 'Courier New', Courier, monospace;
+            
+            /* Simulación matemática del efecto Bloom/Resplandor del Fósforo */
+            --glow-green: 0 0 4px rgba(0, 255, 0, 0.8), 0 0 8px rgba(0, 255, 0, 0.4);
+            --glow-red: 0 0 4px rgba(255, 51, 51, 0.8), 0 0 8px rgba(255, 51, 51, 0.4);
+            --glow-amber: 0 0 4px rgba(255, 176, 0, 0.8), 0 0 8px rgba(255, 176, 0, 0.4);
+            --glow-white: 0 0 3px rgba(224, 224, 224, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            font-size: 15px;
+            line-height: 1.5;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Efecto viñeta para simular la curvatura del tubo catódico */
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+        }
+
+        /* 
+           Efecto "Screen-Door" / Scanlines Horizontales 
+           Utiliza linear-gradient repetitivo a escala de píxeles
+        */
+       .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.25) 50%,
+                rgba(0,0,0,0.25)
+            );
+            background-size: 100% 4px;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none; /* Permite interaccionar con los botones subyacentes */
+            z-index: 999;
+        }
+
+        /* Contenedor principal con efecto de inestabilidad eléctrica */
+       .crt-flicker {
+            animation: flicker 0.12s infinite;
+            width: 100%;
+            max-width: 1100px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.98; }
+            50% { opacity: 1; }
+            100% { opacity: 0.99; }
+        }
+
+        /* Diseño Estructural de Paneles */
+       .panel {
+            border: 1px solid var(--text-main);
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+       .header-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-color: var(--text-amber);
+            text-shadow: var(--glow-amber);
+            color: var(--text-amber);
+        }
+
+        /* Matriz de métricas de supervivencia */
+       .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+       .stat-box {
+            border: 1px dashed #555;
+            padding: 15px;
+            text-align: center;
+            background: rgba(10, 10, 10, 0.8);
+        }
+
+       .stat-label {
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            text-shadow: var(--glow-white);
+        }
+
+       .stat-value {
+            font-size: 1.6em;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        /* Diseño de tabla tabular estricta */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border-bottom: 1px solid #333;
+            padding: 12px 8px;
+            text-align: left;
+        }
+
+        th {
+            color: var(--text-amber);
+            text-shadow: var(--glow-amber);
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        /* Clases utilitarias para colorización semántica */
+       .green { color: var(--text-green); text-shadow: var(--glow-green); }
+       .red { color: var(--text-red); text-shadow: var(--glow-red); }
+       .amber { color: var(--text-amber); text-shadow: var(--glow-amber); }
+
+        /* Estilización de Interacción (Botones) */
+        button {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--text-main);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-family: var(--font-stack);
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.1s;
+        }
+
+        button:hover:not(:disabled) {
+            background: var(--text-main);
+            color: var(--bg-color);
+            text-shadow: none;
+        }
+        
+        button:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            border-style: dashed;
+        }
+
+       .btn-buy { color: var(--text-green); border-color: var(--text-green); text-shadow: var(--glow-green); }
+       .btn-buy:hover:not(:disabled) { background: var(--text-green); color: black; }
+        
+       .btn-sell { color: var(--text-red); border-color: var(--text-red); text-shadow: var(--glow-red); }
+       .btn-sell:hover:not(:disabled) { background: var(--text-red); color: black; }
+
+        /* Panel Central de Avance de Turno */
+        #action-panel {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        #next-month-btn {
+            font-size: 1.5em;
+            padding: 20px 50px;
+            border: 2px solid var(--text-green);
+            color: var(--text-green);
+            text-shadow: var(--glow-green);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2) inset;
+        }
+
+        #next-month-btn:hover:not(:disabled) {
+            background: var(--text-green);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+        }
+
+        /* Consola de Eventos Estocásticos */
+       .log-panel {
+            height: 160px;
+            overflow-y: auto;
+            border-top: 1px dashed #555;
+            padding-top: 15px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        
+       .log-entry { margin-bottom: 6px; }
+       .log-entry::before { content: "> "; opacity: 0.5; }
+
+        /* Superposición Crítica de Condición de Derrota */
+        #game-over {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 3px solid var(--text-red);
+            padding: 50px;
+            text-align: center;
+            z-index: 2000;
+            box-shadow: 0 0 50px rgba(255, 51, 51, 0.8);
+            width: 80%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+
+<div class="crt-flicker">
+    
+    <div class="panel header-panel">
+        <div>
+            <h2>SYS.OS SEPGODLANDIA v2.4</h2>
+            <p>Protocolo Infinito de Supervivencia Financiera</p>
+        </div>
+        <div style="text-align: right;">
+            <h2>CICLO (MES): <span id="ui-month" class="amber">1</span></h2>
+            <p>Régimen Político: <span id="ui-politics">CENTRISTA (BASE)</span></p>
+        </div>
+    </div>
+
+    <div class="panel stats-grid">
+        <div class="stat-box">
+            <div class="stat-label">LIQUIDEZ VITAL (MXN)</div>
+            <div id="ui-cash" class="stat-value green">100,000.00</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">VALOR DE CARTERA</div>
+            <div id="ui-portfolio" class="stat-value">0.00</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">FLUJO PASIVO MENSUAL</div>
+            <div id="ui-income" class="stat-value amber">0.00</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">GASTOS E INFLACIÓN</div>
+            <div id="ui-expenses" class="stat-value red">-15,000.00</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3 class="amber" style="margin-bottom: 10px;">> MERCADO DE VALORES INSTITUCIONAL</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Corporación / Ticker</th>
+                    <th>Sector</th>
+                    <th>Precio (MXN)</th>
+                    <th>Yield Anual</th>
+                    <th>Deuda / Payout</th>
+                    <th>Posición (Acciones)</th>
+                    <th>Ejecución de Órdenes</th>
+                </tr>
+            </thead>
+            <tbody id="market-body">
+                </tbody>
+        </table>
+    </div>
+
+    <div id="action-panel">
+        <button id="next-month-btn" onclick="motorSimulacion.avanzarTurno()"></button>
+    </div>
+
+    <div class="panel">
+        <h3 class="amber">> CONSOLA DE EVENTOS MACROECONÓMICOS</h3>
+        <div class="log-panel" id="ui-log">
+            <div class="log-entry">INICIALIZANDO SUBSISTEMA... BIENVENIDO A SEPGODLANDIA. EL OBJETIVO ES SOBREVIVIR.</div>
+        </div>
+    </div>
+
+</div>
+
+<div id="game-over">
+    <h1 class="red" style="font-size: 3.5em; margin-bottom: 15px;">INSOLVENCIA FATAL</h1>
+    <h2 class="red" style="margin-bottom: 25px;">LIQUIDEZ AGOTADA. INCAPAZ DE CUBRIR GASTOS INFLACIONARIOS.</h2>
+    <p style="font-size: 1.2em;">Ciclos Mensuales Sobrevividos: <span id="go-months" class="amber"></span></p>
+    <p style="font-size: 1.2em; margin-top: 10px;">Capitalización Final (Cartera): <span id="go-port" class="amber"></span></p>
+    <button style="margin-top: 40px; padding: 15px 30px; font-size: 1.2em; border-color: var(--text-red); color: var(--text-red);" onclick="location.reload()">REINICIAR SIMULACIÓN</button>
+</div>
+
+<script>
+/**
+ * NÚCLEO ALGORÍTMICO DEL SIMULADOR DE SEPGODLANDIA
+ * Integra modelos de fijación de precios mediante Movimiento Browniano Geométrico,
+ * cálculo estocástico y ajuste dinámico de dificultad basado en teoría macroeconómica.
+ */
+
+// --- 1. SUBSISTEMA DE CÁLCULO MATEMÁTICO ---
+
+/**
+ * Transformación de Box-Muller.
+ * Vital para los motores de fijación de precios. Convierte variables aleatorias
+ * distribuidas uniformemente (Math.random) en variables independientes distribuidas 
+ * normalmente (Gaussiana) N(0,1), simulando colas probabilísticas reales.
+ */
+function generarNormalEstandar() {
+    let u = 0, v = 0;
+    while(u === 0) u = Math.random(); // Evitar el cero matemático exacto para el logaritmo
+    while(v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+/**
+ * Utilidad de formato de divisa estricto a 2 decimales para la UI.
+ */
+function formatearMoneda(numero) {
+    return numero.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// --- 2. GESTIÓN DEL ESTADO GLOBAL (MODELO) ---
+
+const estado = {
+    mes: 1,
+    liquidez: 100000.00,
+    gastoBase: 15000.00, // Calibrado usando promedios de metrópolis reales
+    gastoCorriente: 15000.00,
+    inflacionMensual: 0.004, // 0.4% de erosión del poder adquisitivo base por mes
+    impuestoDividendos: 0.15, // Retención base del 15%
+    colapsoSistemico: false,
+    
+    // Matriz de Transición de Estados Políticos
+    politica: {
+        actual: "Centrista",
+        modificadorVolatilidad: 1.0,
+        modificadorDeriva: 0.0,
+        descripciones: {
+            "Centrista": "Entorno moderado. Impuestos estables, volatilidad predecible.",
+            "Liberal": "Capitalismo expansivo. Impuestos mínimos, alta volatilidad de mercado, alto riesgo de caídas abruptas.",
+            "Socialista": "Regulación punitiva. Impuestos altos a dividendos, compresión de márgenes corporativos, mercado altamente estable.",
+            "Nacionalista": "Proteccionismo agresivo. Aceleración hiperinflacionaria, estrés masivo sobre empresas con alto endeudamiento."
+        }
+    }
+};
+
+// Generación de Entidades Microeconómicas (Acciones) con perfiles de riesgo del mundo real
+const corporaciones =;
+
+// --- 3. CONTROLADOR LÓGICO DEL MOTOR DE SIMULACIÓN ---
+
+const motorSimulacion = {
+    
+    inicializar() {
+        this.renderizarInterfaz();
+    },
+
+    registrarConsola(mensaje, tipo = "normal") {
+        const panelLog = document.getElementById("ui-log");
+        const entrada = document.createElement("div");
+        entrada.className = "log-entry";
+        if (tipo === "bueno") entrada.classList.add("green");
+        if (tipo === "malo") entrada.classList.add("red");
+        if (tipo === "alerta") entrada.classList.add("amber");
+        entrada.innerHTML = ` ${mensaje}`;
+        panelLog.prepend(entrada);
+    },
+
+    // Mecanismo de Ejecución de Órdenes de Mercado
+    ejecutarTransaccion(idCorporacion, cantidad) {
+        if (estado.colapsoSistemico) return;
+        
+        const empresa = corporaciones[idCorporacion];
+        const costoTransaccion = empresa.precioActual * Math.abs(cantidad);
+
+        if (cantidad > 0) { // Lógica de Compra
+            if (estado.liquidez >= costoTransaccion) {
+                estado.liquidez -= costoTransaccion;
+                empresa.acciones += cantidad;
+                this.registrarConsola(`ORDEN EJECUTADA: COMPRA ${cantidad}x [${empresa.ticker}] @ ${formatearMoneda(empresa.precioActual)} MXN`);
+            } else {
+                this.registrarConsola(`ERROR DE TRANSACCIÓN: LIQUIDEZ INSUFICIENTE PARA ADQUIRIR [${empresa.ticker}]`, "malo");
+            }
+        } else { // Lógica de Venta
+            if (empresa.acciones >= Math.abs(cantidad)) {
+                estado.liquidez += costoTransaccion; 
+                empresa.acciones += cantidad; // cantidad es negativa, por lo que resta el inventario
+                this.registrarConsola(`ORDEN EJECUTADA: VENTA ${Math.abs(cantidad)}x [${empresa.ticker}] @ ${formatearMoneda(empresa.precioActual)} MXN`);
+            }
+        }
+        this.renderizarInterfaz();
+    },
+
+    // Ciclo Maestro de Resolución de Turno
+    avanzarTurno() {
+        if (estado.colapsoSistemico) return;
+
+        // FASE 1: Drenaje de Supervivencia (Cobro de Costo de Vida)
+        estado.liquidez -= estado.gastoCorriente;
+        this.registrarConsola(`DEDUCCIÓN OPERATIVA: COSTE DE VIDA MENSUAL -${formatearMoneda(estado.gastoCorriente)} MXN`, "malo");
+
+        // FASE 2: Recaudación de Rendimientos (Generación de Efectivo Pasivo)
+        let dividendosBrutosTotales = 0;
+        let dividendosNetosTotales = 0;
+        
+        corporaciones.forEach(empresa => {
+            if (empresa.acciones > 0) {
+                // El rendimiento está anualizado en la base de datos. Se fracciona por 12 meses.
+                const dividendoMensualBruto = (empresa.acciones * empresa.precioActual * empresa.rendimiento) / 12;
+                const dividendoMensualNeto = dividendoMensualBruto * (1 - estado.impuestoDividendos);
+                dividendosBrutosTotales += dividendoMensualBruto;
+                dividendosNetosTotales += dividendoMensualNeto;
+            }
+        });
+
+        if (dividendosNetosTotales > 0) {
+            estado.liquidez += dividendosNetosTotales;
+            this.registrarConsola(`INGRESO PASIVO ACREDITADO: +${formatearMoneda(dividendosNetosTotales)} MXN (Tasa Retención Fiscal: ${estado.impuestoDividendos * 100}%)`, "bueno");
+        }
+
+        // FASE 3: Verificación de Insolvencia (Condición de Derrota)
+        if (estado.liquidez < 0) {
+            this.desencadenarColapso();
+            return; // Detiene la ejecución del script
+        }
+
+        // FASE 4: Alteración del Entorno Macroeconómico
+        estado.mes++;
+        
+        // Modelado de la Erosión del Poder Adquisitivo (Inflación Compuesta)
+        estado.gastoCorriente = estado.gastoCorriente * (1 + estado.inflacionMensual);
+
+        // Transición de Régimen Político: Cada 12 ciclos (1 Año Fiscal)
+        if (estado.mes % 12 === 0) {
+            this.modificarRegimenPolitico();
+        }
+
+        // Evaluación de Probabilidad de Cisnes Negros y Shocks Sistémicos
+        this.evaluarChoquesEstocasticos();
+
+        // FASE 5: Descubrimiento de Precios (Motor de Movimiento Browniano Geométrico)
+        corporaciones.forEach(empresa => {
+            const dt = 1; // Discretización de tiempo (1 turno = 1 mes)
+            const mu = empresa.deriva + estado.politica.modificadorDeriva;
+            const sigma = empresa.volatilidad * estado.politica.modificadorVolatilidad;
+            
+            // Lógica matemática del MBG: S_t * exp((mu - sigma^2/2)*dt + sigma*sqrt(dt)*Z)
+            const variableZ = generarNormalEstandar();
+            const terminoDeriva = (mu - (Math.pow(sigma, 2) / 2)) * dt;
+            const terminoChoque = sigma * Math.sqrt(dt) * variableZ;
+            
+            const multiplicadorPrecio = Math.exp(terminoDeriva + terminoChoque);
+            empresa.precioActual = empresa.precioActual * multiplicadorPrecio;
+            
+            // Salvaguarda matemática para evitar que un activo valga exactamente cero absoluto o negativo
+            if (empresa.precioActual < 0.5) empresa.precioActual = 0.5 + Math.random();
+        });
+
+        // FASE 6: Repintado del Documento
+        this.renderizarInterfaz();
+    },
+
+    modificarRegimenPolitico() {
+        const ideologias =;
+        const nuevaIdeologia = ideologias[Math.floor(Math.random() * ideologias.length)];
+        estado.politica.actual = nuevaIdeologia;
+
+        // Ajuste dinámico de dificultad alterando las variables subyacentes
+        switch(nuevaIdeologia) {
+            case "Liberal":
+                estado.impuestoDividendos = 0.05; // Fuerte incentivo a retornos
+                estado.politica.modificadorVolatilidad = 1.7; // Especulación masiva, alto riesgo de caídas
+                estado.politica.modificadorDeriva = 0.005; // Tendencia de mercado alcista
+                estado.inflacionMensual = 0.004; // Inflación controlada
+                break;
+            case "Socialista":
+                estado.impuestoDividendos = 0.35; // Compresión drástica de rendimientos al jugador
+                estado.politica.modificadorVolatilidad = 0.5; // Controles de capital suprimen volatilidad
+                estado.politica.modificadorDeriva = -0.002; // Estancamiento del capital
+                estado.inflacionMensual = 0.002; // Controles de precios mitigan inflación
+                break;
+            case "Nacionalista":
+                estado.impuestoDividendos = 0.15;
+                estado.politica.modificadorVolatilidad = 1.3;
+                estado.politica.modificadorDeriva = -0.004; // Presión sobre empresas multinacionales
+                estado.inflacionMensual = 0.018; // PUNTO DE RUPTURA: Espiral hiperinflacionaria (1.8% mensual comp.)
+                break;
+        }
+        
+        this.registrarConsola(`[!] ALERTA DE TRANSICIÓN DE RÉGIMEN: EL GOBIERNO HA VIRADO HACIA POLÍTICAS [${nuevaIdeologia.toUpperCase()}]`, "alerta");
+        this.registrarConsola(`NUEVAS DIRECTRICES: ${estado.politica.descripciones[nuevaIdeologia]}`, "alerta");
+    },
+
+    evaluarChoquesEstocasticos() {
+        // Evento Global: Mercado Bajista (Corrección Abrupta)
+        // La alta volatilidad política incrementa esta probabilidad subyacente.
+        const probabilidadBearMarket = estado.politica.actual === "Liberal"? 0.08 : 0.04;
+        const eventoBearMarket = Math.random() < probabilidadBearMarket;
+        
+        if (eventoBearMarket) {
+            this.registrarConsola("SHOCK MACROECONÓMICO DETECTADO: DESPLOME MASIVO DE MERCADOS BURSÁTILES.", "malo");
+            corporaciones.forEach(empresa => {
+                // Caída brutal forzada entre el 12% y el 28%
+                const factorDepreciacion = 0.72 + (Math.random() * 0.16); 
+                empresa.precioActual *= factorDepreciacion;
+            });
+        }
+
+        // Evento Microeconómico: Recorte de Dividendos por Asfixia de Deuda
+        // Ocurre bajo estrés extremo (Altas tasas en el Nacionalismo, compresión de márgenes en Socialismo, o crisis bajista)
+        const entornoEstrés = (estado.politica.actual === "Nacionalista" |
+
+| estado.politica.actual === "Socialista" |
+| eventoBearMarket);
+        
+        if (entornoEstrés) {
+            corporaciones.forEach(empresa => {
+                // Solo las corporaciones altamente apalancadas corren riesgo mortal
+                if (empresa.nivelDeuda === "Alto" && Math.random() < 0.25) { // 25% de probabilidad bajo estrés
+                    // El dividendo de la empresa se acuchilla para pagar servicio de deuda
+                    empresa.rendimiento = empresa.rendimiento * 0.40; // Pierde 60% de su capacidad de pago
+                    this.registrarConsola(`COLAPSO DE SOLVENCIA: [${empresa.ticker}] RECORTA SU YIELD EN UN 60% PARA EVITAR BANCARROTA POR DEUDA.`, "malo");
+                }
+            });
+        }
+
+        // Choque de Hiperinflación Exógena
+        if (estado.politica.actual === "Nacionalista" && Math.random() < 0.15) {
+            const multiplicadorChoque = 1.12; // Un pico instantáneo del 12% en el costo base de vida
+            estado.gastoCorriente *= multiplicadorChoque;
+            this.registrarConsola("RUPTURA DE CADENA DE SUMINISTRO LOCAL. INFLACIÓN DISPARA COSTOS BÁSICOS OPERATIVOS UN 12% INSTANTÁNEAMENTE.", "malo");
+        }
+    },
+
+    desencadenarColapso() {
+        estado.colapsoSistemico = true;
+        const botonAvanzar = document.getElementById("next-month-btn");
+        botonAvanzar.disabled = true;
+        botonAvanzar.innerText = "";
+        
+        let valorFinalCartera = 0;
+        corporaciones.forEach(c => valorFinalCartera += (c.acciones * c.precioActual));
+
+        document.getElementById("go-months").innerText = estado.mes;
+        document.getElementById("go-port").innerText = formatearMoneda(valorFinalCartera) + " MXN";
+        document.getElementById("game-over").style.display = "block";
+    },
+
+    // --- 4. RENDERIZADOR DE INTERFAZ DE USUARIO (VISTA) ---
+
+    renderizarInterfaz() {
+        // Actualización de Métricas de Cabecera
+        document.getElementById("ui-month").innerText = estado.mes;
+        const elementoPolitica = document.getElementById("ui-politics");
+        elementoPolitica.innerText = estado.politica.actual.toUpperCase();
+        
+        // Limpieza y reasignación de paleta de colores para el clima político
+        elementoPolitica.className = "";
+        if(estado.politica.actual === "Liberal") elementoPolitica.classList.add("green");
+        else if(estado.politica.actual === "Socialista" |
+
+| estado.politica.actual === "Nacionalista") elementoPolitica.classList.add("red");
+        else elementoPolitica.classList.add("amber");
+
+        // Actualización de Matriz de Supervivencia Principal
+        const elementoLiquidez = document.getElementById("ui-cash");
+        elementoLiquidez.innerText = formatearMoneda(estado.liquidez);
+        // Advertencia visual periférica si la liquidez cae por debajo de 2 meses de supervivencia base
+        elementoLiquidez.className = `stat-value ${estado.liquidez < (estado.gastoCorriente * 2)? 'red' : 'green'}`;
+
+        document.getElementById("ui-expenses").innerText = `-${formatearMoneda(estado.gastoCorriente)}`;
+
+        // Cálculos iterativos del Portafolio para la Inyección en el DOM
+        let valorTotalPortafolio = 0;
+        let proyeccionIngresoMensual = 0;
+        const cuerpoTablaMercado = document.getElementById("market-body");
+        cuerpoTablaMercado.innerHTML = ""; // Vaciado estricto del nodo para evitar fugas de memoria
+
+        corporaciones.forEach((empresa, indiceArray) => {
+            // Agregación algorítmica del valor subyacente
+            valorTotalPortafolio += (empresa.acciones * empresa.precioActual);
+            // Cálculo del ingreso proyectado neto deducido de la carga fiscal política
+            proyeccionIngresoMensual += (empresa.acciones * empresa.precioActual * empresa.rendimiento / 12) * (1 - estado.impuestoDividendos);
+
+            // Generación de Elementos de Interfaz Tabular
+            const filaDOM = document.createElement("tr");
+            
+            // Codificación Semántica Estricta del Nivel de Deuda (Riesgo del Payout)
+            let colorDeuda = empresa.nivelDeuda === "Alto"? "red" : empresa.nivelDeuda === "Bajo"? "green" : "amber";
+
+            filaDOM.innerHTML = `
+                <td><strong>${empresa.nombre} [${empresa.ticker}]</strong></td>
+                <td style="color: #aaa;">${empresa.sector}</td>
+                <td>${formatearMoneda(empresa.precioActual)}</td>
+                <td class="green">${(empresa.rendimiento * 100).toFixed(2)}%</td>
+                <td><span class="${colorDeuda}">${empresa.nivelDeuda}</span> / ${(empresa.ratioPago * 100).toFixed(0)}%</td>
+                <td class="amber">${empresa.acciones}</td>
+                <td>
+                    <button class="btn-buy" onclick="motorSimulacion.ejecutarTransaccion(${indiceArray}, 5)">COMP 5</button>
+                    <button class="btn-sell" onclick="motorSimulacion.ejecutarTransaccion(${indiceArray}, -5)" ${empresa.acciones < 5? 'disabled' : ''}>VENT 5</button>
+                </td>
+            `;
+            cuerpoTablaMercado.appendChild(filaDOM);
+        });
+
+        // Montaje de Cálculos de Retorno en la UI Principal
+        document.getElementById("ui-portfolio").innerText = formatearMoneda(valorTotalPortafolio);
+        const elementoIngreso = document.getElementById("ui-income");
+        elementoIngreso.innerText = formatearMoneda(proyeccionIngresoMensual);
+        
+        // El punto de victoria teórica de supervivencia: cuando el flujo pasivo cruza y neutraliza el gasto inflacionario
+        elementoIngreso.className = `stat-value ${proyeccionIngresoMensual >= estado.gastoCorriente? 'green' : 'amber'}`;
+    }
+};
+
+// Arranque de Arquitectura del Sistema
+motorSimulacion.inicializar();
+
+</script>
+</body>
+</html>
