@@ -218,6 +218,10 @@
                 <label for="pmt">Aportación Anual (Ahorro)</label>
                 <input type="number" id="pmt" placeholder="Ej. 1200" value="0">
             </div>
+            <div class="input-group">
+                <label for="step-up">Aumento Anual al Ahorro (%)</label>
+                <input type="number" id="step-up" placeholder="Ej. 4" value="0">
+            </div>
 
             <div class="input-group">
                 <label for="rate">Tasa de Interés Anual (%)</label>
@@ -266,7 +270,8 @@
 
     <script>
         function executeCalculation() {
-            const P = parseFloat(document.getElementById('principal').value);
+            let PMT = parseFloat(document.getElementById('pmt').value) || 0; 
+            const stepUpRate = (parseFloat(document.getElementById('step-up').value) || 0) / 100;
             const PMT = parseFloat(document.getElementById('pmt').value) || 0; 
             const r_percent = parseFloat(document.getElementById('rate').value);
             const n = parseFloat(document.getElementById('frequency').value);
@@ -305,6 +310,8 @@
                 </tr>`;
                 
                 tableBody.innerHTML += row;
+                // Aumentar la aportación para el año siguiente
+                PMT = PMT * (1 + stepUpRate);
             }
 
             document.getElementById('table-container').style.display = 'block';
