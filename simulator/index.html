@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Financiera - Interés Compuesto v3</title>
+    <title>Terminal Financiera - Interés Compuesto v4</title>
     <style>
         :root {
             --neon-green: #39ff14;
             --neon-pink: #ff007f;
             --neon-cyan: #00f3ff;
+            --neon-yellow: #ffea00;
             --bg-color: #050505;
             --grid-color: rgba(0, 243, 255, 0.08);
         }
@@ -30,7 +31,6 @@
             box-sizing: border-box;
         }
 
-        /* Contenedor principal para poner elementos lado a lado */
         .main-wrapper {
             display: flex;
             flex-wrap: wrap;
@@ -55,17 +55,15 @@
             flex-shrink: 0;
         }
 
-        /* Estilos para el nuevo contenedor de la tabla */
         .table-container {
             flex-grow: 1;
             min-width: 300px;
             max-width: 500px;
-            max-height: 550px;
-            overflow-y: auto; /* Permite hacer scroll si son muchos años */
-            display: none; /* Oculto por defecto hasta calcular */
+            max-height: 650px;
+            overflow-y: auto;
+            display: none;
         }
 
-        /* Estilos de la barra de scroll (Webkit) */
         .table-container::-webkit-scrollbar {
             width: 8px;
         }
@@ -151,11 +149,15 @@
 
         #result {
             margin-top: 25px;
-            font-size: 1.1em;
+            font-size: 1em;
             color: var(--neon-green);
             text-shadow: 0 0 5px var(--neon-green);
             min-height: 2em;
             word-wrap: break-word;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border: 1px dashed var(--neon-cyan);
         }
 
         .sys-msg {
@@ -165,7 +167,6 @@
             text-align: right;
         }
 
-        /* Estilos de la tabla retro punk */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -206,7 +207,7 @@
 
     <div class="main-wrapper">
         <div class="terminal-container">
-            <h1>SYS.CALC // v3.0</h1>
+            <h1>SYS.CALC // v4.0</h1>
 
             <div class="input-group">
                 <label for="principal">Capital Inicial (P)</label>
@@ -242,7 +243,7 @@
 
             <div id="result">Esperando parámetros...</div>
 
-            <div class="sys-msg">STATUS: ONLINE</div>
+            <div class="sys-msg">STATUS: ONLINE | INFLACIÓN: 4%</div>
         </div>
 
         <div class="table-container" id="table-container">
@@ -251,9 +252,10 @@
                 <thead>
                     <tr>
                         <th>AÑO</th>
-                        <th>INVERSIÓN TOTAL</th>
-                        <th>INTERÉS ACUMULADO</th>
-                        <th>BALANCE FINAL</th>
+                        <th>INVERTIDO</th>
+                        <th>INTERÉS</th>
+                        <th>NOMINAL</th>
+                        <th style="color: var(--neon-yellow); text-shadow: 0 0 3px var(--neon-yellow);">REAL (-4%)</th>
                     </tr>
                 </thead>
                 <tbody id="table-body">
@@ -271,53 +273,56 @@
             const t = parseFloat(document.getElementById('time').value);
 
             if (isNaN(P) || isNaN(r_percent) || isNaN(n) || isNaN(t) || t <= 0) {
-                document.getElementById('result').innerHTML = "<span style='color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);'>ERROR: FALTAN PARÁMETROS.</span>";
+                document.getElementById('result').innerHTML = "<span style='color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); text-align: center; display: block;'>ERROR: FALTAN PARÁMETROS.</span>";
                 return;
             }
 
             const r = r_percent / 100;
+            const inflationRate = 0.04; // 4% de inflación fija
             
-            // Lógica para la tabla de amortización año con año
             let currentBalance = P;
             let totalInvested = P;
             
             const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = ''; // Limpiar la tabla antes de imprimir nuevos datos
+            tableBody.innerHTML = ''; 
 
             for (let year = 1; year <= t; year++) {
-                // Calcular crecimiento del balance actual durante 1 año
+                // Cálculo de interés compuesto del año
                 let balanceAfterCompounding = currentBalance * Math.pow(1 + (r / n), n);
-                
-                // Sumar la aportación anual al final del año
                 currentBalance = balanceAfterCompounding + PMT;
-                
-                // Actualizar el total de dinero salido de tu bolsillo
                 totalInvested += PMT;
-                
-                // Calcular el interés acumulado histórico
                 let accumulatedInterest = currentBalance - totalInvested;
 
-                // Crear la fila de la tabla
+                // Cálculo del poder adquisitivo real ajustado a la inflación de ese año
+                let realPurchasingPower = currentBalance / Math.pow(1 + inflationRate, year);
+
                 let row = `<tr>
                     <td>[ ${year} ]</td>
                     <td>$${totalInvested.toFixed(2)}</td>
                     <td class="highlight">$${accumulatedInterest.toFixed(2)}</td>
                     <td>$${currentBalance.toFixed(2)}</td>
+                    <td style="color: var(--neon-yellow);">$${realPurchasingPower.toFixed(2)}</td>
                 </tr>`;
                 
                 tableBody.innerHTML += row;
             }
 
-            // Mostrar el contenedor de la tabla
             document.getElementById('table-container').style.display = 'block';
 
-            // Resumen en la terminal izquierda
             const finalInterest = currentBalance - totalInvested;
+            const finalRealBalance = currentBalance / Math.pow(1 + inflationRate, t);
 
+            // Resumen formateado en la terminal
             document.getElementById('result').innerHTML = 
-                `> BALANCE FINAL: <br><span style="font-size: 1.4em; color: #fff;">$${currentBalance.toFixed(2)}</span><br><br>` +
-                `<span style="font-size: 0.8em; color: var(--neon-cyan);">> TOTAL INVERTIDO: $${totalInvested.toFixed(2)}</span><br>` +
-                `<span style="font-size: 0.8em; color: var(--neon-pink);">> GANANCIA PURA: $${finalInterest.toFixed(2)}</span>`;
+                `<span style="color: #fff; font-size: 0.9em;">> BALANCE NOMINAL FINAL:</span><br>` +
+                `<span style="font-size: 1.4em; color: #fff; display: block; margin-bottom: 10px;">$${currentBalance.toFixed(2)}</span>` +
+                
+                `<span style="font-size: 0.85em; color: var(--neon-cyan);">> TOTAL INVERTIDO: $${totalInvested.toFixed(2)}</span><br>` +
+                `<span style="font-size: 0.85em; color: var(--neon-pink);">> GANANCIA PURA: $${finalInterest.toFixed(2)}</span><br><br>` +
+
+                `<span style="color: var(--neon-yellow); font-size: 0.9em; text-shadow: 0 0 5px var(--neon-yellow);">> PODER ADQUISITIVO REAL:</span><br>` +
+                `<span style="font-size: 1.4em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block;">$${finalRealBalance.toFixed(2)}</span>` +
+                `<span style="font-size: 0.7em; color: rgba(255,255,255,0.6);">(Descontando 4% inflación anual)</span>`;
         }
     </script>
 
