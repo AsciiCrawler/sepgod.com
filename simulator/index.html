@@ -293,119 +293,106 @@ body { flex-direction: column; }
 </div>
 
     <script>
-        let myChart = null;
-        function executeCalculation() {
-            const P = parseFloat(document.getElementById('principal').value);
-            let PMT = parseFloat(document.getElementById('pmt').value) || 0; 
-            const stepUpRate = (parseFloat(document.getElementById('step-up').value) || 0) / 100;
-            const r_percent = parseFloat(document.getElementById('rate').value);
-            const n = parseFloat(document.getElementById('frequency').value);
-            const t = parseFloat(document.getElementById('time').value);
+    let myChart = null;
+    
+    function executeCalculation() {
+        const P = parseFloat(document.getElementById('principal').value);
+        let PMT = parseFloat(document.getElementById('pmt').value) || 0; 
+        const stepUpRate = (parseFloat(document.getElementById('step-up').value) || 0) / 100;
+        const r_percent = parseFloat(document.getElementById('rate').value);
+        const n = parseFloat(document.getElementById('frequency').value);
+        const t = parseFloat(document.getElementById('time').value);
 
-            if (isNaN(P) || isNaN(r_percent) || isNaN(n) || isNaN(t) || t <= 0) {
-                document.getElementById('result').innerHTML = "<span style='color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); text-align: center; display: block;'>ERROR: FALTAN PARÁMETROS.</span>";
-                return;
-            }
-
-            const r = r_percent / 100;
-            const inflationRate = 0.04; // 4% de inflación fija
-            
-            let currentBalance = P;
-            let totalInvested = P;
-            
-            const tableBody = document.getElementById('table-body');
-          const tableBody = document.getElementById('table-body');
-tableBody.innerHTML = ''; 
-
-// NUEVO: Arreglos para el gráfico
-let chartLabels = [0];
-let chartDataInvested = [P];
-let chartDataNominal = [P];
-let chartDataReal = [P];
-
-for (let year = 1; year <= t; year++) {
-    let balanceAfterCompounding = currentBalance * Math.pow(1 + (r / n), n);
-    currentBalance = balanceAfterCompounding + PMT;
-    totalInvested += PMT;
-    let accumulatedInterest = currentBalance - totalInvested;
-    let realPurchasingPower = currentBalance / Math.pow(1 + inflationRate, year);
-
-    let row = `<tr>
-        <td>[ ${year} ]</td>
-        <td>$${totalInvested.toFixed(2)}</td>
-        <td class="highlight">$${accumulatedInterest.toFixed(2)}</td>
-        <td>$${currentBalance.toFixed(2)}</td>
-        <td style="color: var(--neon-yellow);">$${realPurchasingPower.toFixed(2)}</td>
-    </tr>`;
-    tableBody.innerHTML += row;
-
-    // NUEVO: Guardar datos iterados
-    chartLabels.push(year);
-    chartDataInvested.push(totalInvested.toFixed(2));
-    chartDataNominal.push(currentBalance.toFixed(2));
-    chartDataReal.push(realPurchasingPower.toFixed(2));
-
-    PMT = PMT * (1 + stepUpRate);
-}
-
-document.getElementById('table-container').style.display = 'block';
-document.getElementById('chart-container').style.display = 'block'; // Mostrar gráfico
-
-const finalInterest = currentBalance - totalInvested;
-const finalRealBalance = currentBalance / Math.pow(1 + inflationRate, t);
-
-document.getElementById('result').innerHTML = 
-    `<span style="color: #fff; font-size: 0.9em;">> BALANCE NOMINAL FINAL:</span><br>` +
-    `<span style="font-size: 1.4em; color: #fff; display: block; margin-bottom: 10px;">$${currentBalance.toFixed(2)}</span>` +
-    `<span style="font-size: 0.85em; color: var(--neon-cyan);">> TOTAL INVERTIDO: $${totalInvested.toFixed(2)}</span><br>` +
-    `<span style="font-size: 0.85em; color: var(--neon-pink);">> GANANCIA PURA: $${finalInterest.toFixed(2)}</span><br><br>` +
-    `<span style="color: var(--neon-yellow); font-size: 0.9em; text-shadow: 0 0 5px var(--neon-yellow);">> PODER ADQUISITIVO REAL:</span><br>` +
-    `<span style="font-size: 1.4em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block;">$${finalRealBalance.toFixed(2)}</span>` +
-    `<span style="font-size: 0.7em; color: rgba(255,255,255,0.6);">(Descontando 4% inflación anual)</span>`;
-
-// NUEVO: Dibujar el gráfico al final de la secuencia
-renderChart(chartLabels, chartDataInvested, chartDataNominal, chartDataReal);
-
-            // Resumen formateado en la terminal
-            document.getElementById('result').innerHTML = 
-                `<span style="color: #fff; font-size: 0.9em;">> BALANCE NOMINAL FINAL:</span><br>` +
-                `<span style="font-size: 1.4em; color: #fff; display: block; margin-bottom: 10px;">$${currentBalance.toFixed(2)}</span>` +
-                
-                `<span style="font-size: 0.85em; color: var(--neon-cyan);">> TOTAL INVERTIDO: $${totalInvested.toFixed(2)}</span><br>` +
-                `<span style="font-size: 0.85em; color: var(--neon-pink);">> GANANCIA PURA: $${finalInterest.toFixed(2)}</span><br><br>` +
-
-                `<span style="color: var(--neon-yellow); font-size: 0.9em; text-shadow: 0 0 5px var(--neon-yellow);">> PODER ADQUISITIVO REAL:</span><br>` +
-                `<span style="font-size: 1.4em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block;">$${finalRealBalance.toFixed(2)}</span>` +
-                `<span style="font-size: 0.7em; color: rgba(255,255,255,0.6);">(Descontando 4% inflación anual)</span>`;
+        if (isNaN(P) || isNaN(r_percent) || isNaN(n) || isNaN(t) || t <= 0) {
+            document.getElementById('result').innerHTML = "<span style='color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); text-align: center; display: block;'>ERROR: FALTAN PARÁMETROS.</span>";
+            return;
         }
 
-        function renderChart(labels, dataInvested, dataNominal, dataReal) {
-    const ctx = document.getElementById('growthChart').getContext('2d');
-    if (myChart !== null) myChart.destroy();
-
-    myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                { label: 'Total Invertido', data: dataInvested, borderColor: '#ff007f', backgroundColor: 'rgba(255, 0, 127, 0.1)', borderWidth: 2, fill: true, tension: 0.3 },
-                { label: 'Balance Nominal', data: dataNominal, borderColor: '#00f3ff', backgroundColor: 'rgba(0, 243, 255, 0.1)', borderWidth: 2, fill: true, tension: 0.3 },
-                { label: 'Real (-4% Inflación)', data: dataReal, borderColor: '#ffea00', backgroundColor: 'rgba(255, 234, 0, 0.1)', borderWidth: 2, fill: true, tension: 0.3 }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: '#00f3ff', font: { family: "'Courier New', Courier, monospace" } } } },
-            scales: {
-                x: { grid: { color: 'rgba(0, 243, 255, 0.1)' }, ticks: { color: '#39ff14', font: { family: "'Courier New', Courier, monospace" } }, title: { display: true, text: 'AÑOS', color: '#ff007f', font: { family: "'Courier New', Courier, monospace" } } },
-                y: { grid: { color: 'rgba(0, 243, 255, 0.1)' }, ticks: { color: '#39ff14', font: { family: "'Courier New', Courier, monospace" }, callback: function(value) { return '$' + value; } } }
-            }
-        }
-    });
-}
-
+        const r = r_percent / 100;
+        const inflationRate = 0.04; // 4% de inflación fija
         
-    </script>
+        let currentBalance = P;
+        let totalInvested = P;
+        
+        const tableBody = document.getElementById('table-body');
+        tableBody.innerHTML = ''; 
+
+        // Arreglos para el gráfico
+        let chartLabels = [0];
+        let chartDataInvested = [P];
+        let chartDataNominal = [P];
+        let chartDataReal = [P];
+
+        for (let year = 1; year <= t; year++) {
+            let balanceAfterCompounding = currentBalance * Math.pow(1 + (r / n), n);
+            currentBalance = balanceAfterCompounding + PMT;
+            totalInvested += PMT;
+            let accumulatedInterest = currentBalance - totalInvested;
+            let realPurchasingPower = currentBalance / Math.pow(1 + inflationRate, year);
+
+            let row = `<tr>
+                <td>[ ${year} ]</td>
+                <td>$${totalInvested.toFixed(2)}</td>
+                <td class="highlight">$${accumulatedInterest.toFixed(2)}</td>
+                <td>$${currentBalance.toFixed(2)}</td>
+                <td style="color: var(--neon-yellow);">$${realPurchasingPower.toFixed(2)}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+
+            // Guardar datos iterados
+            chartLabels.push(year);
+            chartDataInvested.push(totalInvested.toFixed(2));
+            chartDataNominal.push(currentBalance.toFixed(2));
+            chartDataReal.push(realPurchasingPower.toFixed(2));
+
+            PMT = PMT * (1 + stepUpRate);
+        }
+
+        document.getElementById('table-container').style.display = 'block';
+        document.getElementById('chart-container').style.display = 'block';
+
+        const finalInterest = currentBalance - totalInvested;
+        const finalRealBalance = currentBalance / Math.pow(1 + inflationRate, t);
+
+        // Resumen formateado en la terminal
+        document.getElementById('result').innerHTML = 
+            `<span style="color: #fff; font-size: 0.9em;">> BALANCE NOMINAL FINAL:</span><br>` +
+            `<span style="font-size: 1.4em; color: #fff; display: block; margin-bottom: 10px;">$${currentBalance.toFixed(2)}</span>` +
+            `<span style="font-size: 0.85em; color: var(--neon-cyan);">> TOTAL INVERTIDO: $${totalInvested.toFixed(2)}</span><br>` +
+            `<span style="font-size: 0.85em; color: var(--neon-pink);">> GANANCIA PURA: $${finalInterest.toFixed(2)}</span><br><br>` +
+            `<span style="color: var(--neon-yellow); font-size: 0.9em; text-shadow: 0 0 5px var(--neon-yellow);">> PODER ADQUISITIVO REAL:</span><br>` +
+            `<span style="font-size: 1.4em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block;">$${finalRealBalance.toFixed(2)}</span>` +
+            `<span style="font-size: 0.7em; color: rgba(255,255,255,0.6);">(Descontando 4% inflación anual)</span>`;
+
+        // Dibujar el gráfico al final de la secuencia
+        renderChart(chartLabels, chartDataInvested, chartDataNominal, chartDataReal);
+    }
+
+    function renderChart(labels, dataInvested, dataNominal, dataReal) {
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        if (myChart !== null) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Total Invertido', data: dataInvested, borderColor: '#ff007f', backgroundColor: 'rgba(255, 0, 127, 0.1)', borderWidth: 2, fill: true, tension: 0.3 },
+                    { label: 'Balance Nominal', data: dataNominal, borderColor: '#00f3ff', backgroundColor: 'rgba(0, 243, 255, 0.1)', borderWidth: 2, fill: true, tension: 0.3 },
+                    { label: 'Real (-4% Inflación)', data: dataReal, borderColor: '#ffea00', backgroundColor: 'rgba(255, 234, 0, 0.1)', borderWidth: 2, fill: true, tension: 0.3 }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: '#00f3ff', font: { family: "'Courier New', Courier, monospace" } } } },
+                scales: {
+                    x: { grid: { color: 'rgba(0, 243, 255, 0.1)' }, ticks: { color: '#39ff14', font: { family: "'Courier New', Courier, monospace" } }, title: { display: true, text: 'AÑOS', color: '#ff007f', font: { family: "'Courier New', Courier, monospace" } } },
+                    y: { grid: { color: 'rgba(0, 243, 255, 0.1)' }, ticks: { color: '#39ff14', font: { family: "'Courier New', Courier, monospace" }, callback: function(value) { return '$' + value; } } }
+                }
+            }
+        });
+    }
+</script>
 
 </body>
 </html>
