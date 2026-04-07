@@ -238,11 +238,11 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="dividend-growth">Crecimiento Anual del Dividendo (DGI)</label>
+                    <label for="dividend-growth">Expansión Anual del Yield (DGI)</label>
                     <select id="dividend-growth">
-                        <option value="0">Estático / Sin crecimiento (0%)</option>
-                        <option value="0.05">Promedio BMV Sólido (+5% anual)</option>
-                        <option value="0.08">Superior / FEMSA style (+8% anual)</option>
+                        <option value="0">Estático / Sin expansión (Yield fijo)</option>
+                        <option value="0.01">Promedio BMV (+1% expansión anual)</option>
+                        <option value="0.03">Superior / Aristócrata (+3% expansión anual)</option>
                     </select>
                 </div>
                 <div class="input-group" style="margin-bottom: 0;">
@@ -296,7 +296,6 @@
         minimumFractionDigits: 2
     });
 
-    // LÓGICA DEL PRESUPUESTO EN TIEMPO REAL
     function updateBudget() {
         const income = parseFloat(document.getElementById('b-income').value) || 0;
         const rent = parseFloat(document.getElementById('b-rent').value) || 0;
@@ -323,7 +322,6 @@
         }
     }
 
-    // TRANSFERIR PRESUPUESTO AL SIMULADOR
     function transferToSimulator() {
         const income = parseFloat(document.getElementById('b-income').value) || 0;
         const rent = parseFloat(document.getElementById('b-rent').value) || 0;
@@ -376,12 +374,7 @@
         const divYield = divYield_percent / 100;
         const inflationRate = 0.04; 
         
-        // Tasa real efectiva mensual (interés compuesto del precio de la acción)
         const effectiveMonthlyRate = Math.pow(1 + (r / n), n / 12) - 1;
-        
-        // CÁLCULO PRO: El APY es el crecimiento real de la acción tras 12 meses de capitalización mensual
-        const annualAPY = Math.pow(1 + effectiveMonthlyRate, 12) - 1;
-
         let monthlyDividendRate = divYield / 12; 
         
         let currentBalance = P;
@@ -429,8 +422,9 @@
             // Step-up del ahorro del usuario
             monthlyPMT = monthlyPMT * (1 + stepUpRate);
             
-            // CORRECCIÓN MATEMÁTICA EXACTA: Descontamos el APY anual real de la acción en lugar de la tasa 'r' nominal
-            monthlyDividendRate = monthlyDividendRate * ((1 + divGrowthRate) / (1 + annualAPY));
+            // CORRECCIÓN EXACTA: Si eligen 0%, el Yield porcentual se queda estático al 5%.
+            // Si eligen > 0%, el Yield porcentual se expande anualmente (Efecto DGI Real).
+            monthlyDividendRate = monthlyDividendRate * (1 + divGrowthRate);
         }
 
         document.getElementById('table-body').innerHTML = rowsHTML; 
