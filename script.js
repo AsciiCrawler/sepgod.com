@@ -136,16 +136,87 @@ const printLog = (txt, err = false) => {
     if(terminalLogs.childElementCount > 35) terminalLogs.firstElementChild.remove(); 
 };
 
+// =========================================================================
+// SISTEMA DE TERMINAL CON EASTER EGG DE LAIN (THE WIRED)
+// =========================================================================
+let isWiredConnected = false;
+const lainQuotes = [
+    "No matter where you are, everyone is always connected.",
+    "The Wired isn't a different world.",
+    "Presences are just scattered data.",
+    "Close the world, Open the nExt.",
+    "If you're not remembered, then you never existed.",
+    "Are you God?",
+    "Me? I'm Lain. Who are you?",
+    "Everybody is connected.",
+    "I don't need a physical body."
+];
+
 document.getElementById('cmd-input').onkeydown = e => {
     if (e.key === 'Enter' && e.target.value.trim() !== '') {
-        const cmd = e.target.value.toLowerCase(); 
-        e.target.value = ''; 
-        printLog(`> ${cmd}`, false); 
+        const cmd = e.target.value.trim().toLowerCase();
+        e.target.value = ''; // Limpiamos el input
         
-        if(cmd === 'help') printLog("CMDS: clear, reboot, hack"); 
-        else if(cmd === 'clear') terminalLogs.innerHTML = ''; 
-        else if(cmd === 'reboot') location.reload(); 
+        // --- ESTADO 1: MODO WIRED (MINI CHATBOT) ---
+        if (isWiredConnected) {
+            printLog(`[TÚ]: ${cmd}`, false);
+            
+            // Comando para salir del easter egg
+            if (cmd === 'disconnect' || cmd === 'exit') {
+                isWiredConnected = false;
+                printLog("> CERRANDO PROTOCOLO NAVI...", true);
+                setTimeout(() => printLog("> DESCONECTADO DEL WIRED.", false), 1000);
+                return;
+            }
+            
+            // Si escribe cualquier otra cosa, Lain responde después de un pequeño retraso
+            setTimeout(() => {
+                const randomQuote = lainQuotes[Math.floor(Math.random() * lainQuotes.length)];
+                // Usamos un color especial (morado neón) para que se distinga que es Lain
+                const time = new Date().toLocaleTimeString('en-US',{hour12:false}); 
+                terminalLogs.innerHTML += `<div style="color: #b142ff">[${time}] [LAIN]: ${randomQuote}</div>`;
+                terminalLogs.scrollTop = terminalLogs.scrollHeight; 
+                playBeep(250, 'sine'); // Sonidito misterioso
+            }, 800);
+            return;
+        }
+
+        // --- ESTADO 2: TERMINAL NORMAL ---
+        printLog(`> ${cmd}`, false);
+        
+        if (cmd === 'help') {
+            printLog("CMDS: clear, reboot, hack, navi"); // Agregamos 'navi' como pista
+        } 
+        else if (cmd === 'clear') {
+            terminalLogs.innerHTML = ''; 
+        } 
+        else if (cmd === 'reboot') {
+            location.reload(); 
+        } 
+        // --> AQUI ESTÁ EL TRIGGER DEL EASTER EGG <--
+        else if (cmd === 'navi' || cmd === 'wired' || cmd === 'lain') {
+            printLog("> INICIANDO PROTOCOLO NAVI...", false);
+            
+            setTimeout(() => {
+                isWiredConnected = true;
+                
+                // Efecto de glitch global al entrar
+                const crt = document.getElementById('crt-screen');
+                if(crt) {
+                    crt.classList.add('global-glitch');
+                    setTimeout(() => crt.classList.remove('global-glitch'), 600);
+                }
+                
+                printLog("================================", false);
+                printLog(" CONEXIÓN AL WIRED ESTABLECIDA", false);
+                printLog(" USUARIO: LAIN DETECTADA", false);
+                printLog(" (Escribe 'disconnect' para salir)", true);
+                printLog("================================", false);
+                playBeep(400, 'square'); 
+            }, 1200);
+        }
         else if (cmd === 'hack') { 
+            // Tu lógica de hack actual se mantiene intacta
             document.getElementById('crt-screen').classList.add('global-glitch'); 
             const pre = document.createElement('pre'); 
             pre.className = 'hack-art-output'; 
@@ -154,10 +225,11 @@ document.getElementById('cmd-input').onkeydown = e => {
             terminalLogs.scrollTop = terminalLogs.scrollHeight; 
             setTimeout(() => { document.getElementById('crt-screen').classList.remove('global-glitch'); }, 2000);
         }
-        else printLog("COMANDO_NO_RECONOCIDO", true); 
+        else {
+            printLog("COMANDO_NO_RECONOCIDO", true); 
+        }
     }
 };
-
 document.querySelectorAll('.btn-hover-sfx').forEach(btn => btn.onmouseenter = () => playBeep(800, 'square'));
 
 document.querySelectorAll('[data-filter]').forEach(btn => {
