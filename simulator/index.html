@@ -293,12 +293,25 @@ body { flex-direction: column; }
     <canvas id="growthChart"></canvas>
 </div>
 
-    <script>
+   <script>
     let myChart = null;
     
-   function executeCalculation() {
+    // 1. INSTANCIAMOS EL FORMATEADOR DE MONEDA (Nativo y súper rápido)
+    const moneyFormatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+    });
+
+    // 2. ESCUCHAMOS LA TECLA ENTER PARA EJECUTAR SIN USAR EL MOUSE
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            executeCalculation();
+        }
+    });
+    
+    function executeCalculation() {
         const P = parseFloat(document.getElementById('principal').value);
-        // Ahora tomamos este valor como Aportación Mensual
         let monthlyPMT = parseFloat(document.getElementById('pmt').value) || 0; 
         const stepUpRate = (parseFloat(document.getElementById('step-up').value) || 0) / 100;
         const r_percent = parseFloat(document.getElementById('rate').value);
@@ -312,8 +325,6 @@ body { flex-direction: column; }
 
         const r = r_percent / 100;
         const inflationRate = 0.04; 
-        
-        // Tasa efectiva mensual: Convierte la tasa anual (con su capitalización) a lo que realmente rinde por mes
         const effectiveMonthlyRate = Math.pow(1 + (r / n), n / 12) - 1;
         
         let currentBalance = P;
@@ -327,10 +338,7 @@ body { flex-direction: column; }
         let rowsHTML = '';
 
         for (let year = 1; year <= t; year++) {
-            // Simulamos el paso de los 12 meses para máxima precisión
             for (let month = 1; month <= 12; month++) {
-                // 1. El balance actual genera intereses en este mes
-                // 2. Se le suma la aportación mensual
                 currentBalance = (currentBalance * (1 + effectiveMonthlyRate)) + monthlyPMT;
                 totalInvested += monthlyPMT;
             }
@@ -338,39 +346,39 @@ body { flex-direction: column; }
             let accumulatedInterest = currentBalance - totalInvested;
             let realPurchasingPower = currentBalance / Math.pow(1 + inflationRate, year);
 
+            // APLICAMOS EL FORMATEADOR A LA TABLA
             rowsHTML += `<tr>
                 <td>[ ${year} ]</td>
-                <td>$${totalInvested.toFixed(2)}</td>
-                <td class="highlight">$${accumulatedInterest.toFixed(2)}</td>
-                <td>$${currentBalance.toFixed(2)}</td>
-                <td style="color: var(--neon-yellow);">$${realPurchasingPower.toFixed(2)}</td>
+                <td>${moneyFormatter.format(totalInvested)}</td>
+                <td class="highlight">${moneyFormatter.format(accumulatedInterest)}</td>
+                <td>${moneyFormatter.format(currentBalance)}</td>
+                <td style="color: var(--neon-yellow);">${moneyFormatter.format(realPurchasingPower)}</td>
             </tr>`;
 
             chartLabels.push(year);
+            // Para Chart.js seguimos enviando números puros
             chartDataInvested.push(Number(totalInvested.toFixed(2)));
             chartDataNominal.push(Number(currentBalance.toFixed(2)));
             chartDataReal.push(Number(realPurchasingPower.toFixed(2)));
 
-            // El aumento a la aportación (Step-up) se aplica anualmente (ej. te suben el sueldo cada año)
             monthlyPMT = monthlyPMT * (1 + stepUpRate);
         }
 
-        const tableBody = document.getElementById('table-body');
-        tableBody.innerHTML = rowsHTML; 
-
+        document.getElementById('table-body').innerHTML = rowsHTML; 
         document.getElementById('table-container').style.display = 'block';
         document.getElementById('chart-container').style.display = 'block';
 
         const finalInterest = currentBalance - totalInvested;
         const finalRealBalance = currentBalance / Math.pow(1 + inflationRate, t);
 
+        // APLICAMOS EL FORMATEADOR AL RESUMEN DE LA TERMINAL
         document.getElementById('result').innerHTML = 
             `<span style="color: #fff; font-size: 0.9em;">> BALANCE NOMINAL FINAL:</span><br>` +
-            `<span style="font-size: 1.4em; color: #fff; display: block; margin-bottom: 10px;">$${currentBalance.toFixed(2)}</span>` +
-            `<span style="font-size: 0.85em; color: var(--neon-cyan);">> TOTAL INVERTIDO: $${totalInvested.toFixed(2)}</span><br>` +
-            `<span style="font-size: 0.85em; color: var(--neon-pink);">> GANANCIA PURA: $${finalInterest.toFixed(2)}</span><br><br>` +
+            `<span style="font-size: 1.4em; color: #fff; display: block; margin-bottom: 10px;">${moneyFormatter.format(currentBalance)}</span>` +
+            `<span style="font-size: 0.85em; color: var(--neon-cyan);">> TOTAL INVERTIDO: ${moneyFormatter.format(totalInvested)}</span><br>` +
+            `<span style="font-size: 0.85em; color: var(--neon-pink);">> GANANCIA PURA: ${moneyFormatter.format(finalInterest)}</span><br><br>` +
             `<span style="color: var(--neon-yellow); font-size: 0.9em; text-shadow: 0 0 5px var(--neon-yellow);">> PODER ADQUISITIVO REAL:</span><br>` +
-            `<span style="font-size: 1.4em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block;">$${finalRealBalance.toFixed(2)}</span>` +
+            `<span style="font-size: 1.4em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block;">${moneyFormatter.format(finalRealBalance)}</span>` +
             `<span style="font-size: 0.7em; color: rgba(255,255,255,0.6);">(Descontando 4% inflación anual)</span>`;
 
         renderChart(chartLabels, chartDataInvested, chartDataNominal, chartDataReal);
@@ -392,10 +400,33 @@ body { flex-direction: column; }
             },
             options: {
                 responsive: true,
-                plugins: { legend: { labels: { color: '#00f3ff', font: { family: "'Courier New', Courier, monospace" } } } },
+                plugins: { 
+                    legend: { labels: { color: '#00f3ff', font: { family: "'Courier New', Courier, monospace" } } },
+                    // INTERCEPTAMOS EL TOOLTIP PARA FORMATEAR EL TEXTO AL PASAR EL MOUSE
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.y !== null) {
+                                    label += moneyFormatter.format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
                 scales: {
                     x: { grid: { color: 'rgba(0, 243, 255, 0.1)' }, ticks: { color: '#39ff14', font: { family: "'Courier New', Courier, monospace" } }, title: { display: true, text: 'AÑOS', color: '#ff007f', font: { family: "'Courier New', Courier, monospace" } } },
-                    y: { grid: { color: 'rgba(0, 243, 255, 0.1)' }, ticks: { color: '#39ff14', font: { family: "'Courier New', Courier, monospace" }, callback: function(value) { return '$' + value; } } }
+                    y: { 
+                        grid: { color: 'rgba(0, 243, 255, 0.1)' }, 
+                        ticks: { 
+                            color: '#39ff14', 
+                            font: { family: "'Courier New', Courier, monospace" }, 
+                            // FORMATEAMOS EL EJE Y PARA QUE TENGA COMAS Y SIGNO DE DÓLAR
+                            callback: function(value) { return moneyFormatter.format(value); } 
+                        } 
+                    }
                 }
             }
         });
