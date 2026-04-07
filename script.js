@@ -220,6 +220,9 @@ document.getElementById('enter-btn').onclick = () => {
     
     printLog("ENLACE ESTABLECIDO."); 
     
+    // --> AQUÍ LLAMAMOS A LA NUEVA FUNCIÓN <--
+    sysGeoTrack();
+    
     if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); 
     bgm.play().catch(e => printLog("AUTO-PLAY RESTRINGIDO", true)); 
 };
@@ -229,4 +232,42 @@ setInterval(() => {
     document.getElementById('ram-val').innerText = (document.getElementById('ram-meter').style.width = Math.floor(Math.random()*30+40)+'%');
     document.getElementById('ping-ms').innerText = Math.floor(Math.random()*20+10);
 }, 2000);
+// =========================================================================
+// SYS.GEO_TRACK(): RASTREO DE IP Y BANDERA
+// =========================================================================
+async function sysGeoTrack() {
+    try {
+        printLog("> EJECUTANDO RASTREO DE IP...", false);
+        
+        const response = await fetch('https://ipapi.co/json/');
+        if (!response.ok) throw new Error('ERR_CONNECTION');
 
+        const data = await response.json();
+        const countryCode = data.country_code.toLowerCase();
+        const flagUrl = `https://flagcdn.com/w40/${countryCode}.png`; // Tamaño más pequeño para que encaje
+        
+        printLog(`> UBICACIÓN CONFIRMADA: ${data.country_name.toUpperCase()}`, false);
+
+        // Creamos la imagen de la bandera
+        const flagImg = document.createElement('img');
+        flagImg.src = flagUrl;
+        flagImg.alt = data.country_name;
+        flagImg.title = `Conexión detectada desde: ${data.country_name}`;
+        
+        // Estilos en línea rápidos para que no rompa tu maquetación (ajústalos a tu gusto)
+        flagImg.style.height = '15px';
+        flagImg.style.verticalAlign = 'middle';
+        flagImg.style.marginLeft = '10px';
+        flagImg.style.borderRadius = '2px';
+        flagImg.style.boxShadow = '0 0 5px var(--neon-cyan)'; // Asumiendo que tienes esta variable CSS
+
+        // Inyectamos la bandera al lado del Ping
+        const pingElement = document.getElementById('ping-ms');
+        if (pingElement && pingElement.parentElement) {
+            pingElement.parentElement.appendChild(flagImg);
+        }
+
+    } catch (error) {
+        printLog("> FALLO AL ESTABLECER TRIANGULACIÓN", true);
+    }
+}
