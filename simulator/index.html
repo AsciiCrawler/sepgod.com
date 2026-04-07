@@ -270,8 +270,13 @@ body { flex-direction: column; }
             <div class="sys-msg">STATUS: ONLINE | INFLACIÓN: 4%</div>
         </div>
 
-        <div class="table-container" id="table-container">
+       <div class="table-container" id="table-container">
             <h2>PROYECCIÓN DE DATOS</h2>
+            
+            <button onclick="exportTableToCSV('SYS_PROYECCION.csv')" style="margin-bottom: 20px; border-color: var(--neon-cyan); color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);">
+                [ DESCARGAR DATOS CSV ]
+            </button>
+
             <table id="data-table">
                 <thead>
                     <tr>
@@ -283,10 +288,9 @@ body { flex-direction: column; }
                     </tr>
                 </thead>
                 <tbody id="table-body">
-                    </tbody>
+                </tbody>
             </table>
         </div>
-    </div>
 
     <div class="chart-container" id="chart-container">
     <h2>GRÁFICO DE CRECIMIENTO</h2>
