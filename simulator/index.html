@@ -439,14 +439,22 @@ monthlyDividendRate = monthlyDividendRate * ((1 + divGrowthRate) / (1 + r));
 
         const finalInterest = currentBalance - totalInvested;
         const finalRealBalance = currentBalance / Math.pow(1 + inflationRate, t);
+       // Calculamos la renta mensual Nominal (lo que deposita el broker)
         const projectedMonthlyPassiveIncome = currentBalance * monthlyDividendRate;
         const realMonthlyPassiveIncome = projectedMonthlyPassiveIncome / Math.pow(1 + inflationRate, t);
 
+        // --- CÁLCULO DEL YIELD ON COST (YOC) ---
+        // Multiplicamos la renta mensual por 12 para sacar el ingreso anual y lo dividimos entre tu costo total
+        const annualDividendIncome = projectedMonthlyPassiveIncome * 12;
+        const yieldOnCost = totalInvested > 0 ? (annualDividendIncome / totalInvested) * 100 : 0;
+
+        // Construimos el bloque de información extra para la terminal
         let dividendTerminalInfo = '';
         if (divYield > 0) {
             dividendTerminalInfo = `<br><span style="color: var(--neon-pink); font-size: 0.9em; border-top: 1px dashed var(--neon-pink); display: block; margin-top: 10px; padding-top: 10px;">> RENTA PASIVA ESTIMADA (MES):</span>` +
             `<span style="font-size: 1.1em; color: var(--neon-pink); display: block;">${moneyFormatter.format(projectedMonthlyPassiveIncome)} <span style="font-size: 0.6em; color: #fff;">(NOMINAL)</span></span>` +
-            `<span style="font-size: 1.2em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block; margin-bottom: 5px;">${moneyFormatter.format(realMonthlyPassiveIncome)} <span style="font-size: 0.6em; color: #fff; text-shadow: none;">(REAL HOY)</span></span>`;
+            `<span style="font-size: 1.2em; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); display: block; margin-bottom: 5px;">${moneyFormatter.format(realMonthlyPassiveIncome)} <span style="font-size: 0.6em; color: #fff; text-shadow: none;">(REAL HOY)</span></span>` +
+            `<span style="font-size: 0.9em; color: var(--neon-cyan); display: block; margin-bottom: 5px;">> YIELD ON COST PROMEDIO: <span style="font-weight: bold; color: #fff;">${yieldOnCost.toFixed(2)}%</span></span>`;
             
             if (!reinvestDividends) {
                 dividendTerminalInfo += `<span style="font-size: 0.85em; color: #fff;">> DIVIDENDOS COBRADOS EN EFECTIVO: ${moneyFormatter.format(cashedOutDividends)}</span><br>`;
