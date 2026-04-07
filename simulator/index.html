@@ -427,8 +427,9 @@
             // Step-up del ahorro del usuario
             monthlyPMT = monthlyPMT * (1 + stepUpRate);
             
-            // EL NUEVO MOTOR 4: Crecimiento compuesto del Dividendo (DGI)
-            monthlyDividendRate = monthlyDividendRate * (1 + divGrowthRate);
+            // CORRECCIÓN DGI: El crecimiento del dividendo se ajusta contra la apreciación de la acción
+// para no inflar artificialmente el Yield % sobre el capital ya valorizado.
+monthlyDividendRate = monthlyDividendRate * ((1 + divGrowthRate) / (1 + r));
             
         }
 
