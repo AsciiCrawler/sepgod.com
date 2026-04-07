@@ -311,7 +311,6 @@
         const remainderEl = document.getElementById('b-remainder');
         remainderEl.innerText = moneyFormatter.format(remainder);
 
-        // Cambiamos el color dependiendo de la salud financiera
         if (remainder > 0) {
             remainderEl.style.color = 'var(--neon-green)';
             remainderEl.style.textShadow = '0 0 5px var(--neon-green)';
@@ -339,7 +338,6 @@
             const pmtInput = document.getElementById('pmt');
             pmtInput.value = remainder.toFixed(2);
             
-            // Efecto visual para que el usuario note que se copió
             pmtInput.style.backgroundColor = 'rgba(0, 243, 255, 0.3)';
             pmtInput.style.color = '#fff';
             setTimeout(() => {
@@ -351,7 +349,6 @@
         }
     }
 
-    // EJECUCIÓN CON ENTER (SOLO SI ESTÁ EN EL SIMULADOR)
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
             executeCalculation();
@@ -379,7 +376,12 @@
         const divYield = divYield_percent / 100;
         const inflationRate = 0.04; 
         
+        // Tasa real efectiva mensual (interés compuesto del precio de la acción)
         const effectiveMonthlyRate = Math.pow(1 + (r / n), n / 12) - 1;
+        
+        // CÁLCULO PRO: El APY es el crecimiento real de la acción tras 12 meses de capitalización mensual
+        const annualAPY = Math.pow(1 + effectiveMonthlyRate, 12) - 1;
+
         let monthlyDividendRate = divYield / 12; 
         
         let currentBalance = P;
@@ -427,10 +429,8 @@
             // Step-up del ahorro del usuario
             monthlyPMT = monthlyPMT * (1 + stepUpRate);
             
-            // CORRECCIÓN DGI: El crecimiento del dividendo se ajusta contra la apreciación de la acción
-// para no inflar artificialmente el Yield % sobre el capital ya valorizado.
-monthlyDividendRate = monthlyDividendRate * ((1 + divGrowthRate) / (1 + r));
-            
+            // CORRECCIÓN MATEMÁTICA EXACTA: Descontamos el APY anual real de la acción en lugar de la tasa 'r' nominal
+            monthlyDividendRate = monthlyDividendRate * ((1 + divGrowthRate) / (1 + annualAPY));
         }
 
         document.getElementById('table-body').innerHTML = rowsHTML; 
@@ -439,16 +439,13 @@ monthlyDividendRate = monthlyDividendRate * ((1 + divGrowthRate) / (1 + r));
 
         const finalInterest = currentBalance - totalInvested;
         const finalRealBalance = currentBalance / Math.pow(1 + inflationRate, t);
-       // Calculamos la renta mensual Nominal (lo que deposita el broker)
+        
         const projectedMonthlyPassiveIncome = currentBalance * monthlyDividendRate;
         const realMonthlyPassiveIncome = projectedMonthlyPassiveIncome / Math.pow(1 + inflationRate, t);
 
-        // --- CÁLCULO DEL YIELD ON COST (YOC) ---
-        // Multiplicamos la renta mensual por 12 para sacar el ingreso anual y lo dividimos entre tu costo total
         const annualDividendIncome = projectedMonthlyPassiveIncome * 12;
         const yieldOnCost = totalInvested > 0 ? (annualDividendIncome / totalInvested) * 100 : 0;
 
-        // Construimos el bloque de información extra para la terminal
         let dividendTerminalInfo = '';
         if (divYield > 0) {
             dividendTerminalInfo = `<br><span style="color: var(--neon-pink); font-size: 0.9em; border-top: 1px dashed var(--neon-pink); display: block; margin-top: 10px; padding-top: 10px;">> RENTA PASIVA ESTIMADA (MES):</span>` +
