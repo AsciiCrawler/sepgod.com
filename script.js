@@ -262,7 +262,17 @@ const initMatrix = () => {
 window.onresize = initMatrix; 
 initMatrix(); 
 
-setInterval(() => {
+let lastDrawTime = 0;
+
+const drawMatrix = (timestamp) => {
+    // Pedimos el siguiente frame al navegador automáticamente
+    requestAnimationFrame(drawMatrix);
+    
+    // Mantenemos tu velocidad de ~50ms para la estética retro,
+    // pero sin bloquear el procesador de forma forzada.
+    if (timestamp - lastDrawTime < 50) return; 
+    lastDrawTime = timestamp;
+
     ctx.fillStyle = 'rgba(2, 2, 2, 0.1)'; 
     ctx.fillRect(0, 0, w, h); 
     ctx.fillStyle = '#00ff41'; 
@@ -273,7 +283,10 @@ setInterval(() => {
         if (y * 14 > h && Math.random() > 0.975) drops[i] = 0;
         drops[i]++; 
     });
-}, 50);
+};
+
+// Arrancamos el motor de animación delegando el trabajo al navegador/GPU
+requestAnimationFrame(drawMatrix);
 
 const bootSeq = ["> CARGANDO SEPGOD_KERNEL...", "> MEMORIA ASIGNADA...", "> SISTEMA LISTO."]; 
 let bIdx = 0; 
