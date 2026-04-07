@@ -380,7 +380,7 @@
         const inflationRate = 0.04; 
         
         const effectiveMonthlyRate = Math.pow(1 + (r / n), n / 12) - 1;
-        const monthlyDividendRate = divYield / 12; 
+        let monthlyDividendRate = divYield / 12; 
         
         let currentBalance = P;
         let totalInvested = P;
