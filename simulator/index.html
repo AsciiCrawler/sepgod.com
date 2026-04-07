@@ -233,10 +233,18 @@
                 <label style="color: var(--neon-pink); font-weight: bold;">[ SYS.DIVIDENDOS_BMV ]</label>
                 
                 <div class="input-group" style="margin-top: 15px;">
-                    <label for="dividend-yield">Rendimiento por Dividendos Anual (%)</label>
+                    <label for="dividend-yield">Rendimiento por Dividendos Inicial (%)</label>
                     <input type="number" id="dividend-yield" placeholder="Ej. 8 (Para FIBRAs)" value="0" step="0.01">
                 </div>
-                
+
+                <div class="input-group">
+                    <label for="dividend-growth">Crecimiento Anual del Dividendo (DGI)</label>
+                    <select id="dividend-growth">
+                        <option value="0">Estático / Sin crecimiento (0%)</option>
+                        <option value="0.05">Promedio BMV Sólido (+5% anual)</option>
+                        <option value="0.08">Superior / FEMSA style (+8% anual)</option>
+                    </select>
+                </div>
                 <div class="input-group" style="margin-bottom: 0;">
                     <label style="display: flex; align-items: center; cursor: pointer; color: #fff; text-shadow: none; text-transform: none;">
                         <input type="checkbox" id="reinvest-dividends" checked style="width: auto; margin-right: 10px; accent-color: var(--neon-pink);">
@@ -360,6 +368,7 @@
         
         const divYield_percent = parseFloat(document.getElementById('dividend-yield').value) || 0;
         const reinvestDividends = document.getElementById('reinvest-dividends').checked;
+        const divGrowthRate = parseFloat(document.getElementById('dividend-growth').value);
 
         if (isNaN(r_percent) || isNaN(n) || isNaN(t) || t <= 0 || P < 0) {
             document.getElementById('result').innerHTML = "<span style='color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); text-align: center; display: block;'>ERROR: FALTAN PARÁMETROS EN EL SIMULADOR.</span>";
@@ -415,7 +424,12 @@
             chartDataNominal.push(Number(currentBalance.toFixed(2)));
             chartDataReal.push(Number(realPurchasingPower.toFixed(2)));
 
+            // Step-up del ahorro del usuario
             monthlyPMT = monthlyPMT * (1 + stepUpRate);
+            
+            // EL NUEVO MOTOR 4: Crecimiento compuesto del Dividendo (DGI)
+            monthlyDividendRate = monthlyDividendRate * (1 + divGrowthRate);
+            
         }
 
         document.getElementById('table-body').innerHTML = rowsHTML; 
