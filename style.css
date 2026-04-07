@@ -49,38 +49,32 @@
 
 
 
-        /* 4. EFECTOS DE TELEVISIÓN ANTIGUA (CRT) */
-
+   /* 4. EFECTOS DE TELEVISIÓN ANTIGUA (CRT) */
         #crt-screen {
-
             position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column;
-
-            overflow: hidden; 
-
-            animation: turn-on 1s ease-out forwards; 
-
+            overflow: hidden;
+            animation: turn-on 1s ease-out forwards;
+            /* OPTIMIZACIÓN PRO: Prepara el contenedor para aceleración gráfica */
+            transform: translateZ(0);
+            will-change: transform;
         }
 
-
-
-        #matrix-canvas { position: absolute; inset: 0; z-index: -2; opacity: 0.15; }
-
-
+        #matrix-canvas { 
+            position: absolute; inset: 0; z-index: -2; opacity: 0.15; 
+            /* OPTIMIZACIÓN PRO: Acelera el pintado del canvas */
+            transform: translateZ(0);
+        }
 
         .crt-overlay {
-
-            position: absolute; inset: 0; z-index: 9998; 
-
-            pointer-events: none; 
-
+            position: absolute; inset: 0; z-index: 9998;
+            pointer-events: none;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), radial-gradient(circle, transparent 50%, #000 120%);
-
-            background-size: 100% 4px, 100% 100%; 
-
-            animation: flicker 0.2s infinite; 
-
+            background-size: 100% 4px, 100% 100%;
+            animation: flicker 0.2s infinite;
+            /* OPTIMIZACIÓN PRO: Le dice al navegador "Oye, la opacidad de esto va a cambiar todo el tiempo, dáselo a la GPU" */
+            transform: translateZ(0);
+            will-change: opacity;
         }
-
 
 
         /* 5. EL CREADOR DE ANIMACIONES (@keyframes) */
