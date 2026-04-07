@@ -435,6 +435,53 @@ body { flex-direction: column; }
             }
         });
     }
+
+       // =========================================================================
+    // SYS.EXPORT: LÓGICA DE EXPORTACIÓN A CSV
+    // =========================================================================
+    function exportTableToCSV(filename) {
+        let csv = [];
+        let rows = document.querySelectorAll("#data-table tr");
+        
+        for (let i = 0; i < rows.length; i++) {
+            let row = [], cols = rows[i].querySelectorAll("td, th");
+            
+            for (let j = 0; j < cols.length; j++) {
+                // Obtenemos el texto y limpiamos los saltos de línea por si acaso
+                let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "");
+                
+                // Envolvemos los datos en comillas dobles para que Excel no se confunda 
+                // con las comas de los miles (ej. "$1,500.00" -> "$1500.00" intacto)
+                data = data.replace(/"/g, '""'); 
+                row.push('"' + data + '"'); 
+            }
+            
+            // Usamos coma como delimitador estándar
+            csv.push(row.join(","));
+        }
+
+        downloadCSV(csv.join("\n"), filename);
+    }
+
+    function downloadCSV(csv, filename) {
+        let csvFile;
+        let downloadLink;
+
+        // Construimos el archivo Blob (Binary Large Object) con codificación utf-8
+        csvFile = new Blob(["\uFEFF" + csv], {type: "text/csv;charset=utf-8;"});
+
+        // Creamos un enlace invisible en el DOM
+        downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+
+        // Lo inyectamos, simulamos el clic y lo destruimos
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+       
 </script>
 
 </body>
