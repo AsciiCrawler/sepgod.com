@@ -235,7 +235,7 @@ body { flex-direction: column; }
             </div>
 
             <div class="input-group">
-                <label for="pmt">Aportación Anual (Ahorro)</label>
+                <label for="pmt">Aportación Mensual (Ahorro)</label>
                 <input type="number" id="pmt" placeholder="Ej. 1200" value="0">
             </div>
             <div class="input-group">
@@ -298,13 +298,13 @@ body { flex-direction: column; }
     
    function executeCalculation() {
         const P = parseFloat(document.getElementById('principal').value);
-        let PMT = parseFloat(document.getElementById('pmt').value) || 0; 
+        // Ahora tomamos este valor como Aportación Mensual
+        let monthlyPMT = parseFloat(document.getElementById('pmt').value) || 0; 
         const stepUpRate = (parseFloat(document.getElementById('step-up').value) || 0) / 100;
         const r_percent = parseFloat(document.getElementById('rate').value);
         const n = parseFloat(document.getElementById('frequency').value);
         const t = parseFloat(document.getElementById('time').value);
 
-        // Validación más robusta (evita negativos en campos clave)
         if (isNaN(P) || isNaN(r_percent) || isNaN(n) || isNaN(t) || t <= 0 || P < 0) {
             document.getElementById('result').innerHTML = "<span style='color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); text-align: center; display: block;'>ERROR: PARÁMETROS INVÁLIDOS O INCOMPLETOS.</span>";
             return;
@@ -313,22 +313,28 @@ body { flex-direction: column; }
         const r = r_percent / 100;
         const inflationRate = 0.04; 
         
+        // Tasa efectiva mensual: Convierte la tasa anual (con su capitalización) a lo que realmente rinde por mes
+        const effectiveMonthlyRate = Math.pow(1 + (r / n), n / 12) - 1;
+        
         let currentBalance = P;
         let totalInvested = P;
         
-        // Arreglos para el gráfico inicializados
         let chartLabels = [0];
         let chartDataInvested = [P];
         let chartDataNominal = [P];
         let chartDataReal = [P];
 
-        // Usamos una variable temporal para el HTML (Mejor rendimiento)
         let rowsHTML = '';
 
         for (let year = 1; year <= t; year++) {
-            let balanceAfterCompounding = currentBalance * Math.pow(1 + (r / n), n);
-            currentBalance = balanceAfterCompounding + PMT;
-            totalInvested += PMT;
+            // Simulamos el paso de los 12 meses para máxima precisión
+            for (let month = 1; month <= 12; month++) {
+                // 1. El balance actual genera intereses en este mes
+                // 2. Se le suma la aportación mensual
+                currentBalance = (currentBalance * (1 + effectiveMonthlyRate)) + monthlyPMT;
+                totalInvested += monthlyPMT;
+            }
+
             let accumulatedInterest = currentBalance - totalInvested;
             let realPurchasingPower = currentBalance / Math.pow(1 + inflationRate, year);
 
@@ -340,16 +346,15 @@ body { flex-direction: column; }
                 <td style="color: var(--neon-yellow);">$${realPurchasingPower.toFixed(2)}</td>
             </tr>`;
 
-            // Convertimos a Number para evitar bugs en Chart.js
             chartLabels.push(year);
             chartDataInvested.push(Number(totalInvested.toFixed(2)));
             chartDataNominal.push(Number(currentBalance.toFixed(2)));
             chartDataReal.push(Number(realPurchasingPower.toFixed(2)));
 
-            PMT = PMT * (1 + stepUpRate);
+            // El aumento a la aportación (Step-up) se aplica anualmente (ej. te suben el sueldo cada año)
+            monthlyPMT = monthlyPMT * (1 + stepUpRate);
         }
 
-        // Una sola inyección al DOM (Rendimiento PRO)
         const tableBody = document.getElementById('table-body');
         tableBody.innerHTML = rowsHTML; 
 
