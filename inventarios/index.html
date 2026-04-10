@@ -19,17 +19,15 @@
 
         body { background-color: var(--bg-color); color: var(--neon-cyan); font-family: 'Courier New', Courier, monospace; min-height: 100vh; margin: 0; background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px); background-size: 25px 25px; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
         
-        .container { background: rgba(10, 10, 12, 0.95); border: 2px solid var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan); border-radius: 4px; padding: 30px; width: 100%; max-width: 1200px; margin-top: 20px; }
+        .container { background: rgba(10, 10, 12, 0.95); border: 2px solid var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan); border-radius: 4px; padding: 30px; width: 100%; max-width: 1300px; margin-top: 20px; }
 
         h1, h2 { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
 
-        /* PANTALLAS (Vistas de la App) */
         .screen { display: none; }
         #home-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; max-width: 800px; gap: 30px; }
         #home-screen.active { display: flex; }
         .active { display: block; }
 
-        /* MENÚ PRINCIPAL */
         .menu-cards { display: flex; gap: 30px; width: 100%; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
         .card { flex: 1; min-width: 250px; background: rgba(0,0,0,0.6); border: 1px dashed var(--neon-cyan); padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; }
         .card:hover { border-style: solid; box-shadow: 0 0 20px rgba(0,243,255,0.2); transform: translateY(-5px); }
@@ -44,8 +42,8 @@
         input, select { width: 100%; padding: 10px; background: black; border: 1px solid var(--neon-cyan); color: var(--neon-green); font-family: inherit; box-sizing: border-box; outline: none; transition: 0.3s; }
         input:focus, select:focus { box-shadow: 0 0 10px var(--neon-cyan); border-color: #fff; }
 
-        .flex-row { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
-        .flex-row .input-group { flex: 1; min-width: 120px; margin-bottom: 0; }
+        .flex-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+        .flex-row .input-group { flex: 1; min-width: 100px; margin-bottom: 0; }
 
         button, .btn-label { display: inline-block; padding: 12px 20px; background: transparent; color: var(--neon-pink); border: 2px solid var(--neon-pink); font-family: inherit; font-size: 1em; font-weight: bold; cursor: pointer; text-transform: uppercase; text-shadow: 0 0 5px var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 127, 0.3); transition: 0.2s; text-align: center; }
         button:hover, .btn-label:hover { background: var(--neon-pink); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-pink); text-shadow: none; }
@@ -56,7 +54,7 @@
         .toolbar { background: rgba(0,243,255,0.05); padding: 15px; border: 1px solid var(--neon-cyan); margin-bottom: 15px; display: flex; gap: 20px; flex-wrap: wrap; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
-        th, td { border: 1px solid rgba(0, 243, 255, 0.3); padding: 10px; text-align: center; }
+        th, td { border: 1px solid rgba(0, 243, 255, 0.3); padding: 10px; text-align: center; vertical-align: top; }
         th { background: black; color: var(--neon-cyan); position: sticky; top: 0; font-size: 0.85em; }
         td { color: #fff; }
 
@@ -76,10 +74,12 @@
         .summary-box.balance { border-color: var(--neon-cyan); box-shadow: inset 0 0 15px rgba(0,243,255,0.1); }
         .summary-box.balance h3 { color: var(--neon-cyan); font-size: 1.8em; margin: 10px 0; }
         
-        .inline-add { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 5px; }
+        .inline-add { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 8px; }
         .inline-add input { width: 50px; padding: 4px; text-align: center; border-color: rgba(0,243,255,0.5); }
         .inline-add button { padding: 4px 8px; font-size: 0.8em; min-width: auto; }
         .inline-teo { width: 60px; padding: 5px; text-align: center; background: rgba(0,243,255,0.1); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-weight: bold; }
+        
+        .location-badge { font-size: 0.75em; color: var(--neon-yellow); display: block; margin-top: 2px; text-align: left; }
 
         /* LISTA DE ARCHIVOS UNIFICADOR */
         .file-list { margin-top: 20px; text-align: left; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; }
@@ -97,7 +97,7 @@
         <div class="menu-cards">
             <div class="card" onclick="goToScreen('setup-screen')">
                 <h3 style="color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan);">[ INVENTARIOS CONTEOS ]</h3>
-                <p>Módulo para operadores. Crear nuevos conteos o continuar auditorías cíclicas en pasillos individuales.</p>
+                <p>Módulo para operadores. Crear nuevos conteos o continuar auditorías cíclicas con multi-ubicación.</p>
                 <button class="btn-cyan">INICIAR OPERACIÓN</button>
             </div>
             <div class="card card-pink" onclick="goToScreen('unify-setup-screen')">
@@ -114,8 +114,8 @@
         
         <h2>CONTEO INDIVIDUAL</h2>
         <div class="input-group" style="max-width: 400px; margin: 30px auto;">
-            <label>Título de la Auditoría / Zona</label>
-            <input type="text" id="inv-title" placeholder="Ej. Pasillo 4">
+            <label>Título de la Auditoría / Zona Master</label>
+            <input type="text" id="inv-title" placeholder="Ej. Tienda Centro">
         </div>
         <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
             <button onclick="startNewInventory()">[ CREAR DESDE CERO ]</button>
@@ -136,6 +136,11 @@
 
         <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-pink); margin-bottom: 20px;">
             <div class="flex-row">
+                <div class="input-group" style="flex: 1.5;">
+                    <label style="color: var(--neon-yellow);">Ubicación</label>
+                    <input type="text" id="item-loc" value="GENERAL" style="border-color: var(--neon-yellow);">
+                </div>
+                
                 <div class="input-group"><label>SKU</label><input type="text" id="item-sku" placeholder="SKU"></div>
                 <div class="input-group" style="flex: 2;"><label>Nombre</label><input type="text" id="item-name" placeholder="Descripción"></div>
                 <div class="input-group"><label>Costo</label><input type="number" id="item-price" placeholder="$" step="0.01"></div>
@@ -167,7 +172,7 @@
             <table id="inventory-table">
                 <thead>
                     <tr>
-                        <th>SKU</th><th style="text-align: left;">NOMBRE</th><th>PRECIO</th><th>TEÓRICO</th><th>FÍSICO</th><th>DIF. ACTUAL</th><th>DIF. ANT.</th><th>IMPACTO</th><th>X</th>
+                        <th>SKU</th><th style="text-align: left;">NOMBRE</th><th>PRECIO</th><th>TEÓRICO</th><th>FÍSICO (DESGLOSE)</th><th>DIF. ACTUAL</th><th>DIF. ANT.</th><th>IMPACTO</th><th>X</th>
                     </tr>
                 </thead>
                 <tbody id="table-body"></tbody>
@@ -186,15 +191,14 @@
         <div style="clear:both; height: 10px;"></div>
 
         <h2 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">CONSOLIDACIÓN GLOBAL</h2>
-        <p style="color: #fff; margin-bottom: 30px;">Sube los reportes Excel de los pasillos. El sistema filtrará los artículos en CERO y ordenará los problemas de mayor a menor impacto económico.</p>
+        <p style="color: #fff; margin-bottom: 30px;">Sube los reportes Excel. El sistema filtrará los artículos en CERO y ordenará los problemas de mayor a menor impacto económico.</p>
 
         <label for="unify-file-upload" class="btn-label btn-cyan" style="border-style: dashed; padding: 20px 40px;">
             + AGREGAR ARCHIVO EXCEL
         </label>
         <input type="file" id="unify-file-upload" accept=".xlsx, .xls, .csv" style="display: none;" onchange="addFileToUnify(event)">
 
-        <div class="file-list" id="unify-file-list">
-            </div>
+        <div class="file-list" id="unify-file-list"></div>
 
         <button onclick="processUnification()" style="margin-top: 30px; font-size: 1.2em; padding: 15px 40px;">[ EJECUTAR UNIFICACIÓN ]</button>
     </div>
@@ -219,13 +223,13 @@
             <table id="unify-table">
                 <thead>
                     <tr>
-                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">SKU</th>
-                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none; text-align: left;">NOMBRE</th>
-                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">PRECIO</th>
-                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">TEÓRICO GLOBAL</th>
-                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">FÍSICO GLOBAL</th>
-                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">VARIANZA NETA</th>
-                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">IMPACTO TOTAL</th>
+                        <th style="background: var(--neon-pink); color: #fff;">SKU</th>
+                        <th style="background: var(--neon-pink); color: #fff; text-align: left;">NOMBRE</th>
+                        <th style="background: var(--neon-pink); color: #fff;">PRECIO</th>
+                        <th style="background: var(--neon-pink); color: #fff;">TEÓRICO</th>
+                        <th style="background: var(--neon-pink); color: #fff;">FÍSICO</th>
+                        <th style="background: var(--neon-pink); color: #fff;">VARIANZA NETA</th>
+                        <th style="background: var(--neon-pink); color: #fff;">IMPACTO TOTAL</th>
                     </tr>
                 </thead>
                 <tbody id="unify-table-body"></tbody>
@@ -237,7 +241,6 @@
 <script>
     const moneyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2 });
     
-    // NAVEGACIÓN
     function goToScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
@@ -263,6 +266,10 @@
     }
 
     function addItem() {
+        // LEEMOS LA UBICACIÓN, SI ESTÁ VACÍA USAMOS 'GENERAL'
+        let loc = document.getElementById('item-loc').value.trim();
+        if(!loc) loc = "GENERAL";
+
         const sku = document.getElementById('item-sku').value.trim();
         const name = document.getElementById('item-name').value;
         const price = parseFloat(document.getElementById('item-price').value) || 0;
@@ -276,9 +283,22 @@
             inventoryData[index].fis += fis;
             if(price > 0) inventoryData[index].price = price;
             if(document.getElementById('item-teo').value !== "") inventoryData[index].teo = teo;
+
+            // MULTI-UBICACIÓN: Sumamos al desglose
+            if(!inventoryData[index].locs) inventoryData[index].locs = {};
+            if(inventoryData[index].locs[loc]) {
+                inventoryData[index].locs[loc] += fis;
+            } else {
+                inventoryData[index].locs[loc] = fis;
+            }
+
         } else {
-            inventoryData.push({ sku, name: name || 'Sin Nombre', price, teo, fis, prevDiff: null });
+            let locs = {};
+            locs[loc] = fis;
+            inventoryData.push({ sku, name: name || 'Sin Nombre', price, teo, fis, prevDiff: null, locs });
         }
+
+        // NO BORRAMOS EL CAMPO DE UBICACIÓN PARA QUE PUEDAN SEGUIR CONTANDO AHÍ
         document.getElementById('item-sku').value = ''; document.getElementById('item-name').value = ''; document.getElementById('item-price').value = ''; document.getElementById('item-teo').value = ''; document.getElementById('item-fis').value = '';
         document.getElementById('item-sku').focus();
         renderTable();
@@ -286,8 +306,19 @@
 
     function modifyPhysicalInline(sku) {
         const val = parseInt(document.getElementById(`inline-mod-${sku}`).value);
-        if(!isNaN(val)) { inventoryData.find(i => i.sku === sku).fis += val; renderTable(); }
+        if(!isNaN(val)) { 
+            let item = inventoryData.find(i => i.sku === sku);
+            item.fis += val; 
+            
+            // Si ajustan rápido en tabla, lo mandamos a una etiqueta de "AJUSTE" para no corromper sus zonas
+            if(!item.locs) item.locs = {};
+            if(item.locs["AJUSTE TABLA"]) item.locs["AJUSTE TABLA"] += val;
+            else item.locs["AJUSTE TABLA"] = val;
+
+            renderTable(); 
+        }
     }
+
     function updateTeoInline(sku, val) { inventoryData.find(i => i.sku === sku).teo = parseInt(val)||0; renderTable(); }
     function deleteItem(sku) { inventoryData = inventoryData.filter(i => i.sku !== sku); renderTable(); }
 
@@ -295,58 +326,53 @@
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = '';
 
-        // 1. OBTENER VALORES DE LOS FILTROS
         const searchTerm = document.getElementById('search-filter').value.trim().toLowerCase();
         const sortMode = document.getElementById('sort-filter').value;
-
-        // 2. CREAR UN ARRAY COPIA PARA MOSTRAR (Evita alterar la base original)
         let displayData = [...inventoryData];
 
-        // 3. APLICAR BÚSQUEDA
         if (searchTerm !== '') {
             displayData = displayData.filter(item => 
-                item.sku.toLowerCase().includes(searchTerm) || 
-                item.name.toLowerCase().includes(searchTerm)
+                item.sku.toLowerCase().includes(searchTerm) || item.name.toLowerCase().includes(searchTerm)
             );
         }
 
-        // 4. APLICAR ORDENAMIENTO
-        if (sortMode === 'missing') {
-            displayData.sort((a, b) => (a.fis - a.teo) - (b.fis - b.teo));
-        } else if (sortMode === 'surplus') {
-            displayData.sort((a, b) => (b.fis - b.teo) - (a.fis - a.teo));
-        } else if (sortMode === 'prev-missing') {
-            displayData.sort((a, b) => (a.prevDiff || 0) - (b.prevDiff || 0));
-        } else if (sortMode === 'prev-surplus') {
-            displayData.sort((a, b) => (b.prevDiff || 0) - (a.prevDiff || 0));
-        } else if (sortMode === 'alpha') {
-            displayData.sort((a, b) => a.name.localeCompare(b.name));
-        }
+        if (sortMode === 'missing') displayData.sort((a, b) => (a.fis - a.teo) - (b.fis - b.teo));
+        else if (sortMode === 'surplus') displayData.sort((a, b) => (b.fis - b.teo) - (a.fis - a.teo));
+        else if (sortMode === 'prev-missing') displayData.sort((a, b) => (a.prevDiff || 0) - (b.prevDiff || 0));
+        else if (sortMode === 'prev-surplus') displayData.sort((a, b) => (b.prevDiff || 0) - (a.prevDiff || 0));
+        else if (sortMode === 'alpha') displayData.sort((a, b) => a.name.localeCompare(b.name));
 
-        // 5. CALCULAR DASHBOARD GLOBAL (Sobre TODOS los datos, no solo los filtrados)
         let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
         inventoryData.forEach(i => {
             let d = i.fis - i.teo, imp = d * i.price;
             if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);}
         });
 
-        // 6. DIBUJAR LA TABLA CON LA DATA FILTRADA/ORDENADA
         displayData.forEach(i => {
             let d = i.fis - i.teo, imp = d * i.price;
             let st = d===0?`<span class="diff-exact">0</span>`:d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
             let pD = i.prevDiff===null?`--`:i.prevDiff===0?`<span class="diff-ghost">0</span>`:i.prevDiff>0?`<span class="diff-ghost">+${i.prevDiff}</span>`:`<span class="diff-ghost">${i.prevDiff}</span>`;
             
+            // GENERAMOS EL TEXTO DE LAS UBICACIONES
+            let locsStr = '';
+            if (i.locs) {
+                locsStr = Object.entries(i.locs).map(([l, q]) => `> ${l}: ${q}`).join('<br>');
+            }
+
             tbody.innerHTML += `<tr>
                 <td style="color: var(--neon-cyan);">${i.sku}</td><td style="text-align:left;">${i.name}</td><td>${moneyFormatter.format(i.price)}</td>
                 <td><input type="number" class="inline-teo" value="${i.teo}" onchange="updateTeoInline('${i.sku}', this.value)"></td>
-                <td><span style="font-size: 1.2em; font-weight:bold;">${i.fis}</span><div class="inline-add"><input type="number" id="inline-mod-${i.sku}"><button class="btn-cyan" onclick="modifyPhysicalInline('${i.sku}')">OK</button></div></td>
-                <td>${st}</td><td>${pD}</td>
+                <td>
+                    <span style="font-size: 1.2em; font-weight:bold;">${i.fis}</span>
+                    <div class="location-badge">${locsStr}</div>
+                    <div class="inline-add"><input type="number" id="inline-mod-${i.sku}" placeholder="+/-"><button class="btn-cyan" onclick="modifyPhysicalInline('${i.sku}')">OK</button></div>
+                </td>
+                <td style="font-size: 1.1em;">${st}</td><td>${pD}</td>
                 <td style="color:${d>0?'var(--neon-yellow)':d<0?'var(--neon-pink)':'rgba(255,255,255,0.5)'}">${moneyFormatter.format(imp)}</td>
                 <td><button onclick="deleteItem('${i.sku}')" style="color:red; border-color:red; padding:2px 8px;">X</button></td>
             </tr>`;
         });
 
-        // Actualizar UI del Dashboard
         document.getElementById('qty-missing').innerText = `${tMissQ} perdidos`; document.getElementById('sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`;
         document.getElementById('qty-surplus').innerText = `${tSurpQ} extra`; document.getElementById('sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`;
         document.getElementById('sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM);
@@ -365,7 +391,7 @@
             if(start !== -1) {
                 for(let i=start+1; i<rows.length; i++) {
                     if(!rows[i] || !rows[i][0]) continue;
-                    inventoryData.push({ sku: String(rows[i][0]), name: String(rows[i][1]||''), price: parseFloat(rows[i][2])||0, teo: parseInt(rows[i][3])||0, fis: 0, prevDiff: parseInt(rows[i][5])||0 });
+                    inventoryData.push({ sku: String(rows[i][0]), name: String(rows[i][1]||''), price: parseFloat(rows[i][2])||0, teo: parseInt(rows[i][3])||0, fis: 0, prevDiff: parseInt(rows[i][6])||0, locs: {} });
                 }
             }
             goToScreen('workspace-screen'); renderTable();
@@ -374,10 +400,17 @@
 
     function exportInventoryToExcel() {
         if(!inventoryData.length) return alert('No hay datos.');
-        let ws_data = [["REPORTE", inventoryTitle], ["INICIO:", startTimeString], ["FIN:", getCurrentDateTime()], [], ["SKU", "NOMBRE", "PRECIO", "TEORICO", "FISICO", "VARIANZA_ACTUAL", "VARIANZA_ANTERIOR", "IMPACTO"]];
-        inventoryData.forEach(i => ws_data.push([i.sku, i.name, Number(i.price), Number(i.teo), Number(i.fis), Number(i.fis-i.teo), Number(i.prevDiff||0), Number((i.fis-i.teo)*i.price)]));
+        
+        // AGREGAMOS LA COLUMNA DE DETALLE DE UBICACIONES AL EXCEL
+        let ws_data = [["REPORTE", inventoryTitle], ["INICIO:", startTimeString], ["FIN:", getCurrentDateTime()], [], ["SKU", "NOMBRE", "PRECIO", "TEORICO", "FISICO GLOBAL", "UBICACIONES DETALLE", "VARIANZA_ACTUAL", "VARIANZA_ANTERIOR", "IMPACTO"]];
+        
+        inventoryData.forEach(i => {
+            let locsExport = i.locs ? Object.entries(i.locs).map(([l,q]) => `${l}: ${q}`).join(' | ') : '';
+            ws_data.push([i.sku, i.name, Number(i.price), Number(i.teo), Number(i.fis), locsExport, Number(i.fis-i.teo), Number(i.prevDiff||0), Number((i.fis-i.teo)*i.price)]);
+        });
+
         let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data);
-        ws['!cols'] = [{wch:15},{wch:40},{wch:15},{wch:12},{wch:12},{wch:15},{wch:18},{wch:20}];
+        ws['!cols'] = [{wch:15},{wch:40},{wch:15},{wch:12},{wch:15},{wch:30},{wch:15},{wch:18},{wch:20}];
         XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); XLSX.writeFile(wb, `${inventoryTitle.replace(/ /g, '_')}.xlsx`);
     }
 
@@ -388,19 +421,11 @@
     let unifiedFinalData = [];
 
     function addFileToUnify(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
+        const file = event.target.files[0]; if (!file) return;
         unifyFiles.push(file);
-        
         const listEl = document.getElementById('unify-file-list');
         const id = unifyFiles.length - 1;
-        listEl.innerHTML += `
-            <div class="file-item" id="ufile-${id}">
-                <span>📄 ${file.name}</span>
-                <button onclick="removeFileToUnify(${id})">X</button>
-            </div>
-        `;
+        listEl.innerHTML += `<div class="file-item" id="ufile-${id}"><span>📄 ${file.name}</span><button onclick="removeFileToUnify(${id})">X</button></div>`;
         event.target.value = '';
     }
 
@@ -414,10 +439,8 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
-                resolve(rows);
+                resolve(XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1}));
             };
-            reader.onerror = reject;
             reader.readAsArrayBuffer(file);
         });
     }
@@ -435,60 +458,31 @@
             if(start !== -1) {
                 for(let i = start + 1; i < rows.length; i++) {
                     if(!rows[i] || !rows[i][0]) continue;
-                    
-                    let sku = String(rows[i][0]).trim();
-                    let name = String(rows[i][1] || '').trim();
-                    let price = parseFloat(rows[i][2]) || 0;
-                    let teo = parseInt(rows[i][3]) || 0;
-                    let fis = parseInt(rows[i][4]) || 0;
-
-                    if(!masterMap[sku]) {
-                        masterMap[sku] = { sku, name, price, teo: 0, fis: 0 };
-                    }
-                    masterMap[sku].teo += teo;
-                    masterMap[sku].fis += fis;
+                    let sku = String(rows[i][0]).trim(); let name = String(rows[i][1] || '').trim(); let price = parseFloat(rows[i][2]) || 0; let teo = parseInt(rows[i][3]) || 0; let fis = parseInt(rows[i][4]) || 0;
+                    if(!masterMap[sku]) masterMap[sku] = { sku, name, price, teo: 0, fis: 0 };
+                    masterMap[sku].teo += teo; masterMap[sku].fis += fis;
                     if(price > 0) masterMap[sku].price = price;
                 }
             }
         }
 
         let filteredArray = Object.values(masterMap).filter(item => (item.fis - item.teo) !== 0);
-
-        filteredArray.sort((a, b) => {
-            let impactA = (a.fis - a.teo) * a.price;
-            let impactB = (b.fis - b.teo) * b.price;
-            return impactA - impactB; 
-        });
-
+        filteredArray.sort((a, b) => ((a.fis - a.teo) * a.price) - ((b.fis - b.teo) * b.price));
         unifiedFinalData = filteredArray;
-        renderUnifiedTable();
-        goToScreen('unify-workspace-screen');
+        renderUnifiedTable(); goToScreen('unify-workspace-screen');
     }
 
     function renderUnifiedTable() {
         const tbody = document.getElementById('unify-table-body');
         tbody.innerHTML = '';
-
         let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
 
         unifiedFinalData.forEach(i => {
-            let d = i.fis - i.teo;
-            let imp = d * i.price;
-            
+            let d = i.fis - i.teo; let imp = d * i.price;
             if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);}
-
             let st = d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
             let colorImp = d>0?'var(--neon-yellow)':'var(--neon-pink)';
-
-            tbody.innerHTML += `<tr>
-                <td style="color: #fff; font-weight:bold;">${i.sku}</td>
-                <td style="text-align:left;">${i.name}</td>
-                <td>${moneyFormatter.format(i.price)}</td>
-                <td>${i.teo}</td>
-                <td style="font-weight:bold; color:var(--neon-cyan);">${i.fis}</td>
-                <td style="font-size: 1.1em;">${st}</td>
-                <td style="color:${colorImp}; font-weight:bold;">${moneyFormatter.format(imp)}</td>
-            </tr>`;
+            tbody.innerHTML += `<tr><td style="color: #fff; font-weight:bold;">${i.sku}</td><td style="text-align:left;">${i.name}</td><td>${moneyFormatter.format(i.price)}</td><td>${i.teo}</td><td style="font-weight:bold; color:var(--neon-cyan);">${i.fis}</td><td style="font-size: 1.1em;">${st}</td><td style="color:${colorImp}; font-weight:bold;">${moneyFormatter.format(imp)}</td></tr>`;
         });
 
         document.getElementById('u-qty-missing').innerText = `${tMissQ} faltantes netos`; document.getElementById('u-sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`;
@@ -498,7 +492,7 @@
     }
 
     function exportUnifiedToExcel() {
-        if(!unifiedFinalData.length) return alert('No hay datos para exportar.');
+        if(!unifiedFinalData.length) return alert('No hay datos.');
         let ws_data = [["REPORTE GLOBAL UNIFICADO"], ["FECHA:", getCurrentDateTime()], [], ["SKU", "NOMBRE", "PRECIO", "TEORICO GLOBAL", "FISICO GLOBAL", "VARIANZA NETA", "IMPACTO TOTAL"]];
         unifiedFinalData.forEach(i => ws_data.push([i.sku, i.name, Number(i.price), Number(i.teo), Number(i.fis), Number(i.fis-i.teo), Number((i.fis-i.teo)*i.price)]));
         let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data);
