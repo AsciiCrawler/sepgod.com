@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEPGOD // Logística V8</title>
+    <title>SEPGOD // Suite de Logística V8.1</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -85,6 +85,7 @@
         .loc-del:hover { background: transparent; color: red; transform: scale(1.2); }
         .btn-add-loc { padding: 2px 5px; font-size: 0.7em; margin-top: 5px; border-color: rgba(0,243,255,0.5); color: rgba(0,243,255,0.8); }
 
+        /* LISTA DE ARCHIVOS UNIFICADOR */
         .file-list { margin-top: 20px; text-align: left; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; }
         .file-item { background: rgba(0,243,255,0.1); border: 1px dashed var(--neon-cyan); padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; color: #fff; }
         .file-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -251,7 +252,6 @@
         goToScreen('workspace-screen');
     }
 
-    // RECALCULAR FÍSICO BASADO EN LAS ZONAS
     function recalcPhys(item) {
         if(!item.locs) return 0;
         return item.locs.reduce((sum, l) => sum + l.qty, 0);
@@ -278,7 +278,6 @@
             
             item.fis = recalcPhys(item);
         } else {
-            // ESTRUCTURA NUEVA: locs es un ARRAY de objetos [{name, qty}]
             let locs = [{ name: locName, qty: fis }];
             inventoryData.push({ sku, name: name || 'Sin Nombre', price, teo, fis, prevDiff: null, locs });
         }
@@ -288,7 +287,6 @@
         renderTable();
     }
 
-    // ACTUALIZAR UNA ZONA ESPECÍFICA DESDE LA TABLA
     function updateLocInline(sku, locName, val) {
         let item = inventoryData.find(i => i.sku === sku);
         let loc = item.locs.find(l => l.name === locName);
@@ -299,7 +297,6 @@
         }
     }
 
-    // ELIMINAR UNA ZONA ESPECÍFICA
     function deleteLoc(sku, locName) {
         let item = inventoryData.find(i => i.sku === sku);
         item.locs = item.locs.filter(l => l.name !== locName);
@@ -307,7 +304,6 @@
         renderTable();
     }
 
-    // AGREGAR UNA ZONA NUEVA DESDE LA TABLA
     function addNewLocInline(sku) {
         let newLoc = prompt("Ingresa el nombre de la nueva ubicación (Ej. BODEGA 2):");
         if(newLoc && newLoc.trim() !== "") {
@@ -354,7 +350,6 @@
             let st = d===0?`<span class="diff-exact">0</span>`:d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
             let pD = i.prevDiff===null?`--`:i.prevDiff===0?`<span class="diff-ghost">0</span>`:i.prevDiff>0?`<span class="diff-ghost">+${i.prevDiff}</span>`:`<span class="diff-ghost">${i.prevDiff}</span>`;
             
-            // RENDERIZAR LAS MINI-CAJITAS DE UBICACIONES
             let locsHTML = '';
             if (i.locs && i.locs.length > 0) {
                 locsHTML = `<div class="loc-list">`;
@@ -402,8 +397,8 @@
             if(start !== -1) {
                 for(let i=start+1; i<rows.length; i++) {
                     if(!rows[i] || !rows[i][0]) continue;
-                    // Iniciamos locs como array vacío para conteo nuevo
-                    inventoryData.push({ sku: String(rows[i][0]), name: String(rows[i][1]||''), price: parseFloat(rows[i][2])||0, teo: parseInt(rows[i][3])||0, fis: 0, prevDiff: parseInt(rows[i][6])||0, locs: [] });
+                    // MODO DOBLE CIEGO: Teórico inicializado en 0. Físico inicializado en 0.
+                    inventoryData.push({ sku: String(rows[i][0]), name: String(rows[i][1]||''), price: parseFloat(rows[i][2])||0, teo: 0, fis: 0, prevDiff: parseInt(rows[i][6])||0, locs: [] });
                 }
             }
             goToScreen('workspace-screen'); renderTable();
