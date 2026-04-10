@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEPGOD // Control de Inventarios Pro</title>
+    <title>SEPGOD // Suite de Logística</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -17,70 +17,41 @@
             --grid-color: rgba(0, 243, 255, 0.08);
         }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--neon-cyan);
-            font-family: 'Courier New', Courier, monospace;
-            min-height: 100vh;
-            margin: 0;
-            background-image:
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 25px 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+        body { background-color: var(--bg-color); color: var(--neon-cyan); font-family: 'Courier New', Courier, monospace; min-height: 100vh; margin: 0; background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px); background-size: 25px 25px; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
+        
+        .container { background: rgba(10, 10, 12, 0.95); border: 2px solid var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan); border-radius: 4px; padding: 30px; width: 100%; max-width: 1200px; margin-top: 20px; }
 
-        .container {
-            background: rgba(10, 10, 12, 0.95);
-            border: 2px solid var(--neon-cyan);
-            box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan);
-            border-radius: 4px;
-            padding: 30px;
-            width: 100%;
-            max-width: 1200px;
-            margin-top: 20px;
-        }
+        h1, h2 { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
 
-        h1, h2 {
-            color: var(--neon-green);
-            text-shadow: 0 0 5px var(--neon-green);
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 0;
-        }
+        /* PANTALLAS (Vistas de la App) */
+        .screen { display: none; }
+        #home-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; max-width: 800px; gap: 30px; }
+        #home-screen.active { display: flex; }
+        .active { display: block; }
 
-        #setup-screen { display: block; text-align: center; max-width: 800px; }
-        #workspace-screen { display: none; }
+        /* MENÚ PRINCIPAL */
+        .menu-cards { display: flex; gap: 30px; width: 100%; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        .card { flex: 1; min-width: 250px; background: rgba(0,0,0,0.6); border: 1px dashed var(--neon-cyan); padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .card:hover { border-style: solid; box-shadow: 0 0 20px rgba(0,243,255,0.2); transform: translateY(-5px); }
+        .card h3 { color: #fff; margin-bottom: 15px; font-size: 1.4em; }
+        .card p { color: rgba(255,255,255,0.6); font-size: 0.9em; margin-bottom: 25px; }
+        
+        .card.card-pink { border-color: var(--neon-pink); }
+        .card.card-pink:hover { box-shadow: 0 0 20px rgba(255,0,127,0.2); }
 
         .input-group { margin-bottom: 15px; text-align: left; }
         label { display: block; margin-bottom: 5px; font-size: 0.85em; color: var(--neon-cyan); text-transform: uppercase; }
-        
-        input, select {
-            width: 100%; padding: 10px; background: black; border: 1px solid var(--neon-cyan);
-            color: var(--neon-green); font-family: 'Courier New', Courier, monospace;
-            box-sizing: border-box; outline: none; transition: 0.3s;
-        }
+        input, select { width: 100%; padding: 10px; background: black; border: 1px solid var(--neon-cyan); color: var(--neon-green); font-family: inherit; box-sizing: border-box; outline: none; transition: 0.3s; }
         input:focus, select:focus { box-shadow: 0 0 10px var(--neon-cyan); border-color: #fff; }
 
         .flex-row { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
         .flex-row .input-group { flex: 1; min-width: 120px; margin-bottom: 0; }
 
-        button {
-            padding: 12px 20px; background: transparent; color: var(--neon-pink);
-            border: 2px solid var(--neon-pink); font-family: 'Courier New', Courier, monospace;
-            font-size: 1em; font-weight: bold; cursor: pointer; text-transform: uppercase;
-            text-shadow: 0 0 5px var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
-            transition: 0.2s;
-        }
-        button:hover { background: var(--neon-pink); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-pink); text-shadow: none; }
-        
+        button, .btn-label { display: inline-block; padding: 12px 20px; background: transparent; color: var(--neon-pink); border: 2px solid var(--neon-pink); font-family: inherit; font-size: 1em; font-weight: bold; cursor: pointer; text-transform: uppercase; text-shadow: 0 0 5px var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 127, 0.3); transition: 0.2s; text-align: center; }
+        button:hover, .btn-label:hover { background: var(--neon-pink); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-pink); text-shadow: none; }
         .btn-cyan { color: var(--neon-cyan); border-color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
         .btn-cyan:hover { background: var(--neon-cyan); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-cyan); text-shadow: none; }
+        .btn-back { padding: 5px 10px; font-size: 0.8em; border-color: #fff; color: #fff; text-shadow: none; box-shadow: none; }
 
         .toolbar { background: rgba(0,243,255,0.05); padding: 15px; border: 1px solid var(--neon-cyan); margin-bottom: 15px; display: flex; gap: 20px; flex-wrap: wrap; }
 
@@ -96,49 +67,67 @@
         
         .header-info { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--neon-cyan); padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
 
-        /* DASHBOARD FINANCIERO */
         .summary-dashboard { display: flex; gap: 20px; justify-content: space-between; margin-top: 30px; flex-wrap: wrap; }
         .summary-box { flex: 1; min-width: 250px; padding: 20px; text-align: center; border: 1px dashed; background: rgba(0,0,0,0.5); }
         .summary-box.missing { border-color: var(--neon-pink); box-shadow: inset 0 0 15px rgba(255,0,127,0.1); }
-        .summary-box.missing h3 { color: var(--neon-pink); font-size: 1.8em; margin: 10px 0; text-shadow: 0 0 5px var(--neon-pink); }
+        .summary-box.missing h3 { color: var(--neon-pink); font-size: 1.8em; margin: 10px 0; }
         .summary-box.surplus { border-color: var(--neon-yellow); box-shadow: inset 0 0 15px rgba(255,234,0,0.1); }
-        .summary-box.surplus h3 { color: var(--neon-yellow); font-size: 1.8em; margin: 10px 0; text-shadow: 0 0 5px var(--neon-yellow); }
+        .summary-box.surplus h3 { color: var(--neon-yellow); font-size: 1.8em; margin: 10px 0; }
         .summary-box.balance { border-color: var(--neon-cyan); box-shadow: inset 0 0 15px rgba(0,243,255,0.1); }
-        .summary-box.balance h3 { color: var(--neon-cyan); font-size: 1.8em; margin: 10px 0; text-shadow: 0 0 5px var(--neon-cyan); }
-        .summary-box span { font-size: 0.9em; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-        .summary-box p { font-size: 0.85em; margin: 0; color: rgba(255,255,255,0.6); }
-
+        .summary-box.balance h3 { color: var(--neon-cyan); font-size: 1.8em; margin: 10px 0; }
+        
         .inline-add { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 5px; }
         .inline-add input { width: 50px; padding: 4px; text-align: center; border-color: rgba(0,243,255,0.5); }
-        .inline-add button { padding: 4px 8px; font-size: 0.8em; min-width: auto; border-color: var(--neon-cyan); color: var(--neon-cyan); }
-
+        .inline-add button { padding: 4px 8px; font-size: 0.8em; min-width: auto; }
         .inline-teo { width: 60px; padding: 5px; text-align: center; background: rgba(0,243,255,0.1); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-weight: bold; }
-        .inline-teo:focus { background: black; }
+
+        /* LISTA DE ARCHIVOS UNIFICADOR */
+        .file-list { margin-top: 20px; text-align: left; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .file-item { background: rgba(0,243,255,0.1); border: 1px dashed var(--neon-cyan); padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; color: #fff; }
+        .file-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .file-item button { padding: 2px 8px; font-size: 0.7em; border-color: red; color: red; margin: 0; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="setup-screen">
-        <h1>SYS.LOGÍSTICA // CONTEO CÍCLICO</h1>
+    <div class="container screen active" id="home-screen">
+        <h1>SYS.LOGÍSTICA // CORE</h1>
+        <p style="color: rgba(255,255,255,0.6); margin-top: 0;">Selecciona el módulo de operación</p>
         
-        <div class="input-group" style="max-width: 400px; margin: 30px auto;">
-            <label for="inv-title">Título de la Auditoría / Zona</label>
-            <input type="text" id="inv-title" placeholder="Ej. Pasillo 4 - Electrónica">
+        <div class="menu-cards">
+            <div class="card" onclick="goToScreen('setup-screen')">
+                <h3 style="color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan);">[ INVENTARIOS CONTEOS ]</h3>
+                <p>Módulo para operadores. Crear nuevos conteos o continuar auditorías cíclicas en pasillos individuales.</p>
+                <button class="btn-cyan">INICIAR OPERACIÓN</button>
+            </div>
+            <div class="card card-pink" onclick="goToScreen('unify-setup-screen')">
+                <h3 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">[ INVENTARIOS TOTALES ]</h3>
+                <p>Módulo gerencial. Sube múltiples archivos Excel, unifica datos y detecta fugas filtrando artículos estáticos.</p>
+                <button>CONSOLIDAR DATOS</button>
+            </div>
         </div>
+    </div>
 
+    <div class="container screen" id="setup-screen" style="max-width: 800px;">
+        <button class="btn-back" onclick="goToScreen('home-screen')" style="float: left;">&lt; VOLVER AL MENÚ</button>
+        <div style="clear:both; height: 10px;"></div>
+        
+        <h2>CONTEO INDIVIDUAL</h2>
+        <div class="input-group" style="max-width: 400px; margin: 30px auto;">
+            <label>Título de la Auditoría / Zona</label>
+            <input type="text" id="inv-title" placeholder="Ej. Pasillo 4">
+        </div>
         <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
             <button onclick="startNewInventory()">[ CREAR DESDE CERO ]</button>
-            
-            <label for="file-upload" class="btn-cyan" style="display: inline-block; padding: 12px 20px; border: 2px solid var(--neon-cyan); cursor: pointer; font-weight: bold; text-shadow: 0 0 5px var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); text-align: center;">
-                [ CARGAR EXCEL ANTERIOR ]
-            </label>
+            <label for="file-upload" class="btn-label btn-cyan">[ CARGAR EXCEL ANTERIOR ]</label>
             <input type="file" id="file-upload" accept=".xlsx, .xls, .csv" style="display: none;" onchange="loadExcel(event)">
         </div>
     </div>
 
-    <div class="container" id="workspace-screen">
+    <div class="container screen" id="workspace-screen">
         <div class="header-info">
             <div>
+                <button class="btn-back" onclick="goToScreen('home-screen')" style="margin-bottom: 15px;">&lt; MENÚ</button>
                 <h2 id="display-title" style="margin: 0; color: #fff;">TÍTULO_INVENTARIO</h2>
                 <span id="display-time" style="color: rgba(0,243,255,0.6); font-size: 0.85em; display: block; margin-top: 5px;">[ INICIADO: --:-- ]</span>
             </div>
@@ -146,32 +135,13 @@
         </div>
 
         <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-pink); margin-bottom: 20px;">
-            <label style="color: var(--neon-pink); font-weight: bold; margin-bottom: 10px;">> REGISTRAR / SUMAR ARTÍCULO FÍSICO</label>
             <div class="flex-row">
-                <div class="input-group"><label>SKU</label><input type="text" id="item-sku" placeholder="Ej. 10045"></div>
-                <div class="input-group" style="flex: 2;"><label>Nombre</label><input type="text" id="item-name" placeholder="Ej. Monitor 24 pulg"></div>
-                <div class="input-group"><label>Costo Unit. ($)</label><input type="number" id="item-price" placeholder="Ej. 2500" step="0.01"></div>
-                <div class="input-group"><label>Teórico</label><input type="number" id="item-teo" placeholder="Sistema"></div>
+                <div class="input-group"><label>SKU</label><input type="text" id="item-sku" placeholder="SKU"></div>
+                <div class="input-group" style="flex: 2;"><label>Nombre</label><input type="text" id="item-name" placeholder="Descripción"></div>
+                <div class="input-group"><label>Costo</label><input type="number" id="item-price" placeholder="$" step="0.01"></div>
+                <div class="input-group"><label>Teórico</label><input type="number" id="item-teo" placeholder="Sis."></div>
                 <div class="input-group"><label>Físico</label><input type="number" id="item-fis" placeholder="Cant."></div>
                 <button onclick="addItem()" style="height: 40px; margin-bottom: 0;">REGISTRAR</button>
-            </div>
-        </div>
-
-        <div class="toolbar">
-            <div class="input-group" style="flex: 2; margin: 0;">
-                <label style="color: var(--neon-yellow);">Buscar SKU o Nombre</label>
-                <input type="text" id="search-filter" placeholder="Escribe para buscar..." oninput="renderTable()" style="border-color: var(--neon-yellow); color: var(--neon-yellow);">
-            </div>
-            <div class="input-group" style="flex: 1; margin: 0;">
-                <label>Ordenar Inventario Por</label>
-                <select id="sort-filter" onchange="renderTable()">
-                    <option value="default">Orden de Captura</option>
-                    <option value="missing">Dif. Actual: Faltantes (-)</option>
-                    <option value="surplus">Dif. Actual: Sobrantes (+)</option>
-                    <option value="prev-missing">Dif. Anterior: Faltantes (-)</option>
-                    <option value="prev-surplus">Dif. Anterior: Sobrantes (+)</option>
-                    <option value="alpha">Orden Alfabético (A-Z)</option>
-                </select>
             </div>
         </div>
 
@@ -179,72 +149,99 @@
             <table id="inventory-table">
                 <thead>
                     <tr>
-                        <th>SKU</th>
-                        <th style="text-align: left;">NOMBRE DEL ARTÍCULO</th>
-                        <th>PRECIO UNIT.</th>
-                        <th>TEÓRICO (EDITABLE)</th>
-                        <th>FÍSICO (CONTEO)</th>
-                        <th>DIF. ACTUAL</th>
-                        <th>DIF. ANTERIOR</th>
-                        <th>IMPACTO FINANCIERO</th>
-                        <th>ELIMINAR</th>
+                        <th>SKU</th><th style="text-align: left;">NOMBRE</th><th>PRECIO</th><th>TEÓRICO</th><th>FÍSICO</th><th>DIF. ACTUAL</th><th>DIF. ANT.</th><th>IMPACTO</th><th>X</th>
                     </tr>
                 </thead>
-                <tbody id="table-body">
-                </tbody>
+                <tbody id="table-body"></tbody>
             </table>
         </div>
 
         <div class="summary-dashboard">
-            <div class="summary-box missing">
-                <span>Total Faltantes (Fuga)</span>
-                <h3 id="sum-missing">-$0.00</h3>
-                <p id="qty-missing">0 artículos perdidos</p>
-            </div>
-            <div class="summary-box balance">
-                <span>Balance General</span>
-                <h3 id="sum-balance">$0.00</h3>
-                <p id="status-balance">INVENTARIO CUADRADO</p>
-            </div>
-            <div class="summary-box surplus">
-                <span>Total Sobrantes (Extra)</span>
-                <h3 id="sum-surplus">+$0.00</h3>
-                <p id="qty-surplus">0 artículos extra</p>
-            </div>
+            <div class="summary-box missing"><h3 id="sum-missing">-$0.00</h3><p id="qty-missing">0 faltantes</p></div>
+            <div class="summary-box balance"><h3 id="sum-balance">$0.00</h3><p id="status-balance">CUADRADO</p></div>
+            <div class="summary-box surplus"><h3 id="sum-surplus">+$0.00</h3><p id="qty-surplus">0 sobrantes</p></div>
         </div>
-
     </div>
 
+    <div class="container screen" id="unify-setup-screen" style="max-width: 800px; text-align: center;">
+        <button class="btn-back" onclick="goToScreen('home-screen')" style="float: left;">&lt; VOLVER AL MENÚ</button>
+        <div style="clear:both; height: 10px;"></div>
+
+        <h2 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">CONSOLIDACIÓN GLOBAL</h2>
+        <p style="color: #fff; margin-bottom: 30px;">Sube los reportes Excel de los pasillos. El sistema filtrará los artículos en CERO y ordenará los problemas de mayor a menor impacto económico.</p>
+
+        <label for="unify-file-upload" class="btn-label btn-cyan" style="border-style: dashed; padding: 20px 40px;">
+            + AGREGAR ARCHIVO EXCEL
+        </label>
+        <input type="file" id="unify-file-upload" accept=".xlsx, .xls, .csv" style="display: none;" onchange="addFileToUnify(event)">
+
+        <div class="file-list" id="unify-file-list">
+            </div>
+
+        <button onclick="processUnification()" style="margin-top: 30px; font-size: 1.2em; padding: 15px 40px;">[ EJECUTAR UNIFICACIÓN ]</button>
+    </div>
+
+    <div class="container screen" id="unify-workspace-screen">
+        <div class="header-info" style="border-bottom-color: var(--neon-pink);">
+            <div>
+                <button class="btn-back" onclick="goToScreen('unify-setup-screen')" style="margin-bottom: 15px;">&lt; AGREGAR MÁS ARCHIVOS</button>
+                <h2 style="margin: 0; color: var(--neon-pink);">REPORTE GLOBAL UNIFICADO</h2>
+                <span id="unify-file-count" style="color: rgba(255,255,255,0.6); font-size: 0.85em; display: block; margin-top: 5px;">Archivos procesados: 0</span>
+            </div>
+            <button class="btn-cyan" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportUnifiedToExcel()">[ DESCARGAR MASTER (.XLSX) ]</button>
+        </div>
+
+        <div class="summary-dashboard" style="margin-top: 0; margin-bottom: 30px;">
+            <div class="summary-box missing"><h3 id="u-sum-missing">-$0.00</h3><p id="u-qty-missing">0 faltantes netos</p></div>
+            <div class="summary-box balance"><h3 id="u-sum-balance">$0.00</h3><p id="u-status-balance">BALANCE NETO</p></div>
+            <div class="summary-box surplus"><h3 id="u-sum-surplus">+$0.00</h3><p id="u-qty-surplus">0 sobrantes netos</p></div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table id="unify-table">
+                <thead>
+                    <tr>
+                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">SKU</th>
+                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none; text-align: left;">NOMBRE</th>
+                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">PRECIO</th>
+                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">TEÓRICO GLOBAL</th>
+                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">FÍSICO GLOBAL</th>
+                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">VARIANZA NETA</th>
+                        <th style="background: var(--neon-pink); color: #fff; text-shadow:none;">IMPACTO TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody id="unify-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+
 <script>
+    const moneyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2 });
+    
+    // NAVEGACIÓN
+    function goToScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    // ==========================================
+    // LÓGICA MÓDULO 1: CONTEO CÍCLICO
+    // ==========================================
     let inventoryData = [];
     let inventoryTitle = "INVENTARIO_GENERAL";
     let startTimeString = "";
 
-    const moneyFormatter = new Intl.NumberFormat('es-MX', {
-        style: 'currency',
-        currency: 'MXN',
-        minimumFractionDigits: 2
-    });
-
-    function getCurrentDateTime() {
-        const now = new Date();
-        return now.toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' });
-    }
+    function getCurrentDateTime() { return new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }); }
 
     function startNewInventory() {
         const titleInput = document.getElementById('inv-title').value;
-        if(titleInput.trim() === '') {
-            alert('SYS.ERROR: Ingresa un título para el pre-inventario.');
-            return;
-        }
+        if(!titleInput) return alert('Ingresa un título.');
         inventoryTitle = titleInput.toUpperCase();
         startTimeString = getCurrentDateTime();
-        
         document.getElementById('display-title').innerText = "> " + inventoryTitle;
         document.getElementById('display-time').innerText = `[ INICIADO: ${startTimeString} ]`;
-        
-        document.getElementById('setup-screen').style.display = 'none';
-        document.getElementById('workspace-screen').style.display = 'block';
+        goToScreen('workspace-screen');
     }
 
     function addItem() {
@@ -254,270 +251,216 @@
         const teo = parseInt(document.getElementById('item-teo').value) || 0;
         const fis = parseInt(document.getElementById('item-fis').value);
 
-        if(!sku || isNaN(fis)) {
-            alert('SYS.ERROR: El SKU y la Cantidad Física son obligatorios.');
-            return;
-        }
+        if(!sku || isNaN(fis)) return alert('SKU y Físico son obligatorios.');
 
-        const existingIndex = inventoryData.findIndex(item => item.sku === sku);
-        if (existingIndex >= 0) {
-            inventoryData[existingIndex].fis += fis;
-            if(price > 0) inventoryData[existingIndex].price = price;
-            if(document.getElementById('item-teo').value !== "") {
-                inventoryData[existingIndex].teo = teo;
-            }
+        const index = inventoryData.findIndex(i => i.sku === sku);
+        if (index >= 0) {
+            inventoryData[index].fis += fis;
+            if(price > 0) inventoryData[index].price = price;
+            if(document.getElementById('item-teo').value !== "") inventoryData[index].teo = teo;
         } else {
-            inventoryData.push({ sku, name: name || 'Artículo Sin Nombre', price, teo, fis, prevDiff: null });
+            inventoryData.push({ sku, name: name || 'Sin Nombre', price, teo, fis, prevDiff: null });
         }
-
-        document.getElementById('item-sku').value = '';
-        document.getElementById('item-name').value = '';
-        document.getElementById('item-price').value = '';
-        document.getElementById('item-teo').value = '';
-        document.getElementById('item-fis').value = '';
+        document.getElementById('item-sku').value = ''; document.getElementById('item-name').value = ''; document.getElementById('item-price').value = ''; document.getElementById('item-teo').value = ''; document.getElementById('item-fis').value = '';
         document.getElementById('item-sku').focus();
-
         renderTable();
     }
 
     function modifyPhysicalInline(sku) {
-        const inputId = `inline-mod-${sku}`;
-        const val = parseInt(document.getElementById(inputId).value);
-        if(!isNaN(val)) {
-            const item = inventoryData.find(i => i.sku === sku);
-            if(item) {
-                item.fis += val; 
-                renderTable();
-            }
-        }
+        const val = parseInt(document.getElementById(`inline-mod-${sku}`).value);
+        if(!isNaN(val)) { inventoryData.find(i => i.sku === sku).fis += val; renderTable(); }
     }
-
-    function updateTeoInline(sku, val) {
-        const num = parseInt(val) || 0;
-        const item = inventoryData.find(i => i.sku === sku);
-        if(item) {
-            item.teo = num;
-            renderTable();
-        }
-    }
-
-    function deleteItem(sku) {
-        inventoryData = inventoryData.filter(item => item.sku !== sku);
-        renderTable();
-    }
+    function updateTeoInline(sku, val) { inventoryData.find(i => i.sku === sku).teo = parseInt(val)||0; renderTable(); }
+    function deleteItem(sku) { inventoryData = inventoryData.filter(i => i.sku !== sku); renderTable(); }
 
     function renderTable() {
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = '';
+        let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
 
-        const searchTerm = document.getElementById('search-filter').value.trim().toLowerCase();
-        const sortMode = document.getElementById('sort-filter').value;
-
-        let displayData = [...inventoryData];
-
-        if (searchTerm !== '') {
-            displayData = displayData.filter(item => 
-                item.sku.toLowerCase().includes(searchTerm) || 
-                item.name.toLowerCase().includes(searchTerm)
-            );
-        }
-
-        // APLICACIÓN DE TODOS LOS FILTROS
-        if (sortMode === 'missing') {
-            displayData.sort((a, b) => (a.fis - a.teo) - (b.fis - b.teo));
-        } else if (sortMode === 'surplus') {
-            displayData.sort((a, b) => (b.fis - b.teo) - (a.fis - a.teo));
-        } else if (sortMode === 'prev-missing') {
-            displayData.sort((a, b) => (a.prevDiff || 0) - (b.prevDiff || 0));
-        } else if (sortMode === 'prev-surplus') {
-            displayData.sort((a, b) => (b.prevDiff || 0) - (a.prevDiff || 0));
-        } else if (sortMode === 'alpha') {
-            displayData.sort((a, b) => a.name.localeCompare(b.name));
-        }
-
-        let totalMissingQty = 0, totalMissingMoney = 0, totalSurplusQty = 0, totalSurplusMoney = 0;
-        inventoryData.forEach(item => {
-            const diff = item.fis - item.teo;
-            const financialImpact = diff * item.price;
-            if (diff > 0) { totalSurplusQty += diff; totalSurplusMoney += financialImpact; } 
-            else if (diff < 0) { totalMissingQty += Math.abs(diff); totalMissingMoney += Math.abs(financialImpact); }
-        });
-        updateDashboard(totalMissingQty, totalMissingMoney, totalSurplusQty, totalSurplusMoney);
-
-        displayData.forEach(item => {
-            const diff = item.fis - item.teo;
-            const financialImpact = diff * item.price;
-            let statusHTML = '', impactHTML = '', prevDiffHTML = '';
-
-            if (diff === 0) {
-                statusHTML = `<span class="diff-exact">0</span>`;
-                impactHTML = `<span style="color: rgba(255,255,255,0.5);">${moneyFormatter.format(0)}</span>`;
-            } else if (diff > 0) {
-                statusHTML = `<span class="diff-surplus">+${diff}</span>`;
-                impactHTML = `<span style="color: var(--neon-yellow);">${moneyFormatter.format(financialImpact)}</span>`;
-            } else {
-                statusHTML = `<span class="diff-missing">${diff}</span>`;
-                impactHTML = `<span style="color: var(--neon-pink);">${moneyFormatter.format(financialImpact)}</span>`;
-            }
-
-            if (item.prevDiff !== null && item.prevDiff !== undefined) {
-                if (item.prevDiff === 0) prevDiffHTML = `<span class="diff-ghost">0</span>`;
-                else if (item.prevDiff > 0) prevDiffHTML = `<span class="diff-ghost">+${item.prevDiff}</span>`;
-                else prevDiffHTML = `<span class="diff-ghost">${item.prevDiff}</span>`;
-            } else {
-                prevDiffHTML = `<span class="diff-ghost">--</span>`;
-            }
-
-            const row = `<tr>
-                <td style="color: var(--neon-cyan);">${item.sku}</td>
-                <td style="text-align: left;">${item.name}</td>
-                <td>${moneyFormatter.format(item.price)}</td>
-                <td>
-                    <input type="number" class="inline-teo" value="${item.teo}" onchange="updateTeoInline('${item.sku}', this.value)" title="Modificar Teórico">
-                </td>
-                <td>
-                    <span style="font-size: 1.2em; font-weight: bold; display: block;">${item.fis}</span>
-                    <div class="inline-add">
-                        <input type="number" id="inline-mod-${item.sku}" placeholder="+/-">
-                        <button class="btn-cyan" onclick="modifyPhysicalInline('${item.sku}')">OK</button>
-                    </div>
-                </td>
-                <td style="font-size: 1.1em;">${statusHTML}</td>
-                <td>${prevDiffHTML}</td>
-                <td>${impactHTML}</td>
-                <td><button onclick="deleteItem('${item.sku}')" style="padding: 2px 8px; font-size: 0.7em; border-color: red; color: red;">X</button></td>
-            </tr>`;
-            tbody.innerHTML += row;
-        });
-    }
-
-    function updateDashboard(missQty, missMoney, surpQty, surpMoney) {
-        document.getElementById('qty-missing').innerText = `${missQty} artículos perdidos`;
-        document.getElementById('sum-missing').innerText = `-${moneyFormatter.format(missMoney)}`;
-        document.getElementById('qty-surplus').innerText = `${surpQty} artículos extra`;
-        document.getElementById('sum-surplus').innerText = `+${moneyFormatter.format(surpMoney)}`;
-
-        const balanceTotal = surpMoney - missMoney;
-        const balanceEl = document.getElementById('sum-balance');
-        const statusEl = document.getElementById('status-balance');
-
-        balanceEl.innerText = moneyFormatter.format(balanceTotal);
-
-        if (balanceTotal === 0 && missQty === 0 && surpQty === 0) {
-            balanceEl.style.color = 'var(--neon-cyan)';
-            statusEl.innerText = 'INVENTARIO CUADRADO EXACTO';
-        } else if (balanceTotal >= 0) {
-            balanceEl.style.color = 'var(--neon-yellow)';
-            statusEl.innerText = 'BALANCE A FAVOR (CUIDADO CON MALA RECEPCIÓN)';
-        } else {
-            balanceEl.style.color = 'var(--neon-pink)';
-            statusEl.innerText = 'MERMA / ROBO DETECTADO';
-        }
-    }
-
-    function exportInventoryToExcel() {
-        if(inventoryData.length === 0) {
-            alert('No hay datos para exportar.');
-            return;
-        }
-
-        const endTimeString = getCurrentDateTime();
-
-        let ws_data = [
-            ["REPORTE DE AUDITORÍA", inventoryTitle],
-            ["INICIADO:", startTimeString],
-            ["FINALIZADO:", endTimeString],
-            [], 
-            ["SKU", "NOMBRE DEL ARTÍCULO", "PRECIO UNIT.", "TEÓRICO", "FÍSICO", "VARIANZA", "VARIANZA ANTERIOR", "IMPACTO FINANCIERO"]
-        ];
-
-        inventoryData.forEach(item => {
-            const diff = item.fis - item.teo;
-            const impact = diff * item.price;
+        inventoryData.forEach(i => {
+            let d = i.fis - i.teo, imp = d * i.price;
+            if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);}
             
-            ws_data.push([
-                item.sku,                 
-                item.name,                
-                Number(item.price),       
-                Number(item.teo),         
-                Number(item.fis),         
-                Number(diff),
-                Number(item.prevDiff || 0),             
-                Number(impact)            
-            ]);
+            let st = d===0?`<span class="diff-exact">0</span>`:d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
+            let pD = i.prevDiff===null?`--`:i.prevDiff===0?`<span class="diff-ghost">0</span>`:i.prevDiff>0?`<span class="diff-ghost">+${i.prevDiff}</span>`:`<span class="diff-ghost">${i.prevDiff}</span>`;
+            
+            tbody.innerHTML += `<tr>
+                <td style="color: var(--neon-cyan);">${i.sku}</td><td style="text-align:left;">${i.name}</td><td>${moneyFormatter.format(i.price)}</td>
+                <td><input type="number" class="inline-teo" value="${i.teo}" onchange="updateTeoInline('${i.sku}', this.value)"></td>
+                <td><span style="font-size: 1.2em; font-weight:bold;">${i.fis}</span><div class="inline-add"><input type="number" id="inline-mod-${i.sku}"><button class="btn-cyan" onclick="modifyPhysicalInline('${i.sku}')">OK</button></div></td>
+                <td>${st}</td><td>${pD}</td>
+                <td style="color:${d>0?'var(--neon-yellow)':d<0?'var(--neon-pink)':'rgba(255,255,255,0.5)'}">${moneyFormatter.format(imp)}</td>
+                <td><button onclick="deleteItem('${i.sku}')" style="color:red; border-color:red; padding:2px 8px;">X</button></td>
+            </tr>`;
         });
-
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-        ws['!cols'] = [
-            { wch: 15 }, { wch: 40 }, { wch: 15 }, { wch: 12 }, 
-            { wch: 12 }, { wch: 15 }, { wch: 20 }, { wch: 20 }
-        ];
-
-        XLSX.utils.book_append_sheet(wb, ws, "Auditoria");
-        XLSX.writeFile(wb, `${inventoryTitle.replace(/ /g, '_')}_AUDITORIA.xlsx`);
+        document.getElementById('qty-missing').innerText = `${tMissQ} perdidos`; document.getElementById('sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`;
+        document.getElementById('qty-surplus').innerText = `${tSurpQ} extra`; document.getElementById('sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`;
+        document.getElementById('sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM);
+        document.getElementById('sum-balance').style.color = (tSurpM - tMissM) >= 0 ? (tSurpM===tMissM && tMissQ===0 ? 'var(--neon-cyan)' : 'var(--neon-yellow)') : 'var(--neon-pink)';
     }
 
     function loadExcel(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        inventoryTitle = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
-        startTimeString = getCurrentDateTime(); 
-
-        document.getElementById('display-title').innerText = "> " + inventoryTitle;
-        document.getElementById('display-time').innerText = `[ INICIADO: ${startTimeString} ]`;
-
+        const file = event.target.files[0]; if (!file) return;
+        inventoryTitle = file.name.replace(/\.[^/.]+$/, "").toUpperCase(); startTimeString = getCurrentDateTime();
+        document.getElementById('display-title').innerText = "> " + inventoryTitle; document.getElementById('display-time').innerText = `[ INICIADO: ${startTimeString} ]`;
         const reader = new FileReader();
         reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, {type: 'array'});
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            
-            const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+            const rows = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).Sheets[XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).SheetNames[0]], {header: 1});
             inventoryData = [];
-
-            let startIndex = -1;
-            for(let i = 0; i < rows.length; i++) {
-                if(rows[i][0] === "SKU" && rows[i][1] === "NOMBRE DEL ARTÍCULO") {
-                    startIndex = i + 1;
-                    break;
+            let start = rows.findIndex(r => r[0] === "SKU");
+            if(start !== -1) {
+                for(let i=start+1; i<rows.length; i++) {
+                    if(!rows[i] || !rows[i][0]) continue;
+                    inventoryData.push({ sku: String(rows[i][0]), name: String(rows[i][1]||''), price: parseFloat(rows[i][2])||0, teo: parseInt(rows[i][3])||0, fis: 0, prevDiff: parseInt(rows[i][5])||0 });
                 }
             }
+            goToScreen('workspace-screen'); renderTable();
+        }; reader.readAsArrayBuffer(file);
+    }
 
-            if (startIndex !== -1) {
-                for (let i = startIndex; i < rows.length; i++) {
-                    const row = rows[i];
-                    if (!row || row.length === 0 || !row[0]) continue; 
+    function exportInventoryToExcel() {
+        if(!inventoryData.length) return alert('No hay datos.');
+        let ws_data = [["REPORTE", inventoryTitle], ["INICIO:", startTimeString], ["FIN:", getCurrentDateTime()], [], ["SKU", "NOMBRE", "PRECIO", "TEORICO", "FISICO", "VARIANZA_ACTUAL", "VARIANZA_ANTERIOR", "IMPACTO"]];
+        inventoryData.forEach(i => ws_data.push([i.sku, i.name, Number(i.price), Number(i.teo), Number(i.fis), Number(i.fis-i.teo), Number(i.prevDiff||0), Number((i.fis-i.teo)*i.price)]));
+        let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data);
+        ws['!cols'] = [{wch:15},{wch:40},{wch:15},{wch:12},{wch:12},{wch:15},{wch:18},{wch:20}];
+        XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); XLSX.writeFile(wb, `${inventoryTitle.replace(/ /g, '_')}.xlsx`);
+    }
+
+    // ==========================================
+    // LÓGICA MÓDULO 2: CONSOLIDADOR GLOBAL
+    // ==========================================
+    let unifyFiles = [];
+    let unifiedFinalData = [];
+
+    function addFileToUnify(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        unifyFiles.push(file);
+        
+        // Render list
+        const listEl = document.getElementById('unify-file-list');
+        const id = unifyFiles.length - 1;
+        listEl.innerHTML += `
+            <div class="file-item" id="ufile-${id}">
+                <span>📄 ${file.name}</span>
+                <button onclick="removeFileToUnify(${id})">X</button>
+            </div>
+        `;
+        // Reset input to allow selecting same file again if needed
+        event.target.value = '';
+    }
+
+    function removeFileToUnify(index) {
+        unifyFiles[index] = null; // We null it to keep indexes intact
+        document.getElementById(`ufile-${index}`).style.display = 'none';
+    }
+
+    // Promesa para leer archivo
+    function readExcelAsync(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
+                resolve(rows);
+            };
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    async function processUnification() {
+        const activeFiles = unifyFiles.filter(f => f !== null);
+        if(activeFiles.length === 0) return alert('Por favor agrega al menos un archivo Excel.');
+
+        document.getElementById('unify-file-count').innerText = `Archivos unificados: ${activeFiles.length}`;
+        let masterMap = {};
+
+        // 1. Leer todos los archivos y sumar
+        for(let file of activeFiles) {
+            const rows = await readExcelAsync(file);
+            let start = rows.findIndex(r => r[0] === "SKU");
+            if(start !== -1) {
+                for(let i = start + 1; i < rows.length; i++) {
+                    if(!rows[i] || !rows[i][0]) continue;
                     
-                    const sku = String(row[0]).trim();
-                    const name = String(row[1] || '').trim();
-                    const price = parseFloat(row[2]) || 0;
-                    const teo = parseInt(row[3]) || 0; 
-                    
-                    // Nota: En la exportación agregamos la "Varianza Anterior" en la columna F (index 5) y G (index 6).
-                    // Asumimos que la varianza actual del Excel que estamos cargando está en la columna 5.
-                    const prevDiff = parseInt(row[5]) || 0; 
-                    const fis = 0; 
-                    
-                    if (sku) {
-                        inventoryData.push({ sku, name, price, teo, fis, prevDiff });
+                    let sku = String(rows[i][0]).trim();
+                    let name = String(rows[i][1] || '').trim();
+                    let price = parseFloat(rows[i][2]) || 0;
+                    let teo = parseInt(rows[i][3]) || 0;
+                    let fis = parseInt(rows[i][4]) || 0;
+
+                    if(!masterMap[sku]) {
+                        masterMap[sku] = { sku, name, price, teo: 0, fis: 0 };
                     }
+                    // Sumamos las cantidades de todas las zonas
+                    masterMap[sku].teo += teo;
+                    masterMap[sku].fis += fis;
+                    // Si el precio viene actualizado en algún archivo, lo toma
+                    if(price > 0) masterMap[sku].price = price;
                 }
-            } else {
-                alert("SYS.ERROR: Formato de Excel no reconocido. Asegúrate de cargar un archivo generado por este sistema.");
-                return;
             }
+        }
+
+        // 2. Filtrar "Lo que no se mueve" (Variación 0)
+        let filteredArray = Object.values(masterMap).filter(item => (item.fis - item.teo) !== 0);
+
+        // 3. Ordenar: Desde lo que más se pierde hasta lo que menos (Impacto Negativo -> Positivo)
+        filteredArray.sort((a, b) => {
+            let impactA = (a.fis - a.teo) * a.price;
+            let impactB = (b.fis - b.teo) * b.price;
+            return impactA - impactB; // Menor a Mayor (Negativos arriba)
+        });
+
+        unifiedFinalData = filteredArray;
+        renderUnifiedTable();
+        goToScreen('unify-workspace-screen');
+    }
+
+    function renderUnifiedTable() {
+        const tbody = document.getElementById('unify-table-body');
+        tbody.innerHTML = '';
+
+        let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
+
+        unifiedFinalData.forEach(i => {
+            let d = i.fis - i.teo;
+            let imp = d * i.price;
             
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('workspace-screen').style.display = 'block';
-            renderTable();
-        };
-        reader.readAsArrayBuffer(file);
+            if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);}
+
+            let st = d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
+            let colorImp = d>0?'var(--neon-yellow)':'var(--neon-pink)';
+
+            tbody.innerHTML += `<tr>
+                <td style="color: #fff; font-weight:bold;">${i.sku}</td>
+                <td style="text-align:left;">${i.name}</td>
+                <td>${moneyFormatter.format(i.price)}</td>
+                <td>${i.teo}</td>
+                <td style="font-weight:bold; color:var(--neon-cyan);">${i.fis}</td>
+                <td style="font-size: 1.1em;">${st}</td>
+                <td style="color:${colorImp}; font-weight:bold;">${moneyFormatter.format(imp)}</td>
+            </tr>`;
+        });
+
+        // Dashboard
+        document.getElementById('u-qty-missing').innerText = `${tMissQ} faltantes netos`; document.getElementById('u-sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`;
+        document.getElementById('u-qty-surplus').innerText = `${tSurpQ} sobrantes netos`; document.getElementById('u-sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`;
+        document.getElementById('u-sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM);
+        document.getElementById('u-sum-balance').style.color = (tSurpM - tMissM) >= 0 ? 'var(--neon-cyan)' : 'var(--neon-pink)';
+    }
+
+    function exportUnifiedToExcel() {
+        if(!unifiedFinalData.length) return alert('No hay datos para exportar.');
+        let ws_data = [["REPORTE GLOBAL UNIFICADO"], ["FECHA:", getCurrentDateTime()], [], ["SKU", "NOMBRE", "PRECIO", "TEORICO GLOBAL", "FISICO GLOBAL", "VARIANZA NETA", "IMPACTO TOTAL"]];
+        unifiedFinalData.forEach(i => ws_data.push([i.sku, i.name, Number(i.price), Number(i.teo), Number(i.fis), Number(i.fis-i.teo), Number((i.fis-i.teo)*i.price)]));
+        let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data);
+        ws['!cols'] = [{wch:15},{wch:40},{wch:15},{wch:15},{wch:15},{wch:15},{wch:20}];
+        XLSX.utils.book_append_sheet(wb, ws, "Master"); XLSX.writeFile(wb, `INVENTARIO_GLOBAL_UNIFICADO.xlsx`);
     }
 </script>
-
 </body>
 </html>
