@@ -145,6 +145,24 @@
             </div>
         </div>
 
+        <div class="toolbar">
+            <div class="input-group" style="flex: 2; margin: 0;">
+                <label style="color: var(--neon-yellow);">Buscar SKU o Nombre</label>
+                <input type="text" id="search-filter" placeholder="Escribe para buscar..." oninput="renderTable()" style="border-color: var(--neon-yellow); color: var(--neon-yellow);">
+            </div>
+            <div class="input-group" style="flex: 1; margin: 0;">
+                <label>Ordenar Inventario Por</label>
+                <select id="sort-filter" onchange="renderTable()">
+                    <option value="default">Orden de Captura</option>
+                    <option value="missing">Dif. Actual: Faltantes (-)</option>
+                    <option value="surplus">Dif. Actual: Sobrantes (+)</option>
+                    <option value="prev-missing">Dif. Anterior: Faltantes (-)</option>
+                    <option value="prev-surplus">Dif. Anterior: Sobrantes (+)</option>
+                    <option value="alpha">Orden Alfabético (A-Z)</option>
+                </select>
+            </div>
+        </div>
+
         <div style="overflow-x: auto;">
             <table id="inventory-table">
                 <thead>
@@ -276,12 +294,45 @@
     function renderTable() {
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = '';
-        let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
 
+        // 1. OBTENER VALORES DE LOS FILTROS
+        const searchTerm = document.getElementById('search-filter').value.trim().toLowerCase();
+        const sortMode = document.getElementById('sort-filter').value;
+
+        // 2. CREAR UN ARRAY COPIA PARA MOSTRAR (Evita alterar la base original)
+        let displayData = [...inventoryData];
+
+        // 3. APLICAR BÚSQUEDA
+        if (searchTerm !== '') {
+            displayData = displayData.filter(item => 
+                item.sku.toLowerCase().includes(searchTerm) || 
+                item.name.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // 4. APLICAR ORDENAMIENTO
+        if (sortMode === 'missing') {
+            displayData.sort((a, b) => (a.fis - a.teo) - (b.fis - b.teo));
+        } else if (sortMode === 'surplus') {
+            displayData.sort((a, b) => (b.fis - b.teo) - (a.fis - a.teo));
+        } else if (sortMode === 'prev-missing') {
+            displayData.sort((a, b) => (a.prevDiff || 0) - (b.prevDiff || 0));
+        } else if (sortMode === 'prev-surplus') {
+            displayData.sort((a, b) => (b.prevDiff || 0) - (a.prevDiff || 0));
+        } else if (sortMode === 'alpha') {
+            displayData.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        // 5. CALCULAR DASHBOARD GLOBAL (Sobre TODOS los datos, no solo los filtrados)
+        let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
         inventoryData.forEach(i => {
             let d = i.fis - i.teo, imp = d * i.price;
             if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);}
-            
+        });
+
+        // 6. DIBUJAR LA TABLA CON LA DATA FILTRADA/ORDENADA
+        displayData.forEach(i => {
+            let d = i.fis - i.teo, imp = d * i.price;
             let st = d===0?`<span class="diff-exact">0</span>`:d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
             let pD = i.prevDiff===null?`--`:i.prevDiff===0?`<span class="diff-ghost">0</span>`:i.prevDiff>0?`<span class="diff-ghost">+${i.prevDiff}</span>`:`<span class="diff-ghost">${i.prevDiff}</span>`;
             
@@ -294,6 +345,8 @@
                 <td><button onclick="deleteItem('${i.sku}')" style="color:red; border-color:red; padding:2px 8px;">X</button></td>
             </tr>`;
         });
+
+        // Actualizar UI del Dashboard
         document.getElementById('qty-missing').innerText = `${tMissQ} perdidos`; document.getElementById('sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`;
         document.getElementById('qty-surplus').innerText = `${tSurpQ} extra`; document.getElementById('sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`;
         document.getElementById('sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM);
@@ -340,7 +393,6 @@
         
         unifyFiles.push(file);
         
-        // Render list
         const listEl = document.getElementById('unify-file-list');
         const id = unifyFiles.length - 1;
         listEl.innerHTML += `
@@ -349,16 +401,14 @@
                 <button onclick="removeFileToUnify(${id})">X</button>
             </div>
         `;
-        // Reset input to allow selecting same file again if needed
         event.target.value = '';
     }
 
     function removeFileToUnify(index) {
-        unifyFiles[index] = null; // We null it to keep indexes intact
+        unifyFiles[index] = null; 
         document.getElementById(`ufile-${index}`).style.display = 'none';
     }
 
-    // Promesa para leer archivo
     function readExcelAsync(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -379,7 +429,6 @@
         document.getElementById('unify-file-count').innerText = `Archivos unificados: ${activeFiles.length}`;
         let masterMap = {};
 
-        // 1. Leer todos los archivos y sumar
         for(let file of activeFiles) {
             const rows = await readExcelAsync(file);
             let start = rows.findIndex(r => r[0] === "SKU");
@@ -396,23 +445,19 @@
                     if(!masterMap[sku]) {
                         masterMap[sku] = { sku, name, price, teo: 0, fis: 0 };
                     }
-                    // Sumamos las cantidades de todas las zonas
                     masterMap[sku].teo += teo;
                     masterMap[sku].fis += fis;
-                    // Si el precio viene actualizado en algún archivo, lo toma
                     if(price > 0) masterMap[sku].price = price;
                 }
             }
         }
 
-        // 2. Filtrar "Lo que no se mueve" (Variación 0)
         let filteredArray = Object.values(masterMap).filter(item => (item.fis - item.teo) !== 0);
 
-        // 3. Ordenar: Desde lo que más se pierde hasta lo que menos (Impacto Negativo -> Positivo)
         filteredArray.sort((a, b) => {
             let impactA = (a.fis - a.teo) * a.price;
             let impactB = (b.fis - b.teo) * b.price;
-            return impactA - impactB; // Menor a Mayor (Negativos arriba)
+            return impactA - impactB; 
         });
 
         unifiedFinalData = filteredArray;
@@ -446,7 +491,6 @@
             </tr>`;
         });
 
-        // Dashboard
         document.getElementById('u-qty-missing').innerText = `${tMissQ} faltantes netos`; document.getElementById('u-sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`;
         document.getElementById('u-qty-surplus').innerText = `${tSurpQ} sobrantes netos`; document.getElementById('u-sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`;
         document.getElementById('u-sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM);
