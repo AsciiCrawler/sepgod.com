@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEPGOD // Control de Inventarios Pro</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
         :root {
             --neon-green: #39ff14;
@@ -123,9 +126,9 @@
             <button onclick="startNewInventory()">[ CREAR DESDE CERO ]</button>
             
             <label for="file-upload" class="btn-cyan" style="display: inline-block; padding: 12px 20px; border: 2px solid var(--neon-cyan); cursor: pointer; font-weight: bold; text-shadow: 0 0 5px var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);">
-                [ CARGAR LISTA CSV ]
+                [ CARGAR LISTA EXCEL ]
             </label>
-            <input type="file" id="file-upload" accept=".csv" style="display: none;" onchange="loadCSV(event)">
+            <input type="file" id="file-upload" accept=".xlsx, .xls, .csv" style="display: none;" onchange="loadExcel(event)">
         </div>
     </div>
 
@@ -135,7 +138,7 @@
                 <h2 id="display-title" style="margin: 0; color: #fff;">TÍTULO_INVENTARIO</h2>
                 <span id="display-time" style="color: rgba(0,243,255,0.6); font-size: 0.85em; display: block; margin-top: 5px;">[ INICIADO: --:-- ]</span>
             </div>
-            <button class="btn-cyan" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportInventory()">[ DESCARGAR REPORTE Y CERRAR ]</button>
+            <button class="btn-cyan" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportInventoryToExcel()">[ EXPORTAR EXCEL (.XLSX) ]</button>
         </div>
 
         <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-pink); margin-bottom: 20px;">
@@ -181,7 +184,7 @@
                     </tr>
                 </thead>
                 <tbody id="table-body">
-                    </tbody>
+                </tbody>
             </table>
         </div>
 
@@ -216,13 +219,11 @@
         minimumFractionDigits: 2
     });
 
-    // OBTENER FECHA Y HORA ACTUAL FORMATEADA
     function getCurrentDateTime() {
         const now = new Date();
         return now.toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' });
     }
 
-    // INICIAR DESDE CERO
     function startNewInventory() {
         const titleInput = document.getElementById('inv-title').value;
         if(titleInput.trim() === '') {
@@ -239,7 +240,6 @@
         document.getElementById('workspace-screen').style.display = 'block';
     }
 
-    // AGREGAR O SUMAR ARTÍCULO
     function addItem() {
         const sku = document.getElementById('item-sku').value.trim();
         const name = document.getElementById('item-name').value;
@@ -273,7 +273,6 @@
         renderTable();
     }
 
-    // EDITAR FÍSICO INLINE
     function modifyPhysicalInline(sku) {
         const inputId = `inline-mod-${sku}`;
         const val = parseInt(document.getElementById(inputId).value);
@@ -287,25 +286,20 @@
         }
     }
 
-    // ELIMINAR ARTÍCULO
     function deleteItem(sku) {
         inventoryData = inventoryData.filter(item => item.sku !== sku);
         renderTable();
     }
 
-    // DIBUJAR LA TABLA (CON FILTROS Y BÚSQUEDA APLICADOS)
     function renderTable() {
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = '';
 
-        // 1. OBTENER VALORES DE LOS FILTROS
         const searchTerm = document.getElementById('search-filter').value.trim().toLowerCase();
         const sortMode = document.getElementById('sort-filter').value;
 
-        // 2. CREAR UN ARRAY COPIA PARA MOSTRAR (Para no destruir los datos originales al filtrar)
         let displayData = [...inventoryData];
 
-        // 3. APLICAR BÚSQUEDA EN VIVO (Por SKU o por Nombre)
         if (searchTerm !== '') {
             displayData = displayData.filter(item => 
                 item.sku.toLowerCase().includes(searchTerm) || 
@@ -313,19 +307,14 @@
             );
         }
 
-        // 4. APLICAR ORDENAMIENTO
         if (sortMode === 'missing') {
-            // Mermas primero: Ordena de menor a mayor (los negativos fuertes quedan arriba)
             displayData.sort((a, b) => (a.fis - a.teo) - (b.fis - b.teo));
         } else if (sortMode === 'surplus') {
-            // Sobrantes primero: Ordena de mayor a menor (los positivos fuertes quedan arriba)
             displayData.sort((a, b) => (b.fis - b.teo) - (a.fis - a.teo));
         } else if (sortMode === 'alpha') {
-            // Alfabético (A-Z)
             displayData.sort((a, b) => a.name.localeCompare(b.name));
         }
 
-        // 5. CALCULAR DASHBOARD GLOBAL (Se calcula con TODA la base de datos, no solo lo filtrado)
         let totalMissingQty = 0, totalMissingMoney = 0, totalSurplusQty = 0, totalSurplusMoney = 0;
         inventoryData.forEach(item => {
             const diff = item.fis - item.teo;
@@ -335,7 +324,6 @@
         });
         updateDashboard(totalMissingQty, totalMissingMoney, totalSurplusQty, totalSurplusMoney);
 
-        // 6. PINTAR LA TABLA CON LOS DATOS FILTRADOS
         displayData.forEach(item => {
             const diff = item.fis - item.teo;
             const financialImpact = diff * item.price;
@@ -396,8 +384,10 @@
         }
     }
 
-    // EXPORTAR A CSV (CON METADATOS DE TIEMPO)
-    function exportInventory() {
+    // ==========================================
+    // NUEVO: EXPORTACIÓN A EXCEL NATIVO (.XLSX)
+    // ==========================================
+    function exportInventoryToExcel() {
         if(inventoryData.length === 0) {
             alert('No hay datos para exportar.');
             return;
@@ -405,79 +395,111 @@
 
         const endTimeString = getCurrentDateTime();
 
-        let csv = [
-            `"--- REPORTE DE AUDITORIA: ${inventoryTitle} ---"`,
-            `"INICIADO:","${startTimeString}"`,
-            `"FINALIZADO:","${endTimeString}"`,
-            `""`, // Línea en blanco separadora
-            'SKU,NOMBRE,PRECIO_UNITARIO,TEORICO,FISICO,VARIANZA_CANTIDAD,IMPACTO_FINANCIERO'
+        // Creamos la estructura del archivo en memoria
+        let ws_data = [
+            ["REPORTE DE AUDITORÍA", inventoryTitle],
+            ["INICIADO:", startTimeString],
+            ["FINALIZADO:", endTimeString],
+            [], // Fila en blanco
+            ["SKU", "NOMBRE DEL ARTÍCULO", "PRECIO UNIT.", "TEÓRICO", "FÍSICO", "VARIANZA", "IMPACTO FINANCIERO"]
         ];
 
+        // Llenamos las filas con los datos como NÚMEROS REALES (no texto)
         inventoryData.forEach(item => {
             const diff = item.fis - item.teo;
             const impact = diff * item.price;
-            const cleanName = item.name.replace(/,/g, ''); 
-            csv.push(`"${item.sku}","${cleanName}",${item.price},${item.teo},${item.fis},${diff},${impact}`);
+            
+            ws_data.push([
+                item.sku,                 // Texto
+                item.name,                // Texto
+                Number(item.price),       // Número real para Excel
+                Number(item.teo),         // Número real
+                Number(item.fis),         // Número real
+                Number(diff),             // Número real
+                Number(impact)            // Número real
+            ]);
         });
 
-        const csvFile = new Blob(["\uFEFF" + csv.join("\n")], {type: "text/csv;charset=utf-8;"});
-        const downloadLink = document.createElement("a");
-        downloadLink.download = `${inventoryTitle.replace(/ /g, '_')}_AUDITORIA.csv`;
-        downloadLink.href = window.URL.createObjectURL(csvFile);
-        downloadLink.style.display = "none";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+        // Generamos la hoja de cálculo
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+        // Le damos anchos bonitos y corporativos a las columnas
+        ws['!cols'] = [
+            { wch: 15 }, // SKU
+            { wch: 40 }, // NOMBRE
+            { wch: 15 }, // PRECIO
+            { wch: 12 }, // TEORICO
+            { wch: 12 }, // FISICO
+            { wch: 15 }, // VARIANZA
+            { wch: 20 }  // IMPACTO
+        ];
+
+        // Empaquetamos y forzamos la descarga del .xlsx
+        XLSX.utils.book_append_sheet(wb, ws, "Auditoria");
+        XLSX.writeFile(wb, `${inventoryTitle.replace(/ /g, '_')}_AUDITORIA.xlsx`);
     }
 
-    // IMPORTAR DESDE CSV
-    function loadCSV(event) {
+    // ==========================================
+    // NUEVO: IMPORTACIÓN DE EXCEL NATIVO (.XLSX)
+    // ==========================================
+    function loadExcel(event) {
         const file = event.target.files[0];
         if (!file) return;
 
-        inventoryTitle = file.name.replace('.csv', '').toUpperCase();
-        startTimeString = getCurrentDateTime(); // Asignamos hora al momento de cargar el archivo
+        inventoryTitle = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+        startTimeString = getCurrentDateTime(); 
 
         document.getElementById('display-title').innerText = "> " + inventoryTitle;
         document.getElementById('display-time').innerText = `[ INICIADO: ${startTimeString} ]`;
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            const text = e.target.result;
-            const rows = text.split('\n');
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            
+            // Leemos el Excel como un arreglo bidimensional
+            const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
             inventoryData = [];
 
-            // Buscamos dinámicamente dónde empiezan los datos reales saltando la metadata del reporte
-            let startIndex = 1;
+            // Buscamos dinámicamente la fila donde empiezan los datos (los encabezados)
+            let startIndex = -1;
             for(let i = 0; i < rows.length; i++) {
-                if(rows[i].includes('SKU,NOMBRE,PRECIO_UNITARIO')) {
+                if(rows[i][0] === "SKU" && rows[i][1] === "NOMBRE DEL ARTÍCULO") {
                     startIndex = i + 1;
                     break;
                 }
             }
 
-            for (let i = startIndex; i < rows.length; i++) {
-                if (rows[i].trim() === '') continue;
-                
-                const cols = rows[i].split(',');
-                if (cols.length >= 5) {
-                    const sku = cols[0].replace(/"/g, '').trim();
-                    const name = cols[1].replace(/"/g, '').trim();
-                    const price = parseFloat(cols[2]) || 0;
-                    const teo = parseInt(cols[3]) || 0;
-                    const fis = parseInt(cols[4]) || 0;
+            // Si encontró los encabezados, empezamos a extraer
+            if (startIndex !== -1) {
+                for (let i = startIndex; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (!row || row.length === 0 || !row[0]) continue; // Saltar filas vacías
+                    
+                    const sku = String(row[0]).trim();
+                    const name = String(row[1] || '').trim();
+                    const price = parseFloat(row[2]) || 0;
+                    const teo = parseInt(row[3]) || 0;
+                    const fis = parseInt(row[4]) || 0;
                     
                     if (sku) {
                         inventoryData.push({ sku, name, price, teo, fis });
                     }
                 }
+            } else {
+                alert("SYS.ERROR: Formato de Excel no reconocido. Asegúrate de cargar un archivo generado por este sistema.");
+                return;
             }
             
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('workspace-screen').style.display = 'block';
             renderTable();
         };
-        reader.readAsText(file);
+        reader.readAsArrayBuffer(file);
     }
 </script>
 
