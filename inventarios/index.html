@@ -86,12 +86,13 @@
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
         th, td { border: 1px solid rgba(0, 243, 255, 0.3); padding: 10px; text-align: center; }
-        th { background: black; color: var(--neon-cyan); position: sticky; top: 0; }
+        th { background: black; color: var(--neon-cyan); position: sticky; top: 0; font-size: 0.85em; }
         td { color: #fff; }
 
         .diff-exact { color: var(--neon-green); font-weight: bold; }
         .diff-surplus { color: var(--neon-yellow); font-weight: bold; }
         .diff-missing { color: var(--neon-pink); font-weight: bold; }
+        .diff-ghost { color: rgba(255,255,255,0.4); font-style: italic; }
         
         .header-info { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--neon-cyan); padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
 
@@ -110,12 +111,15 @@
         .inline-add { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 5px; }
         .inline-add input { width: 50px; padding: 4px; text-align: center; border-color: rgba(0,243,255,0.5); }
         .inline-add button { padding: 4px 8px; font-size: 0.8em; min-width: auto; border-color: var(--neon-cyan); color: var(--neon-cyan); }
+
+        .inline-teo { width: 60px; padding: 5px; text-align: center; background: rgba(0,243,255,0.1); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-weight: bold; }
+        .inline-teo:focus { background: black; }
     </style>
 </head>
 <body>
 
     <div class="container" id="setup-screen">
-        <h1>SYS.LOGÍSTICA // PRE-INVENTARIO</h1>
+        <h1>SYS.LOGÍSTICA // CONTEO CÍCLICO</h1>
         
         <div class="input-group" style="max-width: 400px; margin: 30px auto;">
             <label for="inv-title">Título de la Auditoría / Zona</label>
@@ -126,7 +130,7 @@
             <button onclick="startNewInventory()">[ CREAR DESDE CERO ]</button>
             
             <label for="file-upload" class="btn-cyan" style="display: inline-block; padding: 12px 20px; border: 2px solid var(--neon-cyan); cursor: pointer; font-weight: bold; text-shadow: 0 0 5px var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);">
-                [ CARGAR LISTA EXCEL ]
+                [ CARGAR EXCEL ANTERIOR ]
             </label>
             <input type="file" id="file-upload" accept=".xlsx, .xls, .csv" style="display: none;" onchange="loadExcel(event)">
         </div>
@@ -142,7 +146,7 @@
         </div>
 
         <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-pink); margin-bottom: 20px;">
-            <label style="color: var(--neon-pink); font-weight: bold; margin-bottom: 10px;">> REGISTRAR / SUMAR ARTÍCULO</label>
+            <label style="color: var(--neon-pink); font-weight: bold; margin-bottom: 10px;">> REGISTRAR / SUMAR ARTÍCULO FÍSICO</label>
             <div class="flex-row">
                 <div class="input-group"><label>SKU</label><input type="text" id="item-sku" placeholder="Ej. 10045"></div>
                 <div class="input-group" style="flex: 2;"><label>Nombre</label><input type="text" id="item-name" placeholder="Ej. Monitor 24 pulg"></div>
@@ -176,9 +180,10 @@
                         <th>SKU</th>
                         <th style="text-align: left;">NOMBRE DEL ARTÍCULO</th>
                         <th>PRECIO UNIT.</th>
-                        <th>TEÓRICO</th>
-                        <th>FÍSICO (REAL)</th>
-                        <th>VARIANZA</th>
+                        <th>TEÓRICO (EDITABLE)</th>
+                        <th>FÍSICO (CONTEO)</th>
+                        <th>DIF. ACTUAL</th>
+                        <th>DIF. ANTERIOR</th>
                         <th>IMPACTO FINANCIERO</th>
                         <th>ELIMINAR</th>
                     </tr>
@@ -256,11 +261,12 @@
         if (existingIndex >= 0) {
             inventoryData[existingIndex].fis += fis;
             if(price > 0) inventoryData[existingIndex].price = price;
-            if(teo !== 0 && !isNaN(document.getElementById('item-teo').valueAsNumber)) {
+            // Solo se actualiza el teórico desde aquí si el usuario escribió algo explícitamente en el input de arriba
+            if(document.getElementById('item-teo').value !== "") {
                 inventoryData[existingIndex].teo = teo;
             }
         } else {
-            inventoryData.push({ sku, name: name || 'Artículo Sin Nombre', price, teo, fis });
+            inventoryData.push({ sku, name: name || 'Artículo Sin Nombre', price, teo, fis, prevDiff: null });
         }
 
         document.getElementById('item-sku').value = '';
@@ -276,13 +282,22 @@
     function modifyPhysicalInline(sku) {
         const inputId = `inline-mod-${sku}`;
         const val = parseInt(document.getElementById(inputId).value);
-        
         if(!isNaN(val)) {
             const item = inventoryData.find(i => i.sku === sku);
             if(item) {
                 item.fis += val; 
                 renderTable();
             }
+        }
+    }
+
+    // ACTUALIZAR EL TEÓRICO DIRECTAMENTE DESDE LA TABLA
+    function updateTeoInline(sku, val) {
+        const num = parseInt(val) || 0;
+        const item = inventoryData.find(i => i.sku === sku);
+        if(item) {
+            item.teo = num;
+            renderTable();
         }
     }
 
@@ -327,24 +342,36 @@
         displayData.forEach(item => {
             const diff = item.fis - item.teo;
             const financialImpact = diff * item.price;
-            let statusHTML = '', impactHTML = '';
+            let statusHTML = '', impactHTML = '', prevDiffHTML = '';
 
+            // VARIANZA ACTUAL
             if (diff === 0) {
-                statusHTML = `<span class="diff-exact">${item.teo} (EXACTO)</span>`;
+                statusHTML = `<span class="diff-exact">0</span>`;
                 impactHTML = `<span style="color: rgba(255,255,255,0.5);">${moneyFormatter.format(0)}</span>`;
             } else if (diff > 0) {
-                statusHTML = `<span class="diff-surplus">+${diff} (SOBRA)</span>`;
+                statusHTML = `<span class="diff-surplus">+${diff}</span>`;
                 impactHTML = `<span style="color: var(--neon-yellow);">${moneyFormatter.format(financialImpact)}</span>`;
             } else {
-                statusHTML = `<span class="diff-missing">${diff} (FALTA)</span>`;
+                statusHTML = `<span class="diff-missing">${diff}</span>`;
                 impactHTML = `<span style="color: var(--neon-pink);">${moneyFormatter.format(financialImpact)}</span>`;
+            }
+
+            // VARIANZA ANTERIOR (FANTASMA)
+            if (item.prevDiff !== null && item.prevDiff !== undefined) {
+                if (item.prevDiff === 0) prevDiffHTML = `<span class="diff-ghost">0</span>`;
+                else if (item.prevDiff > 0) prevDiffHTML = `<span class="diff-ghost">+${item.prevDiff}</span>`;
+                else prevDiffHTML = `<span class="diff-ghost">${item.prevDiff}</span>`;
+            } else {
+                prevDiffHTML = `<span class="diff-ghost">--</span>`;
             }
 
             const row = `<tr>
                 <td style="color: var(--neon-cyan);">${item.sku}</td>
                 <td style="text-align: left;">${item.name}</td>
                 <td>${moneyFormatter.format(item.price)}</td>
-                <td>${item.teo}</td>
+                <td>
+                    <input type="number" class="inline-teo" value="${item.teo}" onchange="updateTeoInline('${item.sku}', this.value)" title="Modificar Teórico">
+                </td>
                 <td>
                     <span style="font-size: 1.2em; font-weight: bold; display: block;">${item.fis}</span>
                     <div class="inline-add">
@@ -352,7 +379,8 @@
                         <button class="btn-cyan" onclick="modifyPhysicalInline('${item.sku}')">OK</button>
                     </div>
                 </td>
-                <td>${statusHTML}</td>
+                <td style="font-size: 1.1em;">${statusHTML}</td>
+                <td>${prevDiffHTML}</td>
                 <td>${impactHTML}</td>
                 <td><button onclick="deleteItem('${item.sku}')" style="padding: 2px 8px; font-size: 0.7em; border-color: red; color: red;">X</button></td>
             </tr>`;
@@ -384,9 +412,6 @@
         }
     }
 
-    // ==========================================
-    // NUEVO: EXPORTACIÓN A EXCEL NATIVO (.XLSX)
-    // ==========================================
     function exportInventoryToExcel() {
         if(inventoryData.length === 0) {
             alert('No hay datos para exportar.');
@@ -395,54 +420,41 @@
 
         const endTimeString = getCurrentDateTime();
 
-        // Creamos la estructura del archivo en memoria
         let ws_data = [
             ["REPORTE DE AUDITORÍA", inventoryTitle],
             ["INICIADO:", startTimeString],
             ["FINALIZADO:", endTimeString],
-            [], // Fila en blanco
+            [], 
             ["SKU", "NOMBRE DEL ARTÍCULO", "PRECIO UNIT.", "TEÓRICO", "FÍSICO", "VARIANZA", "IMPACTO FINANCIERO"]
         ];
 
-        // Llenamos las filas con los datos como NÚMEROS REALES (no texto)
         inventoryData.forEach(item => {
             const diff = item.fis - item.teo;
             const impact = diff * item.price;
             
             ws_data.push([
-                item.sku,                 // Texto
-                item.name,                // Texto
-                Number(item.price),       // Número real para Excel
-                Number(item.teo),         // Número real
-                Number(item.fis),         // Número real
-                Number(diff),             // Número real
-                Number(impact)            // Número real
+                item.sku,                 
+                item.name,                
+                Number(item.price),       
+                Number(item.teo),         
+                Number(item.fis),         
+                Number(diff),             
+                Number(impact)            
             ]);
         });
 
-        // Generamos la hoja de cálculo
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(ws_data);
 
-        // Le damos anchos bonitos y corporativos a las columnas
         ws['!cols'] = [
-            { wch: 15 }, // SKU
-            { wch: 40 }, // NOMBRE
-            { wch: 15 }, // PRECIO
-            { wch: 12 }, // TEORICO
-            { wch: 12 }, // FISICO
-            { wch: 15 }, // VARIANZA
-            { wch: 20 }  // IMPACTO
+            { wch: 15 }, { wch: 40 }, { wch: 15 }, { wch: 12 }, 
+            { wch: 12 }, { wch: 15 }, { wch: 20 }
         ];
 
-        // Empaquetamos y forzamos la descarga del .xlsx
         XLSX.utils.book_append_sheet(wb, ws, "Auditoria");
         XLSX.writeFile(wb, `${inventoryTitle.replace(/ /g, '_')}_AUDITORIA.xlsx`);
     }
 
-    // ==========================================
-    // NUEVO: IMPORTACIÓN DE EXCEL NATIVO (.XLSX)
-    // ==========================================
     function loadExcel(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -460,12 +472,9 @@
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
             
-            // Leemos el Excel como un arreglo bidimensional
             const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-
             inventoryData = [];
 
-            // Buscamos dinámicamente la fila donde empiezan los datos (los encabezados)
             let startIndex = -1;
             for(let i = 0; i < rows.length; i++) {
                 if(rows[i][0] === "SKU" && rows[i][1] === "NOMBRE DEL ARTÍCULO") {
@@ -474,20 +483,24 @@
                 }
             }
 
-            // Si encontró los encabezados, empezamos a extraer
             if (startIndex !== -1) {
                 for (let i = startIndex; i < rows.length; i++) {
                     const row = rows[i];
-                    if (!row || row.length === 0 || !row[0]) continue; // Saltar filas vacías
+                    if (!row || row.length === 0 || !row[0]) continue; 
                     
                     const sku = String(row[0]).trim();
                     const name = String(row[1] || '').trim();
                     const price = parseFloat(row[2]) || 0;
-                    const teo = parseInt(row[3]) || 0;
-                    const fis = parseInt(row[4]) || 0;
+                    const teo = parseInt(row[3]) || 0; // Guardamos el Teórico viejo
+                    
+                    // Extraemos la Varianza vieja del Excel (Columna 5 / index 5) y la guardamos como fantasma
+                    const prevDiff = parseInt(row[5]) || 0; 
+                    
+                    // El Físico (Conteo nuevo) lo forzamos a 0 para empezar en blanco
+                    const fis = 0; 
                     
                     if (sku) {
-                        inventoryData.push({ sku, name, price, teo, fis });
+                        inventoryData.push({ sku, name, price, teo, fis, prevDiff });
                     }
                 }
             } else {
