@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEPGOD // Suite de Logística V9</title>
+    <title>SEPGOD // Suite de Logística V10</title>
     
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
@@ -18,23 +18,25 @@
         }
 
         body { background-color: var(--bg-color); color: var(--neon-cyan); font-family: 'Courier New', Courier, monospace; min-height: 100vh; margin: 0; background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px); background-size: 25px 25px; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
-        
         .container { background: rgba(10, 10, 12, 0.95); border: 2px solid var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan); border-radius: 4px; padding: 30px; width: 100%; max-width: 1300px; margin-top: 20px; }
-
         h1, h2 { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
 
         .screen { display: none; }
-        #home-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; max-width: 800px; gap: 30px; }
+        #home-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; max-width: 900px; gap: 30px; }
         #home-screen.active { display: flex; }
         .active { display: block; }
 
-        .menu-cards { display: flex; gap: 30px; width: 100%; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        .menu-cards { display: flex; gap: 20px; width: 100%; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
         .card { flex: 1; min-width: 250px; background: rgba(0,0,0,0.6); border: 1px dashed var(--neon-cyan); padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; }
         .card:hover { border-style: solid; box-shadow: 0 0 20px rgba(0,243,255,0.2); transform: translateY(-5px); }
-        .card h3 { color: #fff; margin-bottom: 15px; font-size: 1.4em; }
-        .card p { color: rgba(255,255,255,0.6); font-size: 0.9em; margin-bottom: 25px; }
+        .card h3 { color: #fff; margin-bottom: 15px; font-size: 1.2em; }
+        .card p { color: rgba(255,255,255,0.6); font-size: 0.85em; margin-bottom: 25px; }
+        
         .card.card-pink { border-color: var(--neon-pink); }
         .card.card-pink:hover { box-shadow: 0 0 20px rgba(255,0,127,0.2); }
+        
+        .card.card-yellow { border-color: var(--neon-yellow); }
+        .card.card-yellow:hover { box-shadow: 0 0 20px rgba(255,234,0,0.2); }
 
         .input-group { margin-bottom: 15px; text-align: left; }
         label { display: block; margin-bottom: 5px; font-size: 0.85em; color: var(--neon-cyan); text-transform: uppercase; }
@@ -48,10 +50,11 @@
         button:hover, .btn-label:hover { background: var(--neon-pink); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-pink); text-shadow: none; }
         .btn-cyan { color: var(--neon-cyan); border-color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
         .btn-cyan:hover { background: var(--neon-cyan); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-cyan); text-shadow: none; }
+        .btn-yellow { color: var(--neon-yellow); border-color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); box-shadow: 0 0 10px rgba(255, 234, 0, 0.3); }
+        .btn-yellow:hover { background: var(--neon-yellow); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-yellow); text-shadow: none; }
         .btn-back { padding: 5px 10px; font-size: 0.8em; border-color: #fff; color: #fff; text-shadow: none; box-shadow: none; }
 
         .toolbar { background: rgba(0,243,255,0.05); padding: 15px; border: 1px solid var(--neon-cyan); margin-bottom: 15px; display: flex; gap: 20px; flex-wrap: wrap; }
-
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
         th, td { border: 1px solid rgba(0, 243, 255, 0.3); padding: 10px; text-align: center; vertical-align: top; }
         th { background: black; color: var(--neon-cyan); position: sticky; top: 0; font-size: 0.85em; }
@@ -65,7 +68,7 @@
         .header-info { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--neon-cyan); padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
 
         .summary-dashboard { display: flex; gap: 20px; justify-content: space-between; margin-top: 30px; flex-wrap: wrap; }
-        .summary-box { flex: 1; min-width: 250px; padding: 20px; text-align: center; border: 1px dashed; background: rgba(0,0,0,0.5); }
+        .summary-box { flex: 1; min-width: 200px; padding: 20px; text-align: center; border: 1px dashed; background: rgba(0,0,0,0.5); }
         .summary-box.missing { border-color: var(--neon-pink); box-shadow: inset 0 0 15px rgba(255,0,127,0.1); }
         .summary-box.missing h3 { color: var(--neon-pink); font-size: 1.8em; margin: 10px 0; }
         .summary-box.surplus { border-color: var(--neon-yellow); box-shadow: inset 0 0 15px rgba(255,234,0,0.1); }
@@ -74,16 +77,13 @@
         .summary-box.balance h3 { color: var(--neon-cyan); font-size: 1.8em; margin: 10px 0; }
         
         .inline-teo { width: 60px; padding: 5px; text-align: center; background: rgba(0,243,255,0.1); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-weight: bold; }
-
         .loc-list { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; align-items: center; }
         .loc-row { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.4); padding: 2px 5px; border: 1px dotted rgba(0,243,255,0.3); border-radius: 3px; }
         .loc-name { font-size: 0.75em; color: var(--neon-yellow); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
         .loc-input { width: 45px; padding: 2px; text-align: center; border: 1px solid rgba(255,255,255,0.3); background: black; color: #fff; font-size: 0.85em; }
         .loc-input:focus { border-color: var(--neon-yellow); }
         .loc-del { background: transparent; border: none; color: var(--neon-pink); box-shadow: none; padding: 0 5px; cursor: pointer; font-size: 0.8em; text-shadow: none; }
-        .loc-del:hover { background: transparent; color: red; transform: scale(1.2); }
         .btn-add-loc { padding: 2px 5px; font-size: 0.7em; margin-top: 5px; border-color: rgba(0,243,255,0.5); color: rgba(0,243,255,0.8); }
-
         .file-list { margin-top: 20px; text-align: left; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; }
         .file-item { background: rgba(0,243,255,0.1); border: 1px dashed var(--neon-cyan); padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; color: #fff; }
         .file-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -93,18 +93,23 @@
 <body>
 
     <div class="container screen active" id="home-screen">
-        <h1>SYS.LOGÍSTICA // CORE</h1>
+        <h1>SYS.LOGÍSTICA // TRINITY CORE V10</h1>
         <p style="color: rgba(255,255,255,0.6); margin-top: 0;">Selecciona el módulo de operación</p>
         <div class="menu-cards">
             <div class="card" onclick="goToScreen('setup-screen')">
                 <h3 style="color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan);">[ INVENTARIOS CONTEOS ]</h3>
-                <p>Módulo Operativo. Auditorías doble ciego con exportación corporativa.</p>
+                <p>Módulo Operativo. Auditorías doble ciego, multi-ubicación y captura física.</p>
                 <button class="btn-cyan">INICIAR OPERACIÓN</button>
             </div>
             <div class="card card-pink" onclick="goToScreen('unify-setup-screen')">
                 <h3 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">[ INVENTARIOS TOTALES ]</h3>
-                <p>Módulo Gerencial. Consolidación y reportes de impacto financiero.</p>
+                <p>Módulo Consolidación. Une varios pasillos y cruza datos para impacto global.</p>
                 <button>CONSOLIDAR DATOS</button>
+            </div>
+            <div class="card card-yellow" onclick="goToScreen('sales-setup-screen')">
+                <h3 style="color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow);">[ COMPARATIVO DE VENTAS ]</h3>
+                <p>Módulo Resurtido. Compara Semana 1 vs Semana 2, separa Ventas Reales vs Robo y registra Entradas.</p>
+                <button class="btn-yellow">ANALIZAR ROTACIÓN</button>
             </div>
         </div>
     </div>
@@ -112,11 +117,9 @@
     <div class="container screen" id="setup-screen" style="max-width: 800px;">
         <button class="btn-back" onclick="goToScreen('home-screen')" style="float: left;">&lt; VOLVER AL MENÚ</button>
         <div style="clear:both; height: 10px;"></div>
-        
         <h2>CONTEO INDIVIDUAL (MULTI-ZONA)</h2>
         <div class="input-group" style="max-width: 400px; margin: 30px auto;">
-            <label>Título de la Auditoría Master</label>
-            <input type="text" id="inv-title" placeholder="Ej. Tienda Centro">
+            <label>Título de la Auditoría Master</label><input type="text" id="inv-title" placeholder="Ej. Tienda Centro">
         </div>
         <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
             <button onclick="startNewInventory()">[ CREAR DESDE CERO ]</button>
@@ -134,14 +137,9 @@
             </div>
             <button class="btn-cyan" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportInventoryToExcel()">[ EXPORTAR EXCEL CORPORATIVO ]</button>
         </div>
-
         <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-pink); margin-bottom: 20px;">
-            <label style="color: var(--neon-pink); font-weight: bold; margin-bottom: 10px;">> REGISTRAR ARTÍCULO FÍSICO</label>
             <div class="flex-row">
-                <div class="input-group" style="flex: 1.5;">
-                    <label style="color: var(--neon-yellow);">Zona Actual (Fija)</label>
-                    <input type="text" id="item-loc" value="GENERAL" style="border-color: var(--neon-yellow);">
-                </div>
+                <div class="input-group" style="flex: 1.5;"><label style="color: var(--neon-yellow);">Zona Actual (Fija)</label><input type="text" id="item-loc" value="GENERAL" style="border-color: var(--neon-yellow);"></div>
                 <div class="input-group"><label>SKU</label><input type="text" id="item-sku" placeholder="SKU"></div>
                 <div class="input-group" style="flex: 2;"><label>Nombre</label><input type="text" id="item-name" placeholder="Descripción"></div>
                 <div class="input-group"><label>Costo</label><input type="number" id="item-price" placeholder="$" step="0.01"></div>
@@ -150,38 +148,21 @@
                 <button onclick="addItem()" style="height: 40px; margin-bottom: 0;">AGREGAR</button>
             </div>
         </div>
-
         <div class="toolbar">
-            <div class="input-group" style="flex: 2; margin: 0;">
-                <label style="color: var(--neon-yellow);">Buscar SKU o Nombre</label>
-                <input type="text" id="search-filter" placeholder="Escribe para buscar..." oninput="renderTable()" style="border-color: var(--neon-yellow); color: var(--neon-yellow);">
-            </div>
+            <div class="input-group" style="flex: 2; margin: 0;"><label style="color: var(--neon-yellow);">Buscar SKU o Nombre</label><input type="text" id="search-filter" oninput="renderTable()" style="border-color: var(--neon-yellow); color: var(--neon-yellow);"></div>
             <div class="input-group" style="flex: 1; margin: 0;">
                 <label>Ordenar Inventario Por</label>
                 <select id="sort-filter" onchange="renderTable()">
-                    <option value="default">Orden de Captura</option>
-                    <option value="missing">Dif. Actual: Faltantes (-)</option>
-                    <option value="surplus">Dif. Actual: Sobrantes (+)</option>
-                    <option value="prev-missing">Dif. Anterior: Faltantes (-)</option>
-                    <option value="prev-surplus">Dif. Anterior: Sobrantes (+)</option>
-                    <option value="alpha">Orden Alfabético (A-Z)</option>
+                    <option value="default">Orden de Captura</option><option value="missing">Dif. Actual: Faltantes (-)</option><option value="surplus">Dif. Actual: Sobrantes (+)</option><option value="prev-missing">Dif. Anterior: Faltantes (-)</option><option value="prev-surplus">Dif. Anterior: Sobrantes (+)</option><option value="alpha">Alfabético (A-Z)</option>
                 </select>
             </div>
         </div>
-
         <div style="overflow-x: auto;">
             <table id="inventory-table">
-                <thead>
-                    <tr>
-                        <th>SKU</th><th style="text-align: left;">NOMBRE</th><th>PRECIO</th><th>TEÓRICO</th>
-                        <th>FÍSICO GLOBAL Y ZONAS</th>
-                        <th>DIF. ACTUAL</th><th>DIF. ANT.</th><th>IMPACTO</th><th>X</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>SKU</th><th style="text-align: left;">NOMBRE</th><th>PRECIO</th><th>TEÓRICO</th><th>FÍSICO GLOBAL Y ZONAS</th><th>DIF. ACTUAL</th><th>DIF. ANT.</th><th>IMPACTO</th><th>X</th></tr></thead>
                 <tbody id="table-body"></tbody>
             </table>
         </div>
-
         <div class="summary-dashboard">
             <div class="summary-box missing"><h3 id="sum-missing">-$0.00</h3><p id="qty-missing">0 faltantes</p></div>
             <div class="summary-box balance"><h3 id="sum-balance">$0.00</h3><p id="status-balance">CUADRADO</p></div>
@@ -193,8 +174,7 @@
         <button class="btn-back" onclick="goToScreen('home-screen')" style="float: left;">&lt; VOLVER AL MENÚ</button>
         <div style="clear:both; height: 10px;"></div>
         <h2 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">CONSOLIDACIÓN GLOBAL</h2>
-        <p style="color: #fff; margin-bottom: 30px;">Sube los reportes Excel. El sistema filtrará los artículos en CERO y ordenará los problemas de mayor a menor impacto económico.</p>
-        <label for="unify-file-upload" class="btn-label btn-cyan" style="border-style: dashed; padding: 20px 40px;">+ AGREGAR ARCHIVO EXCEL</label>
+        <label for="unify-file-upload" class="btn-label btn-cyan" style="border-style: dashed; padding: 20px 40px; margin-top:20px;">+ AGREGAR ARCHIVO EXCEL</label>
         <input type="file" id="unify-file-upload" accept=".xlsx, .xls, .csv" style="display: none;" onchange="addFileToUnify(event)">
         <div class="file-list" id="unify-file-list"></div>
         <button onclick="processUnification()" style="margin-top: 30px; font-size: 1.2em; padding: 15px 40px;">[ EJECUTAR UNIFICACIÓN ]</button>
@@ -205,14 +185,13 @@
             <div>
                 <button class="btn-back" onclick="goToScreen('unify-setup-screen')" style="margin-bottom: 15px;">&lt; AGREGAR MÁS ARCHIVOS</button>
                 <h2 style="margin: 0; color: var(--neon-pink);">REPORTE GLOBAL UNIFICADO</h2>
-                <span id="unify-file-count" style="color: rgba(255,255,255,0.6); font-size: 0.85em; display: block; margin-top: 5px;">Archivos procesados: 0</span>
             </div>
             <button class="btn-cyan" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportUnifiedToExcel()">[ DESCARGAR MASTER (.XLSX) ]</button>
         </div>
         <div class="summary-dashboard" style="margin-top: 0; margin-bottom: 30px;">
-            <div class="summary-box missing"><h3 id="u-sum-missing">-$0.00</h3><p id="u-qty-missing">0 faltantes netos</p></div>
+            <div class="summary-box missing"><h3 id="u-sum-missing">-$0.00</h3><p id="u-qty-missing">0 faltantes</p></div>
             <div class="summary-box balance"><h3 id="u-sum-balance">$0.00</h3><p id="u-status-balance">BALANCE NETO</p></div>
-            <div class="summary-box surplus"><h3 id="u-sum-surplus">+$0.00</h3><p id="u-qty-surplus">0 sobrantes netos</p></div>
+            <div class="summary-box surplus"><h3 id="u-sum-surplus">+$0.00</h3><p id="u-qty-surplus">0 sobrantes</p></div>
         </div>
         <div style="overflow-x: auto;">
             <table id="unify-table">
@@ -222,101 +201,108 @@
         </div>
     </div>
 
+    <div class="container screen" id="sales-setup-screen" style="max-width: 800px; text-align: center;">
+        <button class="btn-back" onclick="goToScreen('home-screen')" style="float: left;">&lt; VOLVER AL MENÚ</button>
+        <div style="clear:both; height: 10px;"></div>
+        <h2 style="color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow);">COMPARATIVO DE VENTAS Y MERMAS</h2>
+        <p style="color: #fff; margin-bottom: 30px;">Carga el inventario de la semana pasada y el de esta semana. El sistema cruzará las varianzas para separar las Ventas Legítimas de los Robos Nuevos.</p>
+        
+        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
+            <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.5); padding: 20px; border: 1px dashed var(--neon-cyan);">
+                <label for="sales-file-1" class="btn-label btn-cyan" id="sales-btn-1" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">1. CARGAR EXCEL (SEMANA 1)</label>
+                <input type="file" id="sales-file-1" accept=".xlsx, .xls, .csv" style="display: none;" onchange="setSalesFile(event, 1)">
+            </div>
+            <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.5); padding: 20px; border: 1px dashed var(--neon-pink);">
+                <label for="sales-file-2" class="btn-label" id="sales-btn-2" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">2. CARGAR EXCEL (SEMANA 2)</label>
+                <input type="file" id="sales-file-2" accept=".xlsx, .xls, .csv" style="display: none;" onchange="setSalesFile(event, 2)">
+            </div>
+        </div>
+
+        <button class="btn-yellow" onclick="processSalesAnalysis()" style="font-size: 1.2em; padding: 15px 40px;">[ EJECUTAR ANÁLISIS DE ROTACIÓN ]</button>
+    </div>
+
+    <div class="container screen" id="sales-workspace-screen">
+        <div class="header-info" style="border-bottom-color: var(--neon-yellow);">
+            <div>
+                <button class="btn-back" onclick="goToScreen('sales-setup-screen')" style="margin-bottom: 15px;">&lt; CAMBIAR ARCHIVOS</button>
+                <h2 style="margin: 0; color: var(--neon-yellow);">TABLERO DE RESURTIDO (VENTAS VS ROBO)</h2>
+            </div>
+            <button class="btn-yellow" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportSalesToExcel()">[ DESCARGAR ANÁLISIS (.XLSX) ]</button>
+        </div>
+
+        <div class="summary-dashboard" style="margin-top: 0; margin-bottom: 30px;">
+            <div class="summary-box surplus" style="border-color: var(--neon-yellow); box-shadow: inset 0 0 15px rgba(255,234,0,0.1);">
+                <span style="color:var(--neon-yellow);">VENTA REAL ESTIMADA (Para Resurtir)</span>
+                <h3 id="s-sum-ventas" style="color:var(--neon-yellow);">$0.00</h3>
+            </div>
+            <div class="summary-box missing">
+                <span>ROBO NUEVO DETECTADO (Fuga)</span>
+                <h3 id="s-sum-robo">-$0.00</h3>
+            </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-yellow); margin-bottom: 20px; font-size: 0.85em; color: #fff;">
+            <strong>GUÍA DE USO:</strong> Ingresa las mercancías que recibiste del proveedor en la columna <span style="color:var(--neon-cyan);">[+ ENTRADAS AL ALMACÉN]</span>. La <span style="color:var(--neon-yellow);">VENTA REAL</span> te dirá exactamente cuánto debes comprar para mantener el stock sin inflarlo con la mercancía robada.
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table id="sales-table">
+                <thead>
+                    <tr>
+                        <th style="background: var(--neon-yellow); color: #000;">SKU</th>
+                        <th style="background: var(--neon-yellow); color: #000; text-align: left;">NOMBRE</th>
+                        <th style="background: var(--neon-cyan); color: #000;">FÍSICO SEMANA 1</th>
+                        <th style="background: #fff; color: #000;">+ ENTRADAS AL ALMACÉN (Editar)</th>
+                        <th style="background: var(--neon-pink); color: #fff;">FÍSICO SEMANA 2</th>
+                        <th style="background: var(--neon-yellow); color: #000;">SALIDA TOTAL (Desapareció)</th>
+                        <th style="background: var(--neon-yellow); color: #000;">ROBO NUEVO DETECTADO</th>
+                        <th style="background: var(--neon-yellow); color: #000;">VENTA REAL (Sugerido)</th>
+                    </tr>
+                </thead>
+                <tbody id="sales-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
 
 <script>
     const moneyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2 });
-    
-    function goToScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-    }
-
-    // ==========================================
-    // LÓGICA MÓDULO 1: CONTEO CÍCLICO
-    // ==========================================
-    let inventoryData = [];
-    let inventoryTitle = "INVENTARIO";
-    let startTimeString = "";
-
+    function goToScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
     function getCurrentDateTime() { return new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }); }
+    function readExcelAsync(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = function(e) { resolve(XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).Sheets[XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).SheetNames[0]], {header: 1})); }; reader.readAsArrayBuffer(file); }); }
 
-    function startNewInventory() {
-        const titleInput = document.getElementById('inv-title').value;
-        if(!titleInput) return alert('Ingresa un título.');
-        inventoryTitle = titleInput.toUpperCase();
-        startTimeString = getCurrentDateTime();
-        document.getElementById('display-title').innerText = "> " + inventoryTitle;
-        document.getElementById('display-time').innerText = `[ INICIADO: ${startTimeString} ]`;
-        goToScreen('workspace-screen');
-    }
-
-    function recalcPhys(item) {
-        if(!item.locs) return 0;
-        return item.locs.reduce((sum, l) => sum + l.qty, 0);
-    }
+    // ==========================================
+    // MÓDULO 1: CONTEO CÍCLICO
+    // ==========================================
+    let inventoryData = []; let inventoryTitle = "INVENTARIO"; let startTimeString = "";
+    function startNewInventory() { const titleInput = document.getElementById('inv-title').value; if(!titleInput) return alert('Ingresa título.'); inventoryTitle = titleInput.toUpperCase(); startTimeString = getCurrentDateTime(); document.getElementById('display-title').innerText = "> " + inventoryTitle; goToScreen('workspace-screen'); }
+    function recalcPhys(item) { if(!item.locs) return 0; return item.locs.reduce((sum, l) => sum + l.qty, 0); }
 
     function addItem() {
         let locName = document.getElementById('item-loc').value.trim().toUpperCase() || "GENERAL";
-        const sku = document.getElementById('item-sku').value.trim();
-        const name = document.getElementById('item-name').value;
-        const price = parseFloat(document.getElementById('item-price').value) || 0;
-        const teo = parseInt(document.getElementById('item-teo').value) || 0;
-        const fis = parseInt(document.getElementById('item-fis').value);
-
+        const sku = document.getElementById('item-sku').value.trim(); const name = document.getElementById('item-name').value; const price = parseFloat(document.getElementById('item-price').value) || 0; const teo = parseInt(document.getElementById('item-teo').value) || 0; const fis = parseInt(document.getElementById('item-fis').value);
         if(!sku || isNaN(fis)) return alert('SKU y Físico son obligatorios.');
-
         let item = inventoryData.find(i => i.sku === sku);
         if (item) {
-            if(price > 0) item.price = price;
-            if(document.getElementById('item-teo').value !== "") item.teo = teo;
-
+            if(price > 0) item.price = price; if(document.getElementById('item-teo').value !== "") item.teo = teo;
             let existingLoc = item.locs.find(l => l.name === locName);
-            if(existingLoc) existingLoc.qty += fis;
-            else item.locs.push({ name: locName, qty: fis });
-            
+            if(existingLoc) existingLoc.qty += fis; else item.locs.push({ name: locName, qty: fis });
             item.fis = recalcPhys(item);
-        } else {
-            let locs = [{ name: locName, qty: fis }];
-            inventoryData.push({ sku, name: name || 'Sin Nombre', price, teo, fis, prevDiff: null, locs });
-        }
-
-        document.getElementById('item-sku').value = ''; document.getElementById('item-name').value = ''; document.getElementById('item-price').value = ''; document.getElementById('item-teo').value = ''; document.getElementById('item-fis').value = '';
-        document.getElementById('item-sku').focus();
+        } else { inventoryData.push({ sku, name: name || 'Sin Nombre', price, teo, fis, prevDiff: null, locs: [{ name: locName, qty: fis }] }); }
+        document.getElementById('item-sku').value = ''; document.getElementById('item-name').value = ''; document.getElementById('item-price').value = ''; document.getElementById('item-teo').value = ''; document.getElementById('item-fis').value = ''; document.getElementById('item-sku').focus();
         renderTable();
     }
-
-    function updateLocInline(sku, locName, val) {
-        let item = inventoryData.find(i => i.sku === sku);
-        let loc = item.locs.find(l => l.name === locName);
-        if(loc) { loc.qty = parseInt(val) || 0; item.fis = recalcPhys(item); renderTable(); }
-    }
-
-    function deleteLoc(sku, locName) {
-        let item = inventoryData.find(i => i.sku === sku);
-        item.locs = item.locs.filter(l => l.name !== locName); item.fis = recalcPhys(item); renderTable();
-    }
-
-    function addNewLocInline(sku) {
-        let newLoc = prompt("Ingresa el nombre de la nueva ubicación (Ej. BODEGA 2):");
-        if(newLoc && newLoc.trim() !== "") {
-            let item = inventoryData.find(i => i.sku === sku);
-            let cleanLoc = newLoc.trim().toUpperCase();
-            if(!item.locs.find(l => l.name === cleanLoc)) { item.locs.push({ name: cleanLoc, qty: 0 }); renderTable(); } 
-            else { alert("Esa ubicación ya existe para este producto."); }
-        }
-    }
-
+    function updateLocInline(sku, locName, val) { let item = inventoryData.find(i => i.sku === sku); let loc = item.locs.find(l => l.name === locName); if(loc) { loc.qty = parseInt(val) || 0; item.fis = recalcPhys(item); renderTable(); } }
+    function deleteLoc(sku, locName) { let item = inventoryData.find(i => i.sku === sku); item.locs = item.locs.filter(l => l.name !== locName); item.fis = recalcPhys(item); renderTable(); }
+    function addNewLocInline(sku) { let newLoc = prompt("Nueva ubicación:"); if(newLoc && newLoc.trim() !== "") { let item = inventoryData.find(i => i.sku === sku); let cleanLoc = newLoc.trim().toUpperCase(); if(!item.locs.find(l => l.name === cleanLoc)) { item.locs.push({ name: cleanLoc, qty: 0 }); renderTable(); } } }
     function updateTeoInline(sku, val) { inventoryData.find(i => i.sku === sku).teo = parseInt(val)||0; renderTable(); }
     function deleteItem(sku) { inventoryData = inventoryData.filter(i => i.sku !== sku); renderTable(); }
 
     function renderTable() {
         const tbody = document.getElementById('table-body'); tbody.innerHTML = '';
-        const searchTerm = document.getElementById('search-filter').value.trim().toLowerCase();
-        const sortMode = document.getElementById('sort-filter').value;
+        const search = document.getElementById('search-filter').value.trim().toLowerCase(); const sortMode = document.getElementById('sort-filter').value;
         let displayData = [...inventoryData];
-
-        if (searchTerm !== '') displayData = displayData.filter(item => item.sku.toLowerCase().includes(searchTerm) || item.name.toLowerCase().includes(searchTerm));
-
+        if (search) displayData = displayData.filter(i => i.sku.toLowerCase().includes(search) || i.name.toLowerCase().includes(search));
         if (sortMode === 'missing') displayData.sort((a, b) => (a.fis - a.teo) - (b.fis - b.teo));
         else if (sortMode === 'surplus') displayData.sort((a, b) => (b.fis - b.teo) - (a.fis - a.teo));
         else if (sortMode === 'prev-missing') displayData.sort((a, b) => (a.prevDiff || 0) - (b.prevDiff || 0));
@@ -324,189 +310,80 @@
         else if (sortMode === 'alpha') displayData.sort((a, b) => a.name.localeCompare(b.name));
 
         let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
-        inventoryData.forEach(i => {
-            let d = i.fis - i.teo, imp = d * i.price;
-            if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);}
-        });
+        inventoryData.forEach(i => { let d = i.fis - i.teo, imp = d * i.price; if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);} });
 
         displayData.forEach(i => {
             let d = i.fis - i.teo, imp = d * i.price;
             let st = d===0?`<span class="diff-exact">0</span>`:d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
             let pD = i.prevDiff===null?`--`:i.prevDiff===0?`<span class="diff-ghost">0</span>`:i.prevDiff>0?`<span class="diff-ghost">+${i.prevDiff}</span>`:`<span class="diff-ghost">${i.prevDiff}</span>`;
-            
             let locsHTML = '';
             if (i.locs && i.locs.length > 0) {
-                locsHTML = `<div class="loc-list">`;
-                i.locs.forEach(l => {
-                    locsHTML += `<div class="loc-row"><span class="loc-name" title="${l.name}">${l.name}:</span><input type="number" class="loc-input" value="${l.qty}" onchange="updateLocInline('${i.sku}', '${l.name}', this.value)"><button class="loc-del" onclick="deleteLoc('${i.sku}', '${l.name}')" title="Borrar Ubicación">×</button></div>`;
-                });
-                locsHTML += `</div>`;
+                locsHTML = `<div class="loc-list">`; i.locs.forEach(l => { locsHTML += `<div class="loc-row"><span class="loc-name" title="${l.name}">${l.name}:</span><input type="number" class="loc-input" value="${l.qty}" onchange="updateLocInline('${i.sku}', '${l.name}', this.value)"><button class="loc-del" onclick="deleteLoc('${i.sku}', '${l.name}')">×</button></div>`; }); locsHTML += `</div>`;
             }
             locsHTML += `<button class="btn-cyan btn-add-loc" onclick="addNewLocInline('${i.sku}')">+ Zona</button>`;
-
-            tbody.innerHTML += `<tr>
-                <td style="color: var(--neon-cyan);">${i.sku}</td><td style="text-align:left;">${i.name}</td><td>${moneyFormatter.format(i.price)}</td>
-                <td><input type="number" class="inline-teo" value="${i.teo}" onchange="updateTeoInline('${i.sku}', this.value)"></td>
-                <td><span style="font-size: 1.4em; font-weight:bold;">${i.fis}</span>${locsHTML}</td>
-                <td style="font-size: 1.1em;">${st}</td><td>${pD}</td>
-                <td style="color:${d>0?'var(--neon-yellow)':d<0?'var(--neon-pink)':'rgba(255,255,255,0.5)'}">${moneyFormatter.format(imp)}</td>
-                <td><button onclick="deleteItem('${i.sku}')" style="color:red; border-color:red; padding:2px 8px;">X</button></td>
-            </tr>`;
+            tbody.innerHTML += `<tr><td style="color: var(--neon-cyan);">${i.sku}</td><td style="text-align:left;">${i.name}</td><td>${moneyFormatter.format(i.price)}</td><td><input type="number" class="inline-teo" value="${i.teo}" onchange="updateTeoInline('${i.sku}', this.value)"></td><td><span style="font-size: 1.4em; font-weight:bold;">${i.fis}</span>${locsHTML}</td><td style="font-size: 1.1em;">${st}</td><td>${pD}</td><td style="color:${d>0?'var(--neon-yellow)':d<0?'var(--neon-pink)':'rgba(255,255,255,0.5)'}">${moneyFormatter.format(imp)}</td><td><button onclick="deleteItem('${i.sku}')" style="color:red; border-color:red; padding:2px 8px;">X</button></td></tr>`;
         });
-
         document.getElementById('qty-missing').innerText = `${tMissQ} perdidos`; document.getElementById('sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`;
         document.getElementById('qty-surplus').innerText = `${tSurpQ} extra`; document.getElementById('sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`;
-        document.getElementById('sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM);
-        document.getElementById('sum-balance').style.color = (tSurpM - tMissM) >= 0 ? (tSurpM===tMissM && tMissQ===0 ? 'var(--neon-cyan)' : 'var(--neon-yellow)') : 'var(--neon-pink)';
+        document.getElementById('sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM); document.getElementById('sum-balance').style.color = (tSurpM - tMissM) >= 0 ? (tSurpM===tMissM && tMissQ===0 ? 'var(--neon-cyan)' : 'var(--neon-yellow)') : 'var(--neon-pink)';
     }
 
     function loadExcel(event) {
         const file = event.target.files[0]; if (!file) return;
         inventoryTitle = file.name.replace(/\.[^/.]+$/, "").toUpperCase(); startTimeString = getCurrentDateTime();
-        document.getElementById('display-title').innerText = "> " + inventoryTitle; document.getElementById('display-time').innerText = `[ INICIADO: ${startTimeString} ]`;
+        document.getElementById('display-title').innerText = "> " + inventoryTitle;
         const reader = new FileReader();
         reader.onload = function(e) {
             const rows = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).Sheets[XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).SheetNames[0]], {header: 1});
-            inventoryData = [];
-            
-            // LA MAGIA DEL DOBLE CIEGO: Buscamos dónde está el encabezado "SKU"
-            let start = rows.findIndex(r => r[0] === "SKU");
-            if(start !== -1) {
-                for(let i=start+1; i<rows.length; i++) {
-                    if(!rows[i] || !rows[i][0]) continue;
-                    // Forzamos TEO y FIS a 0. La varianza vieja la extraemos de la columna index 6
-                    inventoryData.push({ sku: String(rows[i][0]), name: String(rows[i][1]||''), price: parseFloat(rows[i][2])||0, teo: 0, fis: 0, prevDiff: parseInt(rows[i][6])||0, locs: [] });
-                }
-            }
+            inventoryData = []; let start = rows.findIndex(r => r[0] === "SKU");
+            if(start !== -1) { for(let i=start+1; i<rows.length; i++) { if(!rows[i] || !rows[i][0]) continue; inventoryData.push({ sku: String(rows[i][0]), name: String(rows[i][1]||''), price: parseFloat(rows[i][2])||0, teo: 0, fis: 0, prevDiff: parseInt(rows[i][6])||0, locs: [] }); } }
             goToScreen('workspace-screen'); renderTable();
         }; reader.readAsArrayBuffer(file);
     }
 
-    // EXPORTACIÓN CORPORATIVA CON ESTILOS
     function exportInventoryToExcel() {
         if(!inventoryData.length) return alert('No hay datos.');
-
         let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
-        inventoryData.forEach(i => {
-            let d = i.fis - i.teo, imp = d * i.price;
-            if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);}
-        });
-
-        // ESTRUCTURA DEL EXCEL
-        let ws_data = [
-            ["REPORTE DE AUDITORÍA LOGÍSTICA"],
-            ["ZONA / TÍTULO:", inventoryTitle],
-            ["INICIADO:", startTimeString, "", "FINALIZADO:", getCurrentDateTime()],
-            [],
-            ["SKU", "NOMBRE", "PRECIO", "TEÓRICO", "FÍSICO GLOBAL", "DESGLOSE ZONAS", "VARIANZA ACTUAL", "VARIANZA ANTERIOR", "IMPACTO ($)"]
-        ];
-
-        inventoryData.forEach(i => {
-            let locsExport = (i.locs || []).map(l => `${l.name}: ${l.qty}`).join(' | ');
-            ws_data.push([
-                i.sku, i.name, Number(i.price), Number(i.teo), Number(i.fis), locsExport, Number(i.fis-i.teo), Number(i.prevDiff||0), Number((i.fis-i.teo)*i.price)
-            ]);
-        });
-
-        // RESUMEN FINANCIERO AL FINAL
-        ws_data.push([]); ws_data.push([]);
-        ws_data.push(["RESUMEN FINANCIERO"]);
-        ws_data.push(["Artículos Faltantes:", tMissQ, "", "Fuga (Pérdida):", -tMissM]);
-        ws_data.push(["Artículos Sobrantes:", tSurpQ, "", "Excedente Extra:", tSurpM]);
-        ws_data.push(["", "", "", "BALANCE NETO:", tSurpM - tMissM]);
-
+        inventoryData.forEach(i => { let d = i.fis - i.teo, imp = d * i.price; if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);} });
+        let ws_data = [ ["REPORTE DE AUDITORÍA LOGÍSTICA"], ["ZONA / TÍTULO:", inventoryTitle], ["INICIADO:", startTimeString, "", "FINALIZADO:", getCurrentDateTime()], [], ["SKU", "NOMBRE", "PRECIO", "TEÓRICO", "FÍSICO GLOBAL", "DESGLOSE ZONAS", "VARIANZA ACTUAL", "VARIANZA ANTERIOR", "IMPACTO ($)"] ];
+        inventoryData.forEach(i => { let locsExport = (i.locs || []).map(l => `${l.name}: ${l.qty}`).join(' | '); ws_data.push([ i.sku, i.name, Number(i.price), Number(i.teo), Number(i.fis), locsExport, Number(i.fis-i.teo), Number(i.prevDiff||0), Number((i.fis-i.teo)*i.price) ]); });
+        ws_data.push([]); ws_data.push([]); ws_data.push(["RESUMEN FINANCIERO"]); ws_data.push(["Artículos Faltantes:", tMissQ, "", "Fuga (Pérdida):", -tMissM]); ws_data.push(["Artículos Sobrantes:", tSurpQ, "", "Excedente Extra:", tSurpM]); ws_data.push(["", "", "", "BALANCE NETO:", tSurpM - tMissM]);
         let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-        // MOTOR DE ESTILOS (Colores y Bordes)
         const borderAll = { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} };
-
         for (let cell in ws) {
             if (cell[0] === '!') continue; 
-            let col = cell.replace(/[0-9]/g, '');
-            let row = parseInt(cell.replace(/\D/g, ''));
-            let val = ws[cell].v;
-
+            let col = cell.replace(/[0-9]/g, ''); let row = parseInt(cell.replace(/\D/g, '')); let val = ws[cell].v;
             ws[cell].s = { font: { name: "Calibri", sz: 11 }, alignment: { vertical: "center" } };
-
-            // Encabezado Azul
             if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"203764"} }; }
             if (row === 2 || row === 3) { ws[cell].s.font.bold = true; }
-
-            // Fila Negra de Títulos de Tabla
-            if (row === 5) {
-                ws[cell].s.font = { bold: true, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"000000"} };
-                ws[cell].s.border = borderAll; ws[cell].s.alignment.horizontal = "center";
-            }
-
-            // Filas de Datos
+            if (row === 5) { ws[cell].s.font = { bold: true, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"000000"} }; ws[cell].s.border = borderAll; ws[cell].s.alignment.horizontal = "center"; }
             if (row >= 6 && row < 6 + inventoryData.length) {
-                ws[cell].s.border = borderAll;
-                if(col === 'C' || col === 'I') ws[cell].z = '"$"#,##0.00'; // Formato Dinero
-
-                // Semáforo Rojo/Verde
-                if (col === 'G' || col === 'I') {
-                    if (val < 0) {
-                        ws[cell].s.font.color = {rgb:"9C0006"}; ws[cell].s.font.bold = true;
-                        ws[cell].s.fill = { fgColor: {rgb:"FFC7CE"} };
-                    } else if (val > 0) {
-                        ws[cell].s.font.color = {rgb:"006100"}; ws[cell].s.font.bold = true;
-                        ws[cell].s.fill = { fgColor: {rgb:"C6EFCE"} };
-                    }
-                }
+                ws[cell].s.border = borderAll; if(col === 'C' || col === 'I') ws[cell].z = '"$"#,##0.00'; 
+                if (col === 'G' || col === 'I') { if (val < 0) { ws[cell].s.font.color = {rgb:"9C0006"}; ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"FFC7CE"} }; } else if (val > 0) { ws[cell].s.font.color = {rgb:"006100"}; ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"C6EFCE"} }; } }
             }
-
-            // Resumen Inferior
-            if (row >= 6 + inventoryData.length + 2) {
-                ws[cell].s.font.bold = true;
-                if(row === 6 + inventoryData.length + 2) { ws[cell].s.font.sz = 13; ws[cell].s.border = {bottom:{style:"medium"}}; }
-                if((col === 'B' || col === 'E') && typeof val === 'number') {
-                    if (col === 'E') ws[cell].z = '"$"#,##0.00';
-                }
-            }
+            if (row >= 6 + inventoryData.length + 2) { ws[cell].s.font.bold = true; if(row === 6 + inventoryData.length + 2) { ws[cell].s.font.sz = 13; ws[cell].s.border = {bottom:{style:"medium"}}; } if((col === 'B' || col === 'E') && typeof val === 'number') { if (col === 'E') ws[cell].z = '"$"#,##0.00'; } }
         }
-
         ws['!cols'] = [{wch:15},{wch:45},{wch:12},{wch:10},{wch:15},{wch:35},{wch:16},{wch:18},{wch:18}];
         XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); XLSX.writeFile(wb, `${inventoryTitle.replace(/ /g, '_')}_REPORTE.xlsx`);
     }
 
     // ==========================================
-    // LÓGICA MÓDULO 2: CONSOLIDADOR GLOBAL
+    // MÓDULO 2: CONSOLIDADOR GLOBAL
     // ==========================================
     let unifyFiles = []; let unifiedFinalData = [];
-
-    function addFileToUnify(event) {
-        const file = event.target.files[0]; if (!file) return;
-        unifyFiles.push(file);
-        const listEl = document.getElementById('unify-file-list');
-        const id = unifyFiles.length - 1;
-        listEl.innerHTML += `<div class="file-item" id="ufile-${id}"><span>📄 ${file.name}</span><button onclick="removeFileToUnify(${id})">X</button></div>`;
-        event.target.value = '';
-    }
+    function addFileToUnify(event) { const file = event.target.files[0]; if (!file) return; unifyFiles.push(file); const listEl = document.getElementById('unify-file-list'); const id = unifyFiles.length - 1; listEl.innerHTML += `<div class="file-item" id="ufile-${id}"><span>📄 ${file.name}</span><button onclick="removeFileToUnify(${id})">X</button></div>`; event.target.value = ''; }
     function removeFileToUnify(index) { unifyFiles[index] = null; document.getElementById(`ufile-${index}`).style.display = 'none'; }
-    function readExcelAsync(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = function(e) { resolve(XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).Sheets[XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).SheetNames[0]], {header: 1})); };
-            reader.readAsArrayBuffer(file);
-        });
-    }
-
     async function processUnification() {
-        const activeFiles = unifyFiles.filter(f => f !== null);
-        if(activeFiles.length === 0) return alert('Agrega al menos un Excel.');
-        document.getElementById('unify-file-count').innerText = `Archivos unificados: ${activeFiles.length}`;
-        let masterMap = {};
-
+        const activeFiles = unifyFiles.filter(f => f !== null); if(activeFiles.length === 0) return alert('Agrega Excel.');
+        document.getElementById('unify-file-count').innerText = `Archivos unificados: ${activeFiles.length}`; let masterMap = {};
         for(let file of activeFiles) {
-            const rows = await readExcelAsync(file);
-            let start = rows.findIndex(r => r[0] === "SKU");
+            const rows = await readExcelAsync(file); let start = rows.findIndex(r => r[0] === "SKU");
             if(start !== -1) {
                 for(let i = start + 1; i < rows.length; i++) {
                     if(!rows[i] || !rows[i][0]) continue;
                     let sku = String(rows[i][0]).trim(); let name = String(rows[i][1] || '').trim(); let price = parseFloat(rows[i][2]) || 0; let teo = parseInt(rows[i][3]) || 0; let fis = parseInt(rows[i][4]) || 0;
                     if(!masterMap[sku]) masterMap[sku] = { sku, name, price, teo: 0, fis: 0 };
-                    masterMap[sku].teo += teo; masterMap[sku].fis += fis;
-                    if(price > 0) masterMap[sku].price = price;
+                    masterMap[sku].teo += teo; masterMap[sku].fis += fis; if(price > 0) masterMap[sku].price = price;
                 }
             }
         }
@@ -514,71 +391,175 @@
         filteredArray.sort((a, b) => ((a.fis - a.teo) * a.price) - ((b.fis - b.teo) * b.price));
         unifiedFinalData = filteredArray; renderUnifiedTable(); goToScreen('unify-workspace-screen');
     }
-
     function renderUnifiedTable() {
-        const tbody = document.getElementById('unify-table-body'); tbody.innerHTML = '';
-        let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
+        const tbody = document.getElementById('unify-table-body'); tbody.innerHTML = ''; let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
         unifiedFinalData.forEach(i => {
             let d = i.fis - i.teo; let imp = d * i.price;
             if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);}
-            let st = d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
-            let colorImp = d>0?'var(--neon-yellow)':'var(--neon-pink)';
+            let st = d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`; let colorImp = d>0?'var(--neon-yellow)':'var(--neon-pink)';
             tbody.innerHTML += `<tr><td style="color: #fff; font-weight:bold;">${i.sku}</td><td style="text-align:left;">${i.name}</td><td>${moneyFormatter.format(i.price)}</td><td>${i.teo}</td><td style="font-weight:bold; color:var(--neon-cyan);">${i.fis}</td><td style="font-size: 1.1em;">${st}</td><td style="color:${colorImp}; font-weight:bold;">${moneyFormatter.format(imp)}</td></tr>`;
         });
-        document.getElementById('u-qty-missing').innerText = `${tMissQ} faltantes netos`; document.getElementById('u-sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`;
-        document.getElementById('u-qty-surplus').innerText = `${tSurpQ} sobrantes netos`; document.getElementById('u-sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`;
-        document.getElementById('u-sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM); document.getElementById('u-sum-balance').style.color = (tSurpM - tMissM) >= 0 ? 'var(--neon-cyan)' : 'var(--neon-pink)';
+        document.getElementById('u-qty-missing').innerText = `${tMissQ} faltantes`; document.getElementById('u-sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`; document.getElementById('u-qty-surplus').innerText = `${tSurpQ} sobrantes`; document.getElementById('u-sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`; document.getElementById('u-sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM); document.getElementById('u-sum-balance').style.color = (tSurpM - tMissM) >= 0 ? 'var(--neon-cyan)' : 'var(--neon-pink)';
     }
-
     function exportUnifiedToExcel() {
         if(!unifiedFinalData.length) return alert('No hay datos.');
+        let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0; unifiedFinalData.forEach(i => { let d = i.fis - i.teo, imp = d * i.price; if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);} });
+        let ws_data = [ ["REPORTE GLOBAL UNIFICADO"], ["FECHA:", getCurrentDateTime()], [], ["SKU", "NOMBRE", "PRECIO", "TEÓRICO GLOBAL", "FÍSICO GLOBAL", "VARIANZA NETA", "IMPACTO TOTAL ($)"] ];
+        unifiedFinalData.forEach(i => ws_data.push([i.sku, i.name, Number(i.price), Number(i.teo), Number(i.fis), Number(i.fis-i.teo), Number((i.fis-i.teo)*i.price)]));
+        ws_data.push([]); ws_data.push([]); ws_data.push(["RESUMEN FINANCIERO GLOBAL"]); ws_data.push(["Faltantes Totales:", tMissQ, "", "Fuga Neta:", -tMissM]); ws_data.push(["Sobrantes Totales:", tSurpQ, "", "Excedente Neto:", tSurpM]); ws_data.push(["", "", "", "BALANCE NETO:", tSurpM - tMissM]);
+        let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data); const borderAll = { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} };
+        for (let cell in ws) {
+            if (cell[0] === '!') continue; let col = cell.replace(/[0-9]/g, ''); let row = parseInt(cell.replace(/\D/g, '')); let val = ws[cell].v; ws[cell].s = { font: { name: "Calibri", sz: 11 }, alignment: { vertical: "center" } };
+            if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"9C0059"} }; } if (row === 4) { ws[cell].s.font = { bold: true, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"000000"} }; ws[cell].s.border = borderAll; }
+            if (row >= 5 && row < 5 + unifiedFinalData.length) { ws[cell].s.border = borderAll; if(col === 'C' || col === 'G') ws[cell].z = '"$"#,##0.00'; if (col === 'F' || col === 'G') { if (val < 0) { ws[cell].s.font.color = {rgb:"9C0006"}; ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"FFC7CE"} }; } else if (val > 0) { ws[cell].s.font.color = {rgb:"006100"}; ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"C6EFCE"} }; } } }
+            if (row >= 5 + unifiedFinalData.length + 2) { ws[cell].s.font.bold = true; if(row === 5 + unifiedFinalData.length + 2) { ws[cell].s.font.sz = 13; ws[cell].s.border = {bottom:{style:"medium"}}; } if((col === 'B' || col === 'E') && typeof val === 'number') { if (col === 'E') ws[cell].z = '"$"#,##0.00'; } }
+        }
+        ws['!cols'] = [{wch:15},{wch:45},{wch:12},{wch:15},{wch:15},{wch:16},{wch:20}]; XLSX.utils.book_append_sheet(wb, ws, "Master"); XLSX.writeFile(wb, `INVENTARIO_GLOBAL_UNIFICADO.xlsx`);
+    }
+
+    // ==========================================
+    // MÓDULO 3: COMPARATIVO DE VENTAS (NUEVO)
+    // ==========================================
+    let salesFile1 = null; let salesFile2 = null; let salesData = [];
+
+    function setSalesFile(event, num) {
+        if(num === 1) salesFile1 = event.target.files[0];
+        if(num === 2) salesFile2 = event.target.files[0];
+        document.getElementById(`sales-btn-${num}`).innerText = `✔️ ARCHIVO ${num} CARGADO`;
+        document.getElementById(`sales-btn-${num}`).style.borderColor = "var(--neon-green)";
+        document.getElementById(`sales-btn-${num}`).style.color = "var(--neon-green)";
+    }
+
+    async function processSalesAnalysis() {
+        if(!salesFile1 || !salesFile2) return alert("Sube los archivos de la Semana 1 y la Semana 2.");
+        let rows1 = await readExcelAsync(salesFile1);
+        let rows2 = await readExcelAsync(salesFile2);
+
+        let map1 = {}, map2 = {};
         
-        let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
-        unifiedFinalData.forEach(i => {
-            let d = i.fis - i.teo, imp = d * i.price;
-            if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);}
+        let start1 = rows1.findIndex(r => r[0] === "SKU");
+        if(start1 !== -1) {
+            for(let i=start1+1; i<rows1.length; i++) {
+                if(!rows1[i][0]) continue;
+                let sku = String(rows1[i][0]);
+                // Extraemos TEO original (index 3) y FIS (index 4)
+                map1[sku] = { teo: parseInt(rows1[i][3])||0, fis: parseInt(rows1[i][4])||0, price: parseFloat(rows1[i][2])||0, name: String(rows1[i][1])||"" };
+            }
+        }
+
+        let start2 = rows2.findIndex(r => r[0] === "SKU");
+        if(start2 !== -1) {
+            for(let i=start2+1; i<rows2.length; i++) {
+                if(!rows2[i][0]) continue;
+                let sku = String(rows2[i][0]);
+                map2[sku] = { teo: parseInt(rows2[i][3])||0, fis: parseInt(rows2[i][4])||0, price: parseFloat(rows2[i][2])||0, name: String(rows2[i][1])||"" };
+            }
+        }
+
+        salesData = [];
+        let allSkus = new Set([...Object.keys(map1), ...Object.keys(map2)]);
+        allSkus.forEach(sku => {
+            let d1 = map1[sku] || {teo:0, fis:0, price:0, name:"Desconocido"};
+            let d2 = map2[sku] || {teo:0, fis:0, price: d1.price, name: d1.name};
+            let price = d2.price > 0 ? d2.price : d1.price;
+            let name = d2.name !== "Desconocido" ? d2.name : d1.name;
+
+            salesData.push({ sku, name, price, t1: d1.teo, f1: d1.fis, t2: d2.teo, f2: d2.fis, entradas: 0 });
         });
 
+        // Filtrar basura: Si en ambas semanas F1 y F2 es 0, y Entradas es 0, no lo mostramos.
+        salesData = salesData.filter(i => !(i.f1 === 0 && i.f2 === 0 && i.t1 === 0 && i.t2 === 0));
+
+        // Ordenar por defecto: Mayor Venta Real arriba
+        salesData.sort((a, b) => ((b.f1 + b.entradas - b.f2) * b.price) - ((a.f1 + a.entradas - a.f2) * a.price));
+
+        renderSalesTable();
+        goToScreen('sales-workspace-screen');
+    }
+
+    function updateEntradas(sku, val) {
+        let item = salesData.find(i => i.sku === sku);
+        if(item) { item.entradas = parseInt(val) || 0; renderSalesTable(); }
+    }
+
+    function renderSalesTable() {
+        let tbody = document.getElementById('sales-table-body'); tbody.innerHTML = '';
+        let totalVentas = 0; let totalRobo = 0;
+
+        salesData.forEach(i => {
+            let var1 = i.f1 - i.t1; 
+            let var2 = i.f2 - i.t2; 
+            
+            // LA MAGIA MATEMÁTICA DEL ROBO
+            let fugaNueva = -(var2 - var1); 
+            
+            // LA SALIDA TOTAL
+            let salidaTotal = i.f1 + i.entradas - i.f2;
+            
+            // VENTA REAL (Solo resurtimos lo que salió legimitamente)
+            let ventaEstimada = salidaTotal - fugaNueva;
+
+            if(ventaEstimada > 0) totalVentas += ventaEstimada * i.price;
+            if(fugaNueva > 0) totalRobo += fugaNueva * i.price;
+
+            let fontFuga = fugaNueva > 0 ? 'var(--neon-pink)' : (fugaNueva < 0 ? 'var(--neon-green)' : 'rgba(255,255,255,0.5)');
+
+            tbody.innerHTML += `<tr>
+                <td>${i.sku}</td>
+                <td style="text-align:left;">${i.name}</td>
+                <td style="color:var(--neon-cyan); font-weight:bold; font-size:1.1em;">${i.f1}</td>
+                <td><input type="number" class="inline-teo" value="${i.entradas}" onchange="updateEntradas('${i.sku}', this.value)" style="background: #fff; color: #000; border: none; font-size: 1.1em;"></td>
+                <td style="color:var(--neon-pink); font-weight:bold; font-size:1.1em;">${i.f2}</td>
+                <td>${salidaTotal}</td>
+                <td style="color:${fontFuga}; font-weight:bold;">${fugaNueva}</td>
+                <td style="color:var(--neon-yellow); font-weight:bold; font-size:1.2em;">${ventaEstimada}</td>
+            </tr>`;
+        });
+
+        document.getElementById('s-sum-ventas').innerText = moneyFormatter.format(totalVentas);
+        document.getElementById('s-sum-robo').innerText = `-${moneyFormatter.format(totalRobo)}`;
+    }
+
+    function exportSalesToExcel() {
+        if(!salesData.length) return alert('No hay datos.');
         let ws_data = [
-            ["REPORTE GLOBAL UNIFICADO"], ["FECHA:", getCurrentDateTime()], [], 
-            ["SKU", "NOMBRE", "PRECIO", "TEÓRICO GLOBAL", "FÍSICO GLOBAL", "VARIANZA NETA", "IMPACTO TOTAL ($)"]
+            ["REPORTE DE ANÁLISIS DE VENTAS Y ROTACIÓN"], ["FECHA:", getCurrentDateTime()], [], 
+            ["SKU", "NOMBRE", "PRECIO", "FÍSICO SEMANA 1", "ENTRADAS", "FÍSICO SEMANA 2", "SALIDA TOTAL", "ROBO DETECTADO", "VENTA REAL ESTIMADA"]
         ];
         
-        unifiedFinalData.forEach(i => ws_data.push([i.sku, i.name, Number(i.price), Number(i.teo), Number(i.fis), Number(i.fis-i.teo), Number((i.fis-i.teo)*i.price)]));
-        
-        ws_data.push([]); ws_data.push([]); ws_data.push(["RESUMEN FINANCIERO GLOBAL"]);
-        ws_data.push(["Faltantes Totales:", tMissQ, "", "Fuga Neta:", -tMissM]);
-        ws_data.push(["Sobrantes Totales:", tSurpQ, "", "Excedente Neto:", tSurpM]);
-        ws_data.push(["", "", "", "BALANCE NETO:", tSurpM - tMissM]);
+        let tVen=0, tRob=0;
+        salesData.forEach(i => {
+            let var1 = i.f1 - i.t1; let var2 = i.f2 - i.t2; 
+            let fugaNueva = -(var2 - var1); 
+            let salidaTotal = i.f1 + i.entradas - i.f2;
+            let ventaEstimada = salidaTotal - fugaNueva;
+            if(ventaEstimada > 0) tVen += ventaEstimada * i.price;
+            if(fugaNueva > 0) tRob += fugaNueva * i.price;
+
+            ws_data.push([i.sku, i.name, Number(i.price), Number(i.f1), Number(i.entradas), Number(i.f2), Number(salidaTotal), Number(fugaNueva), Number(ventaEstimada)]);
+        });
+
+        ws_data.push([]); ws_data.push(["RESUMEN DE ROTACIÓN"]);
+        ws_data.push(["VENTA REAL ($) para Resurtir:", tVen]);
+        ws_data.push(["FUGA POR ROBO ($):", -tRob]);
 
         let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data);
         const borderAll = { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} };
 
         for (let cell in ws) {
-            if (cell[0] === '!') continue; 
-            let col = cell.replace(/[0-9]/g, ''); let row = parseInt(cell.replace(/\D/g, '')); let val = ws[cell].v;
-            ws[cell].s = { font: { name: "Calibri", sz: 11 }, alignment: { vertical: "center" } };
-
-            if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"9C0059"} }; } // Rosa Corporativo
-            if (row === 4) { ws[cell].s.font = { bold: true, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"000000"} }; ws[cell].s.border = borderAll; }
-            
-            if (row >= 5 && row < 5 + unifiedFinalData.length) {
-                ws[cell].s.border = borderAll;
-                if(col === 'C' || col === 'G') ws[cell].z = '"$"#,##0.00';
-                if (col === 'F' || col === 'G') {
-                    if (val < 0) { ws[cell].s.font.color = {rgb:"9C0006"}; ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"FFC7CE"} }; } 
-                    else if (val > 0) { ws[cell].s.font.color = {rgb:"006100"}; ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"C6EFCE"} }; }
-                }
+            if (cell[0] === '!') continue; let col = cell.replace(/[0-9]/g, ''); let row = parseInt(cell.replace(/\D/g, '')); let val = ws[cell].v; ws[cell].s = { font: { name: "Calibri", sz: 11 }, alignment: { vertical: "center" } };
+            if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"000000"} }; ws[cell].s.fill = { fgColor: {rgb:"FFD700"} }; } 
+            if (row === 4) { ws[cell].s.font = { bold: true, color: {rgb:"000000"} }; ws[cell].s.fill = { fgColor: {rgb:"FFD700"} }; ws[cell].s.border = borderAll; }
+            if (row >= 5 && row < 5 + salesData.length) { 
+                ws[cell].s.border = borderAll; 
+                if(col === 'C') ws[cell].z = '"$"#,##0.00'; 
+                if(col === 'H') { if(val > 0) { ws[cell].s.font.color = {rgb:"9C0006"}; ws[cell].s.fill = { fgColor: {rgb:"FFC7CE"} }; } }
+                if(col === 'I') { ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"FFF2CC"} }; }
             }
-            if (row >= 5 + unifiedFinalData.length + 2) {
-                ws[cell].s.font.bold = true;
-                if(row === 5 + unifiedFinalData.length + 2) { ws[cell].s.font.sz = 13; ws[cell].s.border = {bottom:{style:"medium"}}; }
-                if((col === 'B' || col === 'E') && typeof val === 'number') { if (col === 'E') ws[cell].z = '"$"#,##0.00'; }
-            }
+            if (row >= 5 + salesData.length + 2) { ws[cell].s.font.bold = true; if((col === 'B') && typeof val === 'number') { ws[cell].z = '"$"#,##0.00'; } }
         }
 
-        ws['!cols'] = [{wch:15},{wch:45},{wch:12},{wch:15},{wch:15},{wch:16},{wch:20}];
-        XLSX.utils.book_append_sheet(wb, ws, "Master"); XLSX.writeFile(wb, `INVENTARIO_GLOBAL_UNIFICADO.xlsx`);
+        ws['!cols'] = [{wch:15},{wch:40},{wch:12},{wch:15},{wch:15},{wch:15},{wch:15},{wch:20},{wch:25}]; XLSX.utils.book_append_sheet(wb, ws, "Ventas"); XLSX.writeFile(wb, `ANALISIS_VENTAS.xlsx`);
     }
 </script>
 </body>
