@@ -1,1 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEPGOD // Control de Inventarios</title>
+    <style>
+        :root {
+            --neon-green: #39ff14;
+            --neon-pink: #ff007f;
+            --neon-cyan: #00f3ff;
+            --neon-yellow: #ffea00;
+            --bg-color: #050505;
+            --grid-color: rgba(0, 243, 255, 0.08);
+        }
 
+        body {
+            background-color: var(--bg-color);
+            color: var(--neon-cyan);
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+            margin: 0;
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 25px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: rgba(10, 10, 12, 0.95);
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan);
+            border-radius: 4px;
+            padding: 30px;
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 20px;
+        }
+
+        h1, h2 {
+            color: var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-green);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0;
+        }
+
+        /* PANTALLA 1: SETUP */
+        #setup-screen { display: block; text-align: center; }
+        
+        /* PANTALLA 2: WORKSPACE */
+        #workspace-screen { display: none; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-size: 0.85em; color: var(--neon-cyan); text-transform: uppercase; }
+        
+        input {
+            width: 100%; padding: 10px; background: black; border: 1px solid var(--neon-cyan);
+            color: var(--neon-green); font-family: 'Courier New', Courier, monospace;
+            box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        input:focus { box-shadow: 0 0 10px var(--neon-cyan); border-color: #fff; }
+
+        .flex-row { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
+        .flex-row .input-group { flex: 1; min-width: 150px; margin-bottom: 0; }
+
+        button {
+            padding: 12px 20px; background: transparent; color: var(--neon-pink);
+            border: 2px solid var(--neon-pink); font-family: 'Courier New', Courier, monospace;
+            font-size: 1em; font-weight: bold; cursor: pointer; text-transform: uppercase;
+            text-shadow: 0 0 5px var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+            transition: 0.2s;
+        }
+        button:hover { background: var(--neon-pink); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-pink); text-shadow: none; }
+        
+        button.btn-cyan { color: var(--neon-cyan); border-color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+        button.btn-cyan:hover { background: var(--neon-cyan); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-cyan); text-shadow: none; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; font-size: 0.9em; }
+        th, td { border: 1px solid rgba(0, 243, 255, 0.3); padding: 10px; text-align: center; }
+        th { background: black; color: var(--neon-cyan); position: sticky; top: 0; }
+        td { color: #fff; }
+
+        .diff-exact { color: var(--neon-green); font-weight: bold; }
+        .diff-surplus { color: var(--neon-yellow); font-weight: bold; }
+        .diff-missing { color: var(--neon-pink); font-weight: bold; }
+        
+        .header-info { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--neon-cyan); padding-bottom: 15px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="setup-screen">
+        <h1>SYS.LOGÍSTICA // PRE-INVENTARIO</h1>
+        
+        <div class="input-group" style="max-width: 400px; margin: 30px auto;">
+            <label for="inv-title">Título de la Auditoría / Zona</label>
+            <input type="text" id="inv-title" placeholder="Ej. Pasillo 4 - Electrónica">
+        </div>
+
+        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
+            <button onclick="startNewInventory()">[ CREAR DESDE CERO ]</button>
+            
+            <label for="file-upload" class="btn-cyan" style="display: inline-block; padding: 12px 20px; border: 2px solid var(--neon-cyan); cursor: pointer; font-weight: bold; text-shadow: 0 0 5px var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);">
+                [ CARGAR LISTA CSV ]
+            </label>
+            <input type="file" id="file-upload" accept=".csv" style="display: none;" onchange="loadCSV(event)">
+        </div>
+    </div>
+
+    <div class="container" id="workspace-screen">
+        <div class="header-info">
+            <h2 id="display-title" style="margin: 0; color: #fff;">TÍTULO_INVENTARIO</h2>
+            <button class="btn-cyan" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportInventory()">[ DESCARGAR REPORTE ]</button>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-pink); margin-bottom: 20px;">
+            <label style="color: var(--neon-pink); font-weight: bold; margin-bottom: 10px;">> REGISTRAR ARTÍCULO</label>
+            <div class="flex-row">
+                <div class="input-group"><label>SKU</label><input type="text" id="item-sku" placeholder="Ej. 10045"></div>
+                <div class="input-group" style="flex: 2;"><label>Nombre del Artículo</label><input type="text" id="item-name" placeholder="Ej. Monitor 24 pulg"></div>
+                <div class="input-group"><label>Cant. Teórica</label><input type="number" id="item-teo" placeholder="En sistema"></div>
+                <div class="input-group"><label>Cant. Física</label><input type="number" id="item-fis" placeholder="Contado"></div>
+                <button onclick="addItem()" style="height: 40px; margin-bottom: 0;">AGREGAR</button>
+            </div>
+        </div>
+
+        <table id="inventory-table">
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th style="text-align: left;">NOMBRE DEL ARTÍCULO</th>
+                    <th>TEÓRICO (SISTEMA)</th>
+                    <th>FÍSICO (REAL)</th>
+                    <th>VARIANZA (STATUS)</th>
+                    <th>ACCIÓN</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                </tbody>
+        </table>
+    </div>
+
+<script>
+    let inventoryData = [];
+    let inventoryTitle = "INVENTARIO_GENERAL";
+
+    // INICIAR DESDE CERO
+    function startNewInventory() {
+        const titleInput = document.getElementById('inv-title').value;
+        if(titleInput.trim() === '') {
+            alert('SYS.ERROR: Ingresa un título para el pre-inventario.');
+            return;
+        }
+        inventoryTitle = titleInput.toUpperCase();
+        document.getElementById('display-title').innerText = "> " + inventoryTitle;
+        
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('workspace-screen').style.display = 'block';
+    }
+
+    // AGREGAR ARTÍCULO MANUALMENTE
+    function addItem() {
+        const sku = document.getElementById('item-sku').value;
+        const name = document.getElementById('item-name').value;
+        const teo = parseInt(document.getElementById('item-teo').value);
+        const fis = parseInt(document.getElementById('item-fis').value);
+
+        if(!sku || !name || isNaN(teo) || isNaN(fis)) {
+            alert('SYS.ERROR: Faltan datos del artículo.');
+            return;
+        }
+
+        // Buscamos si el SKU ya existe en la lista para actualizarlo, si no, lo agregamos
+        const existingIndex = inventoryData.findIndex(item => item.sku === sku);
+        if (existingIndex >= 0) {
+            inventoryData[existingIndex] = { sku, name, teo, fis };
+        } else {
+            inventoryData.push({ sku, name, teo, fis });
+        }
+
+        // Limpiar campos y hacer focus en el SKU para el siguiente escaneo
+        document.getElementById('item-sku').value = '';
+        document.getElementById('item-name').value = '';
+        document.getElementById('item-teo').value = '';
+        document.getElementById('item-fis').value = '';
+        document.getElementById('item-sku').focus();
+
+        renderTable();
+    }
+
+    // ELIMINAR ARTÍCULO
+    function deleteItem(sku) {
+        inventoryData = inventoryData.filter(item => item.sku !== sku);
+        renderTable();
+    }
+
+    // DIBUJAR LA TABLA Y APLICAR LA LÓGICA DE VARIANZA
+    function renderTable() {
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+
+        inventoryData.forEach(item => {
+            const diff = item.fis - item.teo;
+            let statusHTML = '';
+
+            // LÓGICA DE VARIANZA SOLICITADA POR EL USUARIO
+            if (diff === 0) {
+                // Exacto: Solo muestra el número original (ej. 50)
+                statusHTML = `<span class="diff-exact">${item.teo} (EXACTO)</span>`;
+            } else if (diff > 0) {
+                // Sobra: Muestra +X
+                statusHTML = `<span class="diff-surplus">+${diff} (SOBRA)</span>`;
+            } else {
+                // Falta: Muestra -X
+                statusHTML = `<span class="diff-missing">${diff} (FALTA)</span>`;
+            }
+
+            const row = `<tr>
+                <td style="color: var(--neon-cyan);">${item.sku}</td>
+                <td style="text-align: left;">${item.name}</td>
+                <td>${item.teo}</td>
+                <td>${item.fis}</td>
+                <td>${statusHTML}</td>
+                <td><button onclick="deleteItem('${item.sku}')" style="padding: 2px 8px; font-size: 0.7em; border-color: red; color: red;">[ X ]</button></td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // EXPORTAR A CSV
+    function exportInventory() {
+        if(inventoryData.length === 0) {
+            alert('No hay datos para exportar.');
+            return;
+        }
+
+        let csv = ['SKU,NOMBRE,TEORICO,FISICO,DIFERENCIA'];
+        inventoryData.forEach(item => {
+            const diff = item.fis - item.teo;
+            // Quitamos comas del nombre para no romper el CSV
+            const cleanName = item.name.replace(/,/g, ''); 
+            csv.push(`"${item.sku}","${cleanName}",${item.teo},${item.fis},${diff}`);
+        });
+
+        const csvFile = new Blob(["\uFEFF" + csv.join("\n")], {type: "text/csv;charset=utf-8;"});
+        const downloadLink = document.createElement("a");
+        downloadLink.download = `${inventoryTitle.replace(/ /g, '_')}_REPORTE.csv`;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
+    // IMPORTAR DESDE CSV (Para cargar plantillas)
+    function loadCSV(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        inventoryTitle = file.name.replace('.csv', '').toUpperCase();
+        document.getElementById('display-title').innerText = "> " + inventoryTitle;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            const rows = text.split('\n');
+            inventoryData = [];
+
+            // Empezamos en 1 para saltar los encabezados (SKU, Nombre, Teórico, Físico)
+            for (let i = 1; i < rows.length; i++) {
+                if (rows[i].trim() === '') continue;
+                
+                // Expresión regular simple para separar por comas ignorando comillas
+                const cols = rows[i].split(',');
+                if (cols.length >= 4) {
+                    const sku = cols[0].replace(/"/g, '').trim();
+                    const name = cols[1].replace(/"/g, '').trim();
+                    const teo = parseInt(cols[2]) || 0;
+                    const fis = parseInt(cols[3]) || 0;
+                    
+                    if (sku) {
+                        inventoryData.push({ sku, name, teo, fis });
+                    }
+                }
+            }
+            
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('workspace-screen').style.display = 'block';
+            renderTable();
+        };
+        reader.readAsText(file);
+    }
+</script>
+
+</body>
+</html>
