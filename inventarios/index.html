@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEPGOD // Suite de Logística V10</title>
+    <title>SEPGOD // Logística V10.1</title>
     
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
@@ -17,26 +17,39 @@
             --grid-color: rgba(0, 243, 255, 0.08);
         }
 
-        body { background-color: var(--bg-color); color: var(--neon-cyan); font-family: 'Courier New', Courier, monospace; min-height: 100vh; margin: 0; background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px); background-size: 25px 25px; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
-        .container { background: rgba(10, 10, 12, 0.95); border: 2px solid var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan); border-radius: 4px; padding: 30px; width: 100%; max-width: 1300px; margin-top: 20px; }
+        body { background-color: var(--bg-color); color: var(--neon-cyan); font-family: 'Courier New', Courier, monospace; min-height: 100vh; margin: 0; background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px); background-size: 25px 25px; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; overflow-x: hidden; }
+        
+        .container { background: rgba(10, 10, 12, 0.95); border: 2px solid var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan); border-radius: 4px; padding: 30px; width: 100%; max-width: 1300px; margin-top: 20px; position: relative; }
+
         h1, h2 { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
 
-        .screen { display: none; }
-        #home-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; max-width: 900px; gap: 30px; }
-        #home-screen.active { display: flex; }
-        .active { display: block; }
+        /* ==========================================
+           MAGIA DE ANIMACIÓN UX (CERO RUIDO VISUAL)
+           ========================================== */
+        .screen { display: none; opacity: 0; }
+        
+        /* Cuando la pantalla se activa, entra suavemente */
+        #home-screen.active { display: flex; animation: smoothEnter 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .container.screen.active { display: block; animation: smoothEnter 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+        @keyframes smoothEnter {
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        #home-screen { flex-direction: column; justify-content: center; align-items: center; max-width: 900px; gap: 30px; }
 
         .menu-cards { display: flex; gap: 20px; width: 100%; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
-        .card { flex: 1; min-width: 250px; background: rgba(0,0,0,0.6); border: 1px dashed var(--neon-cyan); padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .card:hover { border-style: solid; box-shadow: 0 0 20px rgba(0,243,255,0.2); transform: translateY(-5px); }
-        .card h3 { color: #fff; margin-bottom: 15px; font-size: 1.2em; }
+        .card { flex: 1; min-width: 250px; background: rgba(0,0,0,0.6); border: 1px dashed var(--neon-cyan); padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+        .card:hover { border-style: solid; box-shadow: 0 0 25px rgba(0,243,255,0.3); transform: translateY(-8px); background: rgba(0,243,255,0.05); }
+        .card h3 { color: #fff; margin-bottom: 15px; font-size: 1.2em; transition: 0.3s; }
+        .card:hover h3 { letter-spacing: 1px; }
         .card p { color: rgba(255,255,255,0.6); font-size: 0.85em; margin-bottom: 25px; }
         
         .card.card-pink { border-color: var(--neon-pink); }
-        .card.card-pink:hover { box-shadow: 0 0 20px rgba(255,0,127,0.2); }
-        
+        .card.card-pink:hover { box-shadow: 0 0 25px rgba(255,0,127,0.3); background: rgba(255,0,127,0.05); }
         .card.card-yellow { border-color: var(--neon-yellow); }
-        .card.card-yellow:hover { box-shadow: 0 0 20px rgba(255,234,0,0.2); }
+        .card.card-yellow:hover { box-shadow: 0 0 25px rgba(255,234,0,0.3); background: rgba(255,234,0,0.05); }
 
         .input-group { margin-bottom: 15px; text-align: left; }
         label { display: block; margin-bottom: 5px; font-size: 0.85em; color: var(--neon-cyan); text-transform: uppercase; }
@@ -52,12 +65,15 @@
         .btn-cyan:hover { background: var(--neon-cyan); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-cyan); text-shadow: none; }
         .btn-yellow { color: var(--neon-yellow); border-color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); box-shadow: 0 0 10px rgba(255, 234, 0, 0.3); }
         .btn-yellow:hover { background: var(--neon-yellow); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-yellow); text-shadow: none; }
-        .btn-back { padding: 5px 10px; font-size: 0.8em; border-color: #fff; color: #fff; text-shadow: none; box-shadow: none; }
+        
+        /* Botón Volver Limpio y Fijo */
+        .btn-back { position: absolute; top: 20px; left: 20px; padding: 8px 15px; font-size: 0.8em; border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); text-shadow: none; box-shadow: none; z-index: 10; }
+        .btn-back:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.1); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
 
         .toolbar { background: rgba(0,243,255,0.05); padding: 15px; border: 1px solid var(--neon-cyan); margin-bottom: 15px; display: flex; gap: 20px; flex-wrap: wrap; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
         th, td { border: 1px solid rgba(0, 243, 255, 0.3); padding: 10px; text-align: center; vertical-align: top; }
-        th { background: black; color: var(--neon-cyan); position: sticky; top: 0; font-size: 0.85em; }
+        th { background: black; color: var(--neon-cyan); position: sticky; top: 0; font-size: 0.85em; z-index: 5; }
         td { color: #fff; }
 
         .diff-exact { color: var(--neon-green); font-weight: bold; }
@@ -65,7 +81,7 @@
         .diff-missing { color: var(--neon-pink); font-weight: bold; }
         .diff-ghost { color: rgba(255,255,255,0.4); font-style: italic; }
         
-        .header-info { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--neon-cyan); padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .header-info { display: flex; justify-content: flex-end; align-items: center; border-bottom: 1px dashed var(--neon-cyan); padding-bottom: 15px; margin-bottom: 20px; margin-top: 10px; flex-wrap: wrap; gap: 15px; }
 
         .summary-dashboard { display: flex; gap: 20px; justify-content: space-between; margin-top: 30px; flex-wrap: wrap; }
         .summary-box { flex: 1; min-width: 200px; padding: 20px; text-align: center; border: 1px dashed; background: rgba(0,0,0,0.5); }
@@ -93,31 +109,30 @@
 <body>
 
     <div class="container screen active" id="home-screen">
-        <h1>SYS.LOGÍSTICA // TRINITY CORE V10</h1>
+        <h1>SYS.LOGÍSTICA // TRINITY CORE V10.1</h1>
         <p style="color: rgba(255,255,255,0.6); margin-top: 0;">Selecciona el módulo de operación</p>
         <div class="menu-cards">
             <div class="card" onclick="goToScreen('setup-screen')">
                 <h3 style="color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan);">[ INVENTARIOS CONTEOS ]</h3>
-                <p>Módulo Operativo. Auditorías doble ciego, multi-ubicación y captura física.</p>
+                <p>Auditorías doble ciego, multi-ubicación y captura física.</p>
                 <button class="btn-cyan">INICIAR OPERACIÓN</button>
             </div>
             <div class="card card-pink" onclick="goToScreen('unify-setup-screen')">
                 <h3 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">[ INVENTARIOS TOTALES ]</h3>
-                <p>Módulo Consolidación. Une varios pasillos y cruza datos para impacto global.</p>
+                <p>Consolidación de pasillos y cálculo de impacto financiero global.</p>
                 <button>CONSOLIDAR DATOS</button>
             </div>
             <div class="card card-yellow" onclick="goToScreen('sales-setup-screen')">
                 <h3 style="color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow);">[ COMPARATIVO DE VENTAS ]</h3>
-                <p>Módulo Resurtido. Compara Semana 1 vs Semana 2, separa Ventas Reales vs Robo y registra Entradas.</p>
+                <p>Compara semanas, separa Ventas vs Robo y registra Entradas.</p>
                 <button class="btn-yellow">ANALIZAR ROTACIÓN</button>
             </div>
         </div>
     </div>
 
     <div class="container screen" id="setup-screen" style="max-width: 800px;">
-        <button class="btn-back" onclick="goToScreen('home-screen')" style="float: left;">&lt; VOLVER AL MENÚ</button>
-        <div style="clear:both; height: 10px;"></div>
-        <h2>CONTEO INDIVIDUAL (MULTI-ZONA)</h2>
+        <button class="btn-back" onclick="goToScreen('home-screen')">&lt; VOLVER AL MENÚ</button>
+        <h2 style="margin-top: 30px;">CONTEO INDIVIDUAL (MULTI-ZONA)</h2>
         <div class="input-group" style="max-width: 400px; margin: 30px auto;">
             <label>Título de la Auditoría Master</label><input type="text" id="inv-title" placeholder="Ej. Tienda Centro">
         </div>
@@ -129,13 +144,13 @@
     </div>
 
     <div class="container screen" id="workspace-screen">
+        <button class="btn-back" onclick="goToScreen('home-screen')">&lt; MENÚ PRINCIPAL</button>
         <div class="header-info">
-            <div>
-                <button class="btn-back" onclick="goToScreen('home-screen')" style="margin-bottom: 15px;">&lt; MENÚ</button>
-                <h2 id="display-title" style="margin: 0; color: #fff;">TÍTULO_INVENTARIO</h2>
+            <div style="text-align: right;">
+                <h2 id="display-title" style="margin: 0; color: #fff; display: inline-block; margin-right: 20px;">TÍTULO_INVENTARIO</h2>
+                <button class="btn-cyan" style="padding: 8px 15px; font-size: 0.8em;" onclick="exportInventoryToExcel()">[ EXPORTAR EXCEL CORPORATIVO ]</button>
                 <span id="display-time" style="color: rgba(0,243,255,0.6); font-size: 0.85em; display: block; margin-top: 5px;">[ INICIADO: --:-- ]</span>
             </div>
-            <button class="btn-cyan" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportInventoryToExcel()">[ EXPORTAR EXCEL CORPORATIVO ]</button>
         </div>
         <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-pink); margin-bottom: 20px;">
             <div class="flex-row">
@@ -171,9 +186,8 @@
     </div>
 
     <div class="container screen" id="unify-setup-screen" style="max-width: 800px; text-align: center;">
-        <button class="btn-back" onclick="goToScreen('home-screen')" style="float: left;">&lt; VOLVER AL MENÚ</button>
-        <div style="clear:both; height: 10px;"></div>
-        <h2 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">CONSOLIDACIÓN GLOBAL</h2>
+        <button class="btn-back" onclick="goToScreen('home-screen')">&lt; VOLVER AL MENÚ</button>
+        <h2 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); margin-top: 30px;">CONSOLIDACIÓN GLOBAL</h2>
         <label for="unify-file-upload" class="btn-label btn-cyan" style="border-style: dashed; padding: 20px 40px; margin-top:20px;">+ AGREGAR ARCHIVO EXCEL</label>
         <input type="file" id="unify-file-upload" accept=".xlsx, .xls, .csv" style="display: none;" onchange="addFileToUnify(event)">
         <div class="file-list" id="unify-file-list"></div>
@@ -181,12 +195,13 @@
     </div>
 
     <div class="container screen" id="unify-workspace-screen">
+        <button class="btn-back" onclick="goToScreen('unify-setup-screen')">&lt; AGREGAR MÁS ARCHIVOS</button>
         <div class="header-info" style="border-bottom-color: var(--neon-pink);">
-            <div>
-                <button class="btn-back" onclick="goToScreen('unify-setup-screen')" style="margin-bottom: 15px;">&lt; AGREGAR MÁS ARCHIVOS</button>
-                <h2 style="margin: 0; color: var(--neon-pink);">REPORTE GLOBAL UNIFICADO</h2>
+            <div style="text-align: right;">
+                <h2 style="margin: 0; color: var(--neon-pink); display: inline-block; margin-right: 20px;">REPORTE GLOBAL UNIFICADO</h2>
+                <button class="btn-cyan" style="padding: 8px 15px; font-size: 0.8em;" onclick="exportUnifiedToExcel()">[ DESCARGAR MASTER (.XLSX) ]</button>
+                <span id="unify-file-count" style="color: rgba(255,255,255,0.6); font-size: 0.85em; display: block; margin-top: 5px;">Archivos procesados: 0</span>
             </div>
-            <button class="btn-cyan" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportUnifiedToExcel()">[ DESCARGAR MASTER (.XLSX) ]</button>
         </div>
         <div class="summary-dashboard" style="margin-top: 0; margin-bottom: 30px;">
             <div class="summary-box missing"><h3 id="u-sum-missing">-$0.00</h3><p id="u-qty-missing">0 faltantes</p></div>
@@ -202,32 +217,30 @@
     </div>
 
     <div class="container screen" id="sales-setup-screen" style="max-width: 800px; text-align: center;">
-        <button class="btn-back" onclick="goToScreen('home-screen')" style="float: left;">&lt; VOLVER AL MENÚ</button>
-        <div style="clear:both; height: 10px;"></div>
-        <h2 style="color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow);">COMPARATIVO DE VENTAS Y MERMAS</h2>
-        <p style="color: #fff; margin-bottom: 30px;">Carga el inventario de la semana pasada y el de esta semana. El sistema cruzará las varianzas para separar las Ventas Legítimas de los Robos Nuevos.</p>
+        <button class="btn-back" onclick="goToScreen('home-screen')">&lt; VOLVER AL MENÚ</button>
+        <h2 style="color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); margin-top: 30px;">COMPARATIVO DE ROTACIÓN</h2>
+        <p style="color: #fff; margin-bottom: 30px;">Cruza dos semanas para separar Ventas Legítimas de Robos Nuevos.</p>
         
         <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
             <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.5); padding: 20px; border: 1px dashed var(--neon-cyan);">
-                <label for="sales-file-1" class="btn-label btn-cyan" id="sales-btn-1" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">1. CARGAR EXCEL (SEMANA 1)</label>
+                <label for="sales-file-1" class="btn-label btn-cyan" id="sales-btn-1" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">1. CARGAR (SEMANA 1)</label>
                 <input type="file" id="sales-file-1" accept=".xlsx, .xls, .csv" style="display: none;" onchange="setSalesFile(event, 1)">
             </div>
             <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.5); padding: 20px; border: 1px dashed var(--neon-pink);">
-                <label for="sales-file-2" class="btn-label" id="sales-btn-2" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">2. CARGAR EXCEL (SEMANA 2)</label>
+                <label for="sales-file-2" class="btn-label" id="sales-btn-2" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">2. CARGAR (SEMANA 2)</label>
                 <input type="file" id="sales-file-2" accept=".xlsx, .xls, .csv" style="display: none;" onchange="setSalesFile(event, 2)">
             </div>
         </div>
-
-        <button class="btn-yellow" onclick="processSalesAnalysis()" style="font-size: 1.2em; padding: 15px 40px;">[ EJECUTAR ANÁLISIS DE ROTACIÓN ]</button>
+        <button class="btn-yellow" onclick="processSalesAnalysis()" style="font-size: 1.2em; padding: 15px 40px;">[ EJECUTAR ANÁLISIS ]</button>
     </div>
 
     <div class="container screen" id="sales-workspace-screen">
+        <button class="btn-back" onclick="goToScreen('sales-setup-screen')">&lt; CAMBIAR ARCHIVOS</button>
         <div class="header-info" style="border-bottom-color: var(--neon-yellow);">
-            <div>
-                <button class="btn-back" onclick="goToScreen('sales-setup-screen')" style="margin-bottom: 15px;">&lt; CAMBIAR ARCHIVOS</button>
-                <h2 style="margin: 0; color: var(--neon-yellow);">TABLERO DE RESURTIDO (VENTAS VS ROBO)</h2>
+            <div style="text-align: right; width: 100%;">
+                <h2 style="margin: 0; color: var(--neon-yellow); display: inline-block; margin-right: 20px;">TABLERO DE RESURTIDO</h2>
+                <button class="btn-yellow" style="padding: 8px 15px; font-size: 0.8em;" onclick="exportSalesToExcel()">[ DESCARGAR ANÁLISIS (.XLSX) ]</button>
             </div>
-            <button class="btn-yellow" style="padding: 5px 10px; font-size: 0.8em;" onclick="exportSalesToExcel()">[ DESCARGAR ANÁLISIS (.XLSX) ]</button>
         </div>
 
         <div class="summary-dashboard" style="margin-top: 0; margin-bottom: 30px;">
@@ -242,7 +255,7 @@
         </div>
 
         <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-yellow); margin-bottom: 20px; font-size: 0.85em; color: #fff;">
-            <strong>GUÍA DE USO:</strong> Ingresa las mercancías que recibiste del proveedor en la columna <span style="color:var(--neon-cyan);">[+ ENTRADAS AL ALMACÉN]</span>. La <span style="color:var(--neon-yellow);">VENTA REAL</span> te dirá exactamente cuánto debes comprar para mantener el stock sin inflarlo con la mercancía robada.
+            <strong>GUÍA DE USO:</strong> Ingresa la mercancía recibida en la columna <span style="color:var(--neon-cyan);">[+ ENTRADAS]</span>. La <span style="color:var(--neon-yellow);">VENTA REAL</span> te dirá cuánto debes comprar sin inflar tu stock con lo robado.
         </div>
 
         <div style="overflow-x: auto;">
@@ -267,7 +280,17 @@
 
 <script>
     const moneyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2 });
-    function goToScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); }
+    
+    // MAGIA DE NAVEGACIÓN UX
+    function goToScreen(screenId) { 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        
+        // Forzamos un pequeño delay técnico para que el navegador reinicie la animación CSS
+        setTimeout(() => {
+            document.getElementById(screenId).classList.add('active'); 
+        }, 10);
+    }
+    
     function getCurrentDateTime() { return new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }); }
     function readExcelAsync(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = function(e) { resolve(XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).Sheets[XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).SheetNames[0]], {header: 1})); }; reader.readAsArrayBuffer(file); }); }
 
@@ -418,7 +441,7 @@
     }
 
     // ==========================================
-    // MÓDULO 3: COMPARATIVO DE VENTAS (NUEVO)
+    // MÓDULO 3: COMPARATIVO DE VENTAS
     // ==========================================
     let salesFile1 = null; let salesFile2 = null; let salesData = [];
 
@@ -432,17 +455,13 @@
 
     async function processSalesAnalysis() {
         if(!salesFile1 || !salesFile2) return alert("Sube los archivos de la Semana 1 y la Semana 2.");
-        let rows1 = await readExcelAsync(salesFile1);
-        let rows2 = await readExcelAsync(salesFile2);
-
+        let rows1 = await readExcelAsync(salesFile1); let rows2 = await readExcelAsync(salesFile2);
         let map1 = {}, map2 = {};
         
         let start1 = rows1.findIndex(r => r[0] === "SKU");
         if(start1 !== -1) {
             for(let i=start1+1; i<rows1.length; i++) {
-                if(!rows1[i][0]) continue;
-                let sku = String(rows1[i][0]);
-                // Extraemos TEO original (index 3) y FIS (index 4)
+                if(!rows1[i][0]) continue; let sku = String(rows1[i][0]);
                 map1[sku] = { teo: parseInt(rows1[i][3])||0, fis: parseInt(rows1[i][4])||0, price: parseFloat(rows1[i][2])||0, name: String(rows1[i][1])||"" };
             }
         }
@@ -450,53 +469,33 @@
         let start2 = rows2.findIndex(r => r[0] === "SKU");
         if(start2 !== -1) {
             for(let i=start2+1; i<rows2.length; i++) {
-                if(!rows2[i][0]) continue;
-                let sku = String(rows2[i][0]);
+                if(!rows2[i][0]) continue; let sku = String(rows2[i][0]);
                 map2[sku] = { teo: parseInt(rows2[i][3])||0, fis: parseInt(rows2[i][4])||0, price: parseFloat(rows2[i][2])||0, name: String(rows2[i][1])||"" };
             }
         }
 
-        salesData = [];
-        let allSkus = new Set([...Object.keys(map1), ...Object.keys(map2)]);
+        salesData = []; let allSkus = new Set([...Object.keys(map1), ...Object.keys(map2)]);
         allSkus.forEach(sku => {
-            let d1 = map1[sku] || {teo:0, fis:0, price:0, name:"Desconocido"};
-            let d2 = map2[sku] || {teo:0, fis:0, price: d1.price, name: d1.name};
-            let price = d2.price > 0 ? d2.price : d1.price;
-            let name = d2.name !== "Desconocido" ? d2.name : d1.name;
-
+            let d1 = map1[sku] || {teo:0, fis:0, price:0, name:"Desconocido"}; let d2 = map2[sku] || {teo:0, fis:0, price: d1.price, name: d1.name};
+            let price = d2.price > 0 ? d2.price : d1.price; let name = d2.name !== "Desconocido" ? d2.name : d1.name;
             salesData.push({ sku, name, price, t1: d1.teo, f1: d1.fis, t2: d2.teo, f2: d2.fis, entradas: 0 });
         });
 
-        // Filtrar basura: Si en ambas semanas F1 y F2 es 0, y Entradas es 0, no lo mostramos.
         salesData = salesData.filter(i => !(i.f1 === 0 && i.f2 === 0 && i.t1 === 0 && i.t2 === 0));
-
-        // Ordenar por defecto: Mayor Venta Real arriba
         salesData.sort((a, b) => ((b.f1 + b.entradas - b.f2) * b.price) - ((a.f1 + a.entradas - a.f2) * a.price));
-
-        renderSalesTable();
-        goToScreen('sales-workspace-screen');
+        renderSalesTable(); goToScreen('sales-workspace-screen');
     }
 
-    function updateEntradas(sku, val) {
-        let item = salesData.find(i => i.sku === sku);
-        if(item) { item.entradas = parseInt(val) || 0; renderSalesTable(); }
-    }
+    function updateEntradas(sku, val) { let item = salesData.find(i => i.sku === sku); if(item) { item.entradas = parseInt(val) || 0; renderSalesTable(); } }
 
     function renderSalesTable() {
         let tbody = document.getElementById('sales-table-body'); tbody.innerHTML = '';
         let totalVentas = 0; let totalRobo = 0;
 
         salesData.forEach(i => {
-            let var1 = i.f1 - i.t1; 
-            let var2 = i.f2 - i.t2; 
-            
-            // LA MAGIA MATEMÁTICA DEL ROBO
+            let var1 = i.f1 - i.t1; let var2 = i.f2 - i.t2; 
             let fugaNueva = -(var2 - var1); 
-            
-            // LA SALIDA TOTAL
             let salidaTotal = i.f1 + i.entradas - i.f2;
-            
-            // VENTA REAL (Solo resurtimos lo que salió legimitamente)
             let ventaEstimada = salidaTotal - fugaNueva;
 
             if(ventaEstimada > 0) totalVentas += ventaEstimada * i.price;
@@ -505,60 +504,39 @@
             let fontFuga = fugaNueva > 0 ? 'var(--neon-pink)' : (fugaNueva < 0 ? 'var(--neon-green)' : 'rgba(255,255,255,0.5)');
 
             tbody.innerHTML += `<tr>
-                <td>${i.sku}</td>
-                <td style="text-align:left;">${i.name}</td>
-                <td style="color:var(--neon-cyan); font-weight:bold; font-size:1.1em;">${i.f1}</td>
+                <td>${i.sku}</td><td style="text-align:left;">${i.name}</td><td style="color:var(--neon-cyan); font-weight:bold; font-size:1.1em;">${i.f1}</td>
                 <td><input type="number" class="inline-teo" value="${i.entradas}" onchange="updateEntradas('${i.sku}', this.value)" style="background: #fff; color: #000; border: none; font-size: 1.1em;"></td>
-                <td style="color:var(--neon-pink); font-weight:bold; font-size:1.1em;">${i.f2}</td>
-                <td>${salidaTotal}</td>
-                <td style="color:${fontFuga}; font-weight:bold;">${fugaNueva}</td>
-                <td style="color:var(--neon-yellow); font-weight:bold; font-size:1.2em;">${ventaEstimada}</td>
+                <td style="color:var(--neon-pink); font-weight:bold; font-size:1.1em;">${i.f2}</td><td>${salidaTotal}</td>
+                <td style="color:${fontFuga}; font-weight:bold;">${fugaNueva}</td><td style="color:var(--neon-yellow); font-weight:bold; font-size:1.2em;">${ventaEstimada}</td>
             </tr>`;
         });
 
-        document.getElementById('s-sum-ventas').innerText = moneyFormatter.format(totalVentas);
-        document.getElementById('s-sum-robo').innerText = `-${moneyFormatter.format(totalRobo)}`;
+        document.getElementById('s-sum-ventas').innerText = moneyFormatter.format(totalVentas); document.getElementById('s-sum-robo').innerText = `-${moneyFormatter.format(totalRobo)}`;
     }
 
     function exportSalesToExcel() {
         if(!salesData.length) return alert('No hay datos.');
-        let ws_data = [
-            ["REPORTE DE ANÁLISIS DE VENTAS Y ROTACIÓN"], ["FECHA:", getCurrentDateTime()], [], 
-            ["SKU", "NOMBRE", "PRECIO", "FÍSICO SEMANA 1", "ENTRADAS", "FÍSICO SEMANA 2", "SALIDA TOTAL", "ROBO DETECTADO", "VENTA REAL ESTIMADA"]
-        ];
-        
+        let ws_data = [ ["REPORTE DE ANÁLISIS DE VENTAS Y ROTACIÓN"], ["FECHA:", getCurrentDateTime()], [], ["SKU", "NOMBRE", "PRECIO", "FÍSICO SEMANA 1", "ENTRADAS", "FÍSICO SEMANA 2", "SALIDA TOTAL", "ROBO DETECTADO", "VENTA REAL ESTIMADA"] ];
         let tVen=0, tRob=0;
         salesData.forEach(i => {
-            let var1 = i.f1 - i.t1; let var2 = i.f2 - i.t2; 
-            let fugaNueva = -(var2 - var1); 
-            let salidaTotal = i.f1 + i.entradas - i.f2;
-            let ventaEstimada = salidaTotal - fugaNueva;
-            if(ventaEstimada > 0) tVen += ventaEstimada * i.price;
-            if(fugaNueva > 0) tRob += fugaNueva * i.price;
-
+            let var1 = i.f1 - i.t1; let var2 = i.f2 - i.t2; let fugaNueva = -(var2 - var1); let salidaTotal = i.f1 + i.entradas - i.f2; let ventaEstimada = salidaTotal - fugaNueva;
+            if(ventaEstimada > 0) tVen += ventaEstimada * i.price; if(fugaNueva > 0) tRob += fugaNueva * i.price;
             ws_data.push([i.sku, i.name, Number(i.price), Number(i.f1), Number(i.entradas), Number(i.f2), Number(salidaTotal), Number(fugaNueva), Number(ventaEstimada)]);
         });
 
-        ws_data.push([]); ws_data.push(["RESUMEN DE ROTACIÓN"]);
-        ws_data.push(["VENTA REAL ($) para Resurtir:", tVen]);
-        ws_data.push(["FUGA POR ROBO ($):", -tRob]);
-
-        let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data);
-        const borderAll = { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} };
-
+        ws_data.push([]); ws_data.push(["RESUMEN DE ROTACIÓN"]); ws_data.push(["VENTA REAL ($) para Resurtir:", tVen]); ws_data.push(["FUGA POR ROBO ($):", -tRob]);
+        let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data); const borderAll = { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} };
         for (let cell in ws) {
             if (cell[0] === '!') continue; let col = cell.replace(/[0-9]/g, ''); let row = parseInt(cell.replace(/\D/g, '')); let val = ws[cell].v; ws[cell].s = { font: { name: "Calibri", sz: 11 }, alignment: { vertical: "center" } };
             if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"000000"} }; ws[cell].s.fill = { fgColor: {rgb:"FFD700"} }; } 
             if (row === 4) { ws[cell].s.font = { bold: true, color: {rgb:"000000"} }; ws[cell].s.fill = { fgColor: {rgb:"FFD700"} }; ws[cell].s.border = borderAll; }
             if (row >= 5 && row < 5 + salesData.length) { 
-                ws[cell].s.border = borderAll; 
-                if(col === 'C') ws[cell].z = '"$"#,##0.00'; 
+                ws[cell].s.border = borderAll; if(col === 'C') ws[cell].z = '"$"#,##0.00'; 
                 if(col === 'H') { if(val > 0) { ws[cell].s.font.color = {rgb:"9C0006"}; ws[cell].s.fill = { fgColor: {rgb:"FFC7CE"} }; } }
                 if(col === 'I') { ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"FFF2CC"} }; }
             }
             if (row >= 5 + salesData.length + 2) { ws[cell].s.font.bold = true; if((col === 'B') && typeof val === 'number') { ws[cell].z = '"$"#,##0.00'; } }
         }
-
         ws['!cols'] = [{wch:15},{wch:40},{wch:12},{wch:15},{wch:15},{wch:15},{wch:15},{wch:20},{wch:25}]; XLSX.utils.book_append_sheet(wb, ws, "Ventas"); XLSX.writeFile(wb, `ANALISIS_VENTAS.xlsx`);
     }
 </script>
