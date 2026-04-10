@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEPGOD // Suite de Logística V12</title>
+    <title>SEPGOD // Suite de Logística V14</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
         :root {
@@ -12,6 +16,7 @@
             --neon-pink: #ff007f;
             --neon-cyan: #00f3ff;
             --neon-yellow: #ffea00;
+            --neon-orange: #ff6a00;
             --bg-color: #050505;
             --grid-color: rgba(0, 243, 255, 0.08);
         }
@@ -23,24 +28,26 @@
         .screen { display: none; opacity: 0; }
         #home-screen.active, .container.screen.active { display: flex; animation: smoothEnter 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         @keyframes smoothEnter { 0% { opacity: 0; transform: translateY(20px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-        #home-screen { flex-direction: column; justify-content: center; align-items: center; max-width: 900px; gap: 30px; }
+        #home-screen { flex-direction: column; justify-content: center; align-items: center; max-width: 1000px; gap: 30px; }
 
         .menu-cards { display: flex; gap: 20px; width: 100%; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
-        .card { flex: 1; min-width: 250px; background: rgba(0,0,0,0.6); border: 1px dashed var(--neon-cyan); padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+        .card { flex: 1; min-width: 200px; background: rgba(0,0,0,0.6); border: 1px dashed var(--neon-cyan); padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
         .card:hover { border-style: solid; box-shadow: 0 0 25px rgba(0,243,255,0.3); transform: translateY(-8px); background: rgba(0,243,255,0.05); }
-        .card h3 { color: #fff; margin-bottom: 15px; font-size: 1.2em; transition: 0.3s; }
+        .card h3 { color: #fff; margin-bottom: 15px; font-size: 1.1em; transition: 0.3s; }
         .card:hover h3 { letter-spacing: 1px; }
-        .card p { color: rgba(255,255,255,0.6); font-size: 0.85em; margin-bottom: 25px; }
+        .card p { color: rgba(255,255,255,0.6); font-size: 0.8em; margin-bottom: 20px; }
+        
         .card.card-pink { border-color: var(--neon-pink); }
         .card.card-pink:hover { box-shadow: 0 0 25px rgba(255,0,127,0.3); background: rgba(255,0,127,0.05); }
         .card.card-yellow { border-color: var(--neon-yellow); }
         .card.card-yellow:hover { box-shadow: 0 0 25px rgba(255,234,0,0.3); background: rgba(255,234,0,0.05); }
+        .card.card-orange { border-color: var(--neon-orange); }
+        .card.card-orange:hover { box-shadow: 0 0 25px rgba(255,106,0,0.3); background: rgba(255,106,0,0.05); }
 
         .input-group { margin-bottom: 15px; text-align: left; }
         label { display: block; margin-bottom: 5px; font-size: 0.85em; color: var(--neon-cyan); text-transform: uppercase; }
         input, select { width: 100%; padding: 10px; background: black; border: 1px solid var(--neon-cyan); color: var(--neon-green); font-family: inherit; box-sizing: border-box; outline: none; transition: 0.3s; }
         input:focus, select:focus { box-shadow: 0 0 10px var(--neon-cyan); border-color: #fff; }
-
         .flex-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
         .flex-row .input-group { flex: 1; min-width: 90px; margin-bottom: 0; }
 
@@ -50,6 +57,8 @@
         .btn-cyan:hover { background: var(--neon-cyan); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-cyan); text-shadow: none; }
         .btn-yellow { color: var(--neon-yellow); border-color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); box-shadow: 0 0 10px rgba(255, 234, 0, 0.3); }
         .btn-yellow:hover { background: var(--neon-yellow); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-yellow); text-shadow: none; }
+        .btn-orange { color: var(--neon-orange); border-color: var(--neon-orange); text-shadow: 0 0 5px var(--neon-orange); box-shadow: 0 0 10px rgba(255, 106, 0, 0.3); }
+        .btn-orange:hover { background: var(--neon-orange); color: var(--bg-color); box-shadow: 0 0 20px var(--neon-orange); text-shadow: none; }
         
         .btn-back { position: absolute; top: 20px; left: 20px; padding: 8px 15px; font-size: 0.8em; border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); text-shadow: none; box-shadow: none; z-index: 10; }
         .btn-back:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.1); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
@@ -66,7 +75,6 @@
         .diff-ghost { color: rgba(255,255,255,0.4); font-style: italic; }
         
         .header-info { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px dashed var(--neon-cyan); padding-bottom: 15px; margin-bottom: 20px; margin-top: 10px; flex-wrap: wrap; gap: 15px; padding-left: 120px; }
-
         .summary-dashboard { display: flex; gap: 20px; justify-content: space-between; margin-top: 30px; flex-wrap: wrap; }
         .summary-box { flex: 1; min-width: 200px; padding: 20px; text-align: center; border: 1px dashed; background: rgba(0,0,0,0.5); }
         .summary-box.missing { border-color: var(--neon-pink); box-shadow: inset 0 0 15px rgba(255,0,127,0.1); }
@@ -98,42 +106,39 @@
 <body>
 
     <div class="container screen active" id="home-screen">
-        <h1>SYS.LOGÍSTICA // TRINITY CORE V12</h1>
-        <p style="color: rgba(255,255,255,0.6); margin-top: 0;">Selecciona el módulo de operación gerencial</p>
+        <h1>SYS.LOGÍSTICA // SUITE EJECUTIVA V14</h1>
+        <p style="color: rgba(255,255,255,0.6); margin-top: 0;">Selecciona el módulo de operación</p>
         <div class="menu-cards">
             <div class="card" onclick="goToScreen('setup-screen')">
-                <h3 style="color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan);">[ INVENTARIOS CONTEOS ]</h3>
-                <p>Auditorías ciegas con Trazabilidad de Caducidades, Firmas y Ubicaciones.</p>
-                <button class="btn-cyan">INICIAR OPERACIÓN</button>
+                <h3 style="color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan);">[ 1. CONTEOS ]</h3>
+                <p>Auditorías doble ciego con Trazabilidad, Firmas y Ubicaciones.</p>
+                <button class="btn-cyan">OPERACIÓN</button>
             </div>
             <div class="card card-pink" onclick="goToScreen('unify-setup-screen')">
-                <h3 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">[ INVENTARIOS TOTALES ]</h3>
-                <p>Consolidación macro. Genera análisis de Pareto por Departamento y balance neto.</p>
-                <button>CONSOLIDAR DATOS</button>
+                <h3 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">[ 2. CONSOLIDADOR ]</h3>
+                <p>Análisis Pareto por Depto y Balance financiero neto global.</p>
+                <button>MACRO VISIÓN</button>
             </div>
             <div class="card card-yellow" onclick="goToScreen('sales-setup-screen')">
-                <h3 style="color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow);">[ VENTAS Y RESURTIDO ]</h3>
-                <p>Predictor dinámico de Stock. Separa Robos de Ventas y genera Auto-Pedidos a Proveedores.</p>
-                <button class="btn-yellow">ANALIZAR ROTACIÓN</button>
+                <h3 style="color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow);">[ 3. VENTAS / RESURTIDO ]</h3>
+                <p>Cálculo de Rotación %. Separa Robos de Ventas y genera Auto-Pedidos.</p>
+                <button class="btn-yellow">ROTACIÓN</button>
+            </div>
+            <div class="card card-orange" onclick="goToScreen('pdf-setup-screen')">
+                <h3 style="color: var(--neon-orange); text-shadow: 0 0 5px var(--neon-orange);">[ 4. CREADOR DE PDF ]</h3>
+                <p>Transforma cualquier Excel de esta Suite en un PDF Corporativo.</p>
+                <button class="btn-orange">CONVERTIR PDF</button>
             </div>
         </div>
     </div>
 
-    <div class="container screen" id="setup-screen" style="max-width: 800px; display: none;">
+    <div class="container screen" id="setup-screen" style="max-width: 800px;">
         <button class="btn-back" onclick="goToScreen('home-screen')">&lt; VOLVER AL MENÚ</button>
         <h2 style="margin-top: 30px;">CONTEO INDIVIDUAL (OPERADOR)</h2>
-        
         <div style="max-width: 500px; margin: 30px auto; display: flex; flex-direction: column; gap: 15px;">
-            <div class="input-group" style="margin: 0;">
-                <label>Firma de Auditor (Obligatorio)</label>
-                <input type="text" id="inv-operator" placeholder="ID Empleado o Nombre Completo" style="border-color: var(--neon-pink);">
-            </div>
-            <div class="input-group" style="margin: 0;">
-                <label>Título de la Auditoría Master</label>
-                <input type="text" id="inv-title" placeholder="Ej. Tienda Centro">
-            </div>
+            <div class="input-group" style="margin: 0;"><label>Firma de Auditor (Obligatorio)</label><input type="text" id="inv-operator" placeholder="ID Empleado o Nombre Completo" style="border-color: var(--neon-pink);"></div>
+            <div class="input-group" style="margin: 0;"><label>Título de la Auditoría Master</label><input type="text" id="inv-title" placeholder="Ej. Tienda Centro"></div>
         </div>
-
         <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
             <button onclick="startNewInventory()">[ CREAR DESDE CERO ]</button>
             <label for="file-upload" class="btn-label btn-cyan">[ CARGAR EXCEL ANTERIOR ]</label>
@@ -141,7 +146,7 @@
         </div>
     </div>
 
-    <div class="container screen" id="workspace-screen" style="display: none;">
+    <div class="container screen" id="workspace-screen">
         <button class="btn-back" onclick="goToScreen('home-screen')">&lt; MENÚ PRINCIPAL</button>
         <div class="header-info">
             <div>
@@ -151,7 +156,6 @@
             </div>
             <button class="btn-cyan" style="padding: 8px 15px; font-size: 0.8em;" onclick="exportInventoryToExcel()">[ EXPORTAR EXCEL CORPORATIVO ]</button>
         </div>
-        
         <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-pink); margin-bottom: 20px;">
             <label style="color: var(--neon-pink); font-weight: bold; margin-bottom: 10px;">> REGISTRAR ARTÍCULO FÍSICO</label>
             <div class="flex-row">
@@ -159,32 +163,20 @@
                 <div class="input-group"><label>SKU</label><input type="text" id="item-sku" placeholder="SKU"></div>
                 <div class="input-group" style="flex: 2;"><label>Nombre</label><input type="text" id="item-name" placeholder="Descripción"></div>
                 <div class="input-group" style="flex: 1.5;"><label>Categoría</label><input type="text" id="item-cat" value="GENERAL"></div>
-                
-                <div class="input-group" style="flex: 1.5;">
-                    <label style="color: var(--neon-cyan);">Caducidad (Opc)</label>
-                    <input type="date" id="item-exp" style="border-color: var(--neon-cyan); padding: 8px;">
-                </div>
-
+                <div class="input-group" style="flex: 1.5;"><label style="color: var(--neon-cyan);">Caducidad (Opc)</label><input type="date" id="item-exp" style="border-color: var(--neon-cyan); padding: 8px;"></div>
                 <div class="input-group"><label>Costo</label><input type="number" id="item-price" placeholder="$" step="0.01"></div>
                 <div class="input-group"><label>Teórico</label><input type="number" id="item-teo" placeholder="Sis."></div>
                 <div class="input-group"><label>Físico</label><input type="number" id="item-fis" placeholder="Cant."></div>
                 <button onclick="addItem()" style="height: 40px; margin-bottom: 0;">AGREGAR</button>
             </div>
         </div>
-
         <div class="toolbar">
             <div class="input-group" style="flex: 2; margin: 0;"><label style="color: var(--neon-yellow);">Buscar SKU o Nombre</label><input type="text" id="search-filter" oninput="renderTable()" style="border-color: var(--neon-yellow); color: var(--neon-yellow);"></div>
-            <div class="input-group" style="flex: 1; margin: 0;">
-                <label>Ordenar Inventario Por</label>
-                <select id="sort-filter" onchange="renderTable()">
-                    <option value="default">Orden de Captura</option><option value="missing">Dif. Actual: Faltantes (-)</option><option value="surplus">Dif. Actual: Sobrantes (+)</option><option value="prev-missing">Dif. Anterior: Faltantes (-)</option><option value="prev-surplus">Dif. Anterior: Sobrantes (+)</option><option value="alpha">Alfabético (A-Z)</option>
-                </select>
-            </div>
+            <div class="input-group" style="flex: 1; margin: 0;"><label>Ordenar Inventario Por</label><select id="sort-filter" onchange="renderTable()"><option value="default">Orden de Captura</option><option value="missing">Dif. Actual: Faltantes (-)</option><option value="surplus">Dif. Actual: Sobrantes (+)</option><option value="prev-missing">Dif. Anterior: Faltantes (-)</option><option value="prev-surplus">Dif. Anterior: Sobrantes (+)</option><option value="alpha">Alfabético (A-Z)</option></select></div>
         </div>
-
         <div style="overflow-x: auto;">
             <table id="inventory-table">
-                <thead><tr><th>SKU</th><th style="text-align: left;">NOMBRE DEL ARTÍCULO / ESTATUS DE CADUCIDAD</th><th>CATEGORÍA</th><th>PRECIO</th><th>TEÓRICO</th><th>FÍSICO GLOBAL</th><th>DIF. ACTUAL</th><th>DIF. ANT.</th><th>IMPACTO</th><th>X</th></tr></thead>
+                <thead><tr><th>SKU</th><th style="text-align: left;">NOMBRE / ESTATUS CADUCIDAD</th><th>CATEGORÍA</th><th>PRECIO</th><th>TEÓRICO</th><th>FÍSICO GLOBAL</th><th>DIF. ACTUAL</th><th>DIF. ANT.</th><th>IMPACTO</th><th>X</th></tr></thead>
                 <tbody id="table-body"></tbody>
             </table>
         </div>
@@ -195,29 +187,24 @@
         </div>
     </div>
 
-    <div class="container screen" id="unify-setup-screen" style="max-width: 800px; text-align: center; display: none;">
+    <div class="container screen" id="unify-setup-screen" style="max-width: 800px; text-align: center;">
         <button class="btn-back" onclick="goToScreen('home-screen')">&lt; VOLVER AL MENÚ</button>
         <h2 style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); margin-top: 30px;">CONSOLIDACIÓN GLOBAL (GERENCIAL)</h2>
         <p style="color: #fff; margin-bottom: 30px;">Agrupa departamentos, detecta mermas crónicas y consolida valor financiero neto.</p>
-        <label for="unify-file-upload" class="btn-label btn-cyan" style="border-style: dashed; padding: 20px 40px; margin-top:20px;">+ AGREGAR ARCHIVO EXCEL</label>
+        <label for="unify-file-upload" class="btn-label btn-cyan" style="border-style: dashed; padding: 20px 40px; margin-top:20px;">+ AGREGAR EXCEL</label>
         <input type="file" id="unify-file-upload" accept=".xlsx, .xls, .csv" style="display: none;" onchange="addFileToUnify(event)">
         <div class="file-list" id="unify-file-list"></div>
         <button onclick="processUnification()" style="margin-top: 30px; font-size: 1.2em; padding: 15px 40px;">[ EJECUTAR UNIFICACIÓN ]</button>
     </div>
 
-    <div class="container screen" id="unify-workspace-screen" style="display: none;">
+    <div class="container screen" id="unify-workspace-screen">
         <button class="btn-back" onclick="goToScreen('unify-setup-screen')">&lt; AGREGAR MÁS ARCHIVOS</button>
         <div class="header-info" style="border-bottom-color: var(--neon-pink); padding-left: 180px;">
-            <div>
-                <h2 style="margin: 0; color: var(--neon-pink);">REPORTE GLOBAL UNIFICADO</h2>
-                <span id="unify-file-count" style="color: rgba(255,255,255,0.6); font-size: 0.85em;">Archivos procesados: 0</span>
-            </div>
+            <div><h2 style="margin: 0; color: var(--neon-pink);">REPORTE GLOBAL UNIFICADO</h2><span id="unify-file-count" style="color: rgba(255,255,255,0.6); font-size: 0.85em;">Archivos procesados: 0</span></div>
             <button class="btn-cyan" style="padding: 8px 15px; font-size: 0.8em;" onclick="exportUnifiedToExcel()">[ DESCARGAR MASTER (.XLSX) ]</button>
         </div>
-        
         <h3 style="color: #fff; margin-bottom: 0; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px;">> ANÁLISIS DE PARETO (FUGAS POR DEPARTAMENTO)</h3>
         <div class="pareto-container" id="pareto-dashboard"></div>
-
         <div class="summary-dashboard" style="margin-top: 20px; margin-bottom: 30px;">
             <div class="summary-box missing"><h3 id="u-sum-missing">-$0.00</h3><p id="u-qty-missing">0 faltantes netos</p></div>
             <div class="summary-box balance"><h3 id="u-sum-balance">$0.00</h3><p id="u-status-balance">BALANCE NETO</p></div>
@@ -231,70 +218,62 @@
         </div>
     </div>
 
-    <div class="container screen" id="sales-setup-screen" style="max-width: 800px; text-align: center; display: none;">
+    <div class="container screen" id="sales-setup-screen" style="max-width: 800px; text-align: center;">
         <button class="btn-back" onclick="goToScreen('home-screen')">&lt; VOLVER AL MENÚ</button>
         <h2 style="color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); margin-top: 30px;">INVENTARIO PREDICTIVO Y ROTACIÓN</h2>
-        <p style="color: #fff; margin-bottom: 30px;">Cruza dos semanas para separar Ventas Legítimas de Robos Nuevos. Calcula la vida útil de tu stock restante de forma dinámica.</p>
-        
-        <div class="input-group" style="max-width: 250px; margin: 0 auto 30px auto; text-align: center;">
-            <label style="color: var(--neon-yellow); text-align: center; font-size: 0.9em;">Días entre ambas auditorías</label>
-            <input type="number" id="sales-days" value="7" min="1" style="text-align: center; font-size: 1.2em; font-weight: bold; border-color: var(--neon-yellow); color: var(--neon-yellow);">
-        </div>
-
+        <p style="color: #fff; margin-bottom: 30px;">Cruza dos semanas para separar Ventas de Robos. Calcula Rotación y Días de Vida.</p>
+        <div class="input-group" style="max-width: 250px; margin: 0 auto 30px auto; text-align: center;"><label style="color: var(--neon-yellow); text-align: center; font-size: 0.9em;">Días entre ambas auditorías</label><input type="number" id="sales-days" value="7" min="1" style="text-align: center; font-size: 1.2em; font-weight: bold; border-color: var(--neon-yellow); color: var(--neon-yellow);"></div>
         <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
-            <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.5); padding: 20px; border: 1px dashed var(--neon-cyan);">
-                <label for="sales-file-1" class="btn-label btn-cyan" id="sales-btn-1" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">1. CARGAR (INVENTARIO VIEJO)</label>
-                <input type="file" id="sales-file-1" accept=".xlsx, .xls, .csv" style="display: none;" onchange="setSalesFile(event, 1)">
-            </div>
-            <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.5); padding: 20px; border: 1px dashed var(--neon-pink);">
-                <label for="sales-file-2" class="btn-label" id="sales-btn-2" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">2. CARGAR (INVENTARIO NUEVO)</label>
-                <input type="file" id="sales-file-2" accept=".xlsx, .xls, .csv" style="display: none;" onchange="setSalesFile(event, 2)">
-            </div>
+            <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.5); padding: 20px; border: 1px dashed var(--neon-cyan);"><label for="sales-file-1" class="btn-label btn-cyan" id="sales-btn-1" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">1. CARGAR (INVENTARIO VIEJO)</label><input type="file" id="sales-file-1" accept=".xlsx, .xls, .csv" style="display: none;" onchange="setSalesFile(event, 1)"></div>
+            <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.5); padding: 20px; border: 1px dashed var(--neon-pink);"><label for="sales-file-2" class="btn-label" id="sales-btn-2" style="width: 100%; box-sizing: border-box; font-size: 0.8em;">2. CARGAR (INVENTARIO NUEVO)</label><input type="file" id="sales-file-2" accept=".xlsx, .xls, .csv" style="display: none;" onchange="setSalesFile(event, 2)"></div>
         </div>
         <button class="btn-yellow" onclick="processSalesAnalysis()" style="font-size: 1.2em; padding: 15px 40px;">[ EJECUTAR ANÁLISIS PREDICTIVO ]</button>
     </div>
 
-    <div class="container screen" id="sales-workspace-screen" style="display: none; max-width: 1500px;">
-        <button class="btn-back" onclick="goToScreen('sales-setup-screen')">&lt; CAMBIAR ARCHIVOS / DÍAS</button>
+    <div class="container screen" id="sales-workspace-screen" style="max-width: 1500px;">
+        <button class="btn-back" onclick="goToScreen('sales-setup-screen')">&lt; CAMBIAR ARCHIVOS</button>
         <div class="header-info" style="border-bottom-color: var(--neon-yellow); padding-left: 200px;">
             <div><h2 style="margin: 0; color: var(--neon-yellow);">TABLERO PREDICTIVO Y DE RESURTIDO</h2></div>
             <div style="display: flex; gap: 10px;">
-                <button class="btn-yellow" style="padding: 8px 15px; font-size: 0.8em;" onclick="exportSalesToExcel()">[ DESCARGAR ANÁLISIS GLOBAL ]</button>
-                
+                <button class="btn-yellow" style="padding: 8px 15px; font-size: 0.8em;" onclick="exportSalesToExcel()">[ DESCARGAR ANÁLISIS ]</button>
                 <button class="btn-cyan" style="padding: 8px 15px; font-size: 0.8em; border-color: var(--neon-cyan); color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan);" onclick="exportSupplierOrder()">[ DESCARGAR PEDIDO SUGERIDO ]</button>
             </div>
         </div>
-
         <div class="summary-dashboard" style="margin-top: 0; margin-bottom: 20px;">
-            <div class="summary-box surplus" style="border-color: var(--neon-yellow); box-shadow: inset 0 0 15px rgba(255,234,0,0.1);">
-                <span style="color:var(--neon-yellow);">VENTA REAL ESTIMADA (Para Resurtir)</span><h3 id="s-sum-ventas" style="color:var(--neon-yellow);">$0.00</h3>
-            </div>
-            <div class="summary-box missing">
-                <span>ROBO NUEVO DETECTADO</span><h3 id="s-sum-robo">-$0.00</h3>
-            </div>
+            <div class="summary-box surplus" style="border-color: var(--neon-yellow); box-shadow: inset 0 0 15px rgba(255,234,0,0.1);"><span style="color:var(--neon-yellow);">VENTA REAL ESTIMADA (Para Resurtir)</span><h3 id="s-sum-ventas" style="color:var(--neon-yellow);">$0.00</h3></div>
+            <div class="summary-box missing"><span>ROBO NUEVO DETECTADO</span><h3 id="s-sum-robo">-$0.00</h3></div>
         </div>
-
         <div style="overflow-x: auto;">
             <table id="sales-table">
-                <thead>
-                    <tr>
-                        <th style="background: var(--neon-yellow); color: #000;">SKU</th>
-                        <th style="background: var(--neon-yellow); color: #000; text-align: left;">NOMBRE</th>
-                        <th style="background: var(--neon-cyan); color: #000;">FÍSICO VIEJO</th>
-                        <th style="background: #fff; color: #000;">+ ENTRADAS (Editar)</th>
-                        <th style="background: var(--neon-pink); color: #fff;">FÍSICO NUEVO</th>
-                        <th style="background: var(--neon-yellow); color: #000;">ROBO NUEVO</th>
-                        <th style="background: var(--neon-yellow); color: #000;">VENTA TOTAL PERIODO</th>
-                        <th style="background: var(--neon-yellow); color: #000;">VENTA DIARIA PROM.</th>
-                        <th style="background: var(--neon-green); color: #000;">DÍAS DE VIDA RESTANTES</th>
-                    </tr>
-                </thead>
+                <thead><tr>
+                    <th style="background: var(--neon-yellow); color: #000;">SKU</th>
+                    <th style="background: var(--neon-yellow); color: #000; text-align: left;">NOMBRE</th>
+                    <th style="background: var(--neon-cyan); color: #000;">FÍSICO VIEJO</th>
+                    <th style="background: #fff; color: #000;">+ ENTRADAS (Editar)</th>
+                    <th style="background: var(--neon-pink); color: #fff;">FÍSICO NUEVO</th>
+                    <th style="background: var(--neon-yellow); color: #000;">ROBO NUEVO</th>
+                    <th style="background: var(--neon-yellow); color: #000;">VENTA TOTAL</th>
+                    <th style="background: var(--neon-yellow); color: #000;">% ROTACIÓN</th>
+                    <th style="background: var(--neon-green); color: #000;">DÍAS RESTANTES</th>
+                </tr></thead>
                 <tbody id="sales-table-body"></tbody>
             </table>
         </div>
     </div>
 
+    <div class="container screen" id="pdf-setup-screen" style="max-width: 800px; text-align: center;">
+        <button class="btn-back" onclick="goToScreen('home-screen')">&lt; VOLVER AL MENÚ</button>
+        <h2 style="color: var(--neon-orange); text-shadow: 0 0 5px var(--neon-orange); margin-top: 30px;">CONVERTIDOR DE REPORTES A PDF</h2>
+        <p style="color: #fff; margin-bottom: 30px;">Sube cualquier Excel de esta Suite y conviértelo en un documento PDF formal.</p>
+        <div id="pdf-upload-zone" style="background: rgba(0,0,0,0.5); border: 2px dashed var(--neon-orange); padding: 40px; border-radius: 8px; margin-bottom: 20px;">
+            <label for="pdf-file-upload" class="btn-label btn-orange" style="font-size: 1.1em; padding: 15px 30px;">SELECCIONAR ARCHIVO EXCEL</label>
+            <input type="file" id="pdf-file-upload" accept=".xlsx, .xls, .csv" style="display: none;" onchange="processExcelToPDF(event)">
+            <p id="pdf-status-text" style="color: rgba(255,255,255,0.6); margin-top: 20px;">Esperando archivo...</p>
+        </div>
+    </div>
+
 <script>
+    window.jsPDF = window.jspdf.jsPDF;
     const moneyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2 });
     
     function goToScreen(screenId) { 
@@ -312,12 +291,11 @@
 
     function startNewInventory() { 
         operatorName = document.getElementById('inv-operator').value.trim() || "SIN FIRMA";
-        if(operatorName === "SIN FIRMA") return alert('La firma del auditor es obligatoria para la trazabilidad.');
+        if(operatorName === "SIN FIRMA") return alert('La firma es obligatoria.');
         const titleInput = document.getElementById('inv-title').value; if(!titleInput) return alert('Ingresa título.'); 
         inventoryTitle = titleInput.toUpperCase(); startTimeString = getCurrentDateTime(); 
         document.getElementById('display-title').innerText = "> " + inventoryTitle; 
-        document.getElementById('display-operator').innerText = "AUDITOR: " + operatorName;
-        goToScreen('workspace-screen'); 
+        document.getElementById('display-operator').innerText = "AUDITOR: " + operatorName; goToScreen('workspace-screen'); 
     }
     
     function recalcPhys(item) { if(!item.locs) return 0; return item.locs.reduce((sum, l) => sum + l.qty, 0); }
@@ -326,20 +304,15 @@
         let locName = document.getElementById('item-loc').value.trim().toUpperCase() || "GENERAL";
         const sku = document.getElementById('item-sku').value.trim(); const name = document.getElementById('item-name').value; 
         const cat = document.getElementById('item-cat').value.trim().toUpperCase() || "GENERAL";
-        const expDateString = document.getElementById('item-exp').value; // Formato YYYY-MM-DD
+        const expDateString = document.getElementById('item-exp').value;
         const price = parseFloat(document.getElementById('item-price').value) || 0; const teo = parseInt(document.getElementById('item-teo').value) || 0; const fis = parseInt(document.getElementById('item-fis').value);
         if(!sku || isNaN(fis)) return alert('SKU y Físico son obligatorios.');
         let item = inventoryData.find(i => i.sku === sku);
         if (item) {
-            if(price > 0) item.price = price; if(document.getElementById('item-teo').value !== "") item.teo = teo; 
-            if(cat !== "GENERAL") item.cat = cat;
-            if(expDateString) item.exp = expDateString; // Actualizar caducidad si la metieron
-            let existingLoc = item.locs.find(l => l.name === locName);
-            if(existingLoc) existingLoc.qty += fis; else item.locs.push({ name: locName, qty: fis });
+            if(price > 0) item.price = price; if(document.getElementById('item-teo').value !== "") item.teo = teo; if(cat !== "GENERAL") item.cat = cat; if(expDateString) item.exp = expDateString;
+            let existingLoc = item.locs.find(l => l.name === locName); if(existingLoc) existingLoc.qty += fis; else item.locs.push({ name: locName, qty: fis });
             item.fis = recalcPhys(item);
         } else { inventoryData.push({ sku, name: name || 'Sin Nombre', cat, exp: expDateString, price, teo, fis, prevDiff: null, locs: [{ name: locName, qty: fis }] }); }
-        
-        // Limpiar campos, EXCEPTO Categoría y Fecha de caducidad para capturas en bloque
         document.getElementById('item-sku').value = ''; document.getElementById('item-name').value = ''; document.getElementById('item-price').value = ''; document.getElementById('item-teo').value = ''; document.getElementById('item-fis').value = ''; document.getElementById('item-exp').value = ''; document.getElementById('item-sku').focus();
         renderTable();
     }
@@ -364,22 +337,16 @@
         let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
         inventoryData.forEach(i => { let d = i.fis - i.teo, imp = d * i.price; if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);} });
 
-        // CÁLCULO DE FECHAS (HOY vs CADUCIDAD)
         let today = new Date(); today.setHours(0,0,0,0);
-
         displayData.forEach(i => {
-            let d = i.fis - i.teo, imp = d * i.price;
-            let st = d===0?`<span class="diff-exact">0</span>`:d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
+            let d = i.fis - i.teo, imp = d * i.price; let st = d===0?`<span class="diff-exact">0</span>`:d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
             let pD = i.prevDiff===null?`--`:i.prevDiff===0?`<span class="diff-ghost">0</span>`:i.prevDiff>0?`<span class="diff-ghost">+${i.prevDiff}</span>`:`<span class="diff-ghost">${i.prevDiff}</span>`;
-            let locsHTML = '';
-            if (i.locs && i.locs.length > 0) { locsHTML = `<div class="loc-list">`; i.locs.forEach(l => { locsHTML += `<div class="loc-row"><span class="loc-name" title="${l.name}">${l.name}:</span><input type="number" class="loc-input" value="${l.qty}" onchange="updateLocInline('${i.sku}', '${l.name}', this.value)"><button class="loc-del" onclick="deleteLoc('${i.sku}', '${l.name}')">×</button></div>`; }); locsHTML += `</div>`; }
+            let locsHTML = ''; if (i.locs && i.locs.length > 0) { locsHTML = `<div class="loc-list">`; i.locs.forEach(l => { locsHTML += `<div class="loc-row"><span class="loc-name" title="${l.name}">${l.name}:</span><input type="number" class="loc-input" value="${l.qty}" onchange="updateLocInline('${i.sku}', '${l.name}', this.value)"><button class="loc-del" onclick="deleteLoc('${i.sku}', '${l.name}')">×</button></div>`; }); locsHTML += `</div>`; }
             locsHTML += `<button class="btn-cyan btn-add-loc" onclick="addNewLocInline('${i.sku}')">+ Zona</button>`;
             
-            // RENDERIZADO DE CADUCIDAD
             let expAlert = '';
             if(i.exp && i.exp !== "undefined" && i.exp !== "") {
-                let expD = new Date(i.exp + 'T00:00:00'); // Evita bug de zona horaria
-                let diffDays = Math.ceil((expD - today) / (1000 * 60 * 60 * 24));
+                let expD = new Date(i.exp + 'T00:00:00'); let diffDays = Math.ceil((expD - today) / (1000 * 60 * 60 * 24));
                 if(diffDays < 0) expAlert = `<div style="margin-top: 5px; display:inline-block; padding: 2px 5px; border-radius: 3px; background: rgba(255,0,0,0.2); border: 1px solid red; color: #ff6b6b; font-size: 0.75em; font-weight: bold;">⚠️ CADUCADO HACE ${Math.abs(diffDays)} DÍAS</div>`;
                 else if(diffDays <= 5) expAlert = `<div style="margin-top: 5px; display:inline-block; padding: 2px 5px; border-radius: 3px; background: rgba(255,0,127,0.1); border: 1px solid var(--neon-pink); color: var(--neon-pink); font-size: 0.75em; font-weight: bold;">⚠️ CADUCA EN ${diffDays} DÍAS</div>`;
                 else expAlert = `<div style="margin-top: 5px; display:inline-block; padding: 2px 5px; border-radius: 3px; background: rgba(0,243,255,0.05); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 0.75em;">✅ Vence en ${diffDays} días</div>`;
@@ -395,7 +362,7 @@
     function loadExcel(event) {
         const file = event.target.files[0]; if (!file) return;
         operatorName = document.getElementById('inv-operator').value.trim() || "SIN FIRMA";
-        if(operatorName === "SIN FIRMA") return alert('La firma del auditor es obligatoria.');
+        if(operatorName === "SIN FIRMA") return alert('La firma es obligatoria.');
         inventoryTitle = file.name.replace(/\.[^/.]+$/, "").toUpperCase(); startTimeString = getCurrentDateTime();
         document.getElementById('display-title').innerText = "> " + inventoryTitle; document.getElementById('display-operator').innerText = "AUDITOR: " + operatorName;
         
@@ -406,18 +373,16 @@
             let start = rows.findIndex(r => r[0] === "SKU");
             if(start !== -1) { 
                 let head = rows[start];
-                let iCat = head.findIndex(h => typeof h==='string' && h.includes("CATEGOR"));
-                let iExp = head.findIndex(h => typeof h==='string' && h.includes("CADUCIDAD"));
-                let iPrice = head.findIndex(h => typeof h==='string' && h.includes("PRECIO"));
-                let iPrev = head.findIndex(h => typeof h==='string' && h.includes("VARIANZA ACTUAL")); 
+                let iCat = head.findIndex(h => typeof h==='string' && h.includes("CATEGOR")); let iExp = head.findIndex(h => typeof h==='string' && h.includes("CADUCIDAD")); let iPrice = head.findIndex(h => typeof h==='string' && h.includes("PRECIO")); let iPrev = head.findIndex(h => typeof h==='string' && h.includes("VARIANZA ACTUAL")); 
                 
                 for(let i=start+1; i<rows.length; i++) { 
                     if(!rows[i] || !rows[i][0]) continue; 
-                    let cat = iCat !== -1 ? String(rows[i][iCat]||'GENERAL') : 'GENERAL';
-                    let expRaw = iExp !== -1 ? String(rows[i][iExp]||'') : '';
-                    if(expRaw === "undefined") expRaw = '';
-                    let price = iPrice !== -1 ? parseFloat(rows[i][iPrice])||0 : 0;
-                    let prevDiff = iPrev !== -1 ? parseInt(rows[i][iPrev])||0 : 0;
+                    
+                    // SOLUCIÓN AL BUG DE FILAS BASURA: Si lee la palabra RESUMEN, detenemos el proceso de extracción
+                    if(String(rows[i][0]).toUpperCase().includes("RESUMEN")) break;
+
+                    let cat = iCat !== -1 ? String(rows[i][iCat]||'GENERAL') : 'GENERAL'; let expRaw = iExp !== -1 ? String(rows[i][iExp]||'') : ''; if(expRaw === "undefined") expRaw = '';
+                    let price = iPrice !== -1 ? parseFloat(rows[i][iPrice])||0 : 0; let prevDiff = iPrev !== -1 ? parseInt(rows[i][iPrev])||0 : 0;
                     inventoryData.push({ sku: String(rows[i][0]), name: String(rows[i][1]||''), cat, exp: expRaw, price, teo: 0, fis: 0, prevDiff, locs: [] }); 
                 } 
             }
@@ -427,21 +392,14 @@
 
     function exportInventoryToExcel() {
         if(!inventoryData.length) return alert('No hay datos.');
-        let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0;
-        inventoryData.forEach(i => { let d = i.fis - i.teo, imp = d * i.price; if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);} });
-        
+        let tMissQ=0, tMissM=0, tSurpQ=0, tSurpM=0; inventoryData.forEach(i => { let d = i.fis - i.teo, imp = d * i.price; if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);} });
         let ws_data = [ ["REPORTE DE AUDITORÍA LOGÍSTICA"], ["ZONA / TÍTULO:", inventoryTitle, "", "AUDITOR / FIRMA:", operatorName], ["INICIADO:", startTimeString, "", "FINALIZADO:", getCurrentDateTime()], [], ["SKU", "NOMBRE", "CATEGORÍA", "CADUCIDAD", "PRECIO", "TEÓRICO", "FÍSICO GLOBAL", "DESGLOSE ZONAS", "VARIANZA ACTUAL", "VARIANZA ANTERIOR", "IMPACTO ($)"] ];
         inventoryData.forEach(i => { let locsExport = (i.locs || []).map(l => `${l.name}: ${l.qty}`).join(' | '); ws_data.push([ i.sku, i.name, i.cat||"GENERAL", i.exp||"", Number(i.price), Number(i.teo), Number(i.fis), locsExport, Number(i.fis-i.teo), Number(i.prevDiff||0), Number((i.fis-i.teo)*i.price) ]); });
         ws_data.push([]); ws_data.push([]); ws_data.push(["RESUMEN FINANCIERO"]); ws_data.push(["Artículos Faltantes:", tMissQ, "", "Fuga (Pérdida):", -tMissM]); ws_data.push(["Artículos Sobrantes:", tSurpQ, "", "Excedente Extra:", tSurpM]); ws_data.push(["", "", "", "BALANCE NETO:", tSurpM - tMissM]);
-        
-        let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data);
-        const borderAll = { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} };
+        let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data); const borderAll = { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} };
         for (let cell in ws) {
-            if (cell[0] === '!') continue; 
-            let col = cell.replace(/[0-9]/g, ''); let row = parseInt(cell.replace(/\D/g, '')); let val = ws[cell].v;
-            ws[cell].s = { font: { name: "Calibri", sz: 11 }, alignment: { vertical: "center" } };
-            if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"203764"} }; }
-            if (row === 2 || row === 3) { ws[cell].s.font.bold = true; }
+            if (cell[0] === '!') continue; let col = cell.replace(/[0-9]/g, ''); let row = parseInt(cell.replace(/\D/g, '')); let val = ws[cell].v; ws[cell].s = { font: { name: "Calibri", sz: 11 }, alignment: { vertical: "center" } };
+            if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"203764"} }; } if (row === 2 || row === 3) { ws[cell].s.font.bold = true; }
             if (row === 5) { ws[cell].s.font = { bold: true, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"000000"} }; ws[cell].s.border = borderAll; ws[cell].s.alignment.horizontal = "center"; }
             if (row >= 6 && row < 6 + inventoryData.length) {
                 ws[cell].s.border = borderAll; if(col === 'E' || col === 'K') ws[cell].z = '"$"#,##0.00'; 
@@ -449,52 +407,35 @@
             }
             if (row >= 6 + inventoryData.length + 2) { ws[cell].s.font.bold = true; if(row === 6 + inventoryData.length + 2) { ws[cell].s.font.sz = 13; ws[cell].s.border = {bottom:{style:"medium"}}; } if((col === 'B' || col === 'F') && typeof val === 'number') { if (col === 'F') ws[cell].z = '"$"#,##0.00'; } }
         }
-        ws['!cols'] = [{wch:15},{wch:40},{wch:18},{wch:12},{wch:12},{wch:10},{wch:15},{wch:30},{wch:16},{wch:18},{wch:18}];
-        XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); XLSX.writeFile(wb, `${inventoryTitle.replace(/ /g, '_')}_REPORTE.xlsx`);
+        ws['!cols'] = [{wch:15},{wch:40},{wch:18},{wch:12},{wch:10},{wch:15},{wch:30},{wch:16},{wch:18},{wch:18}]; XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); XLSX.writeFile(wb, `${inventoryTitle.replace(/ /g, '_')}_REPORTE.xlsx`);
     }
 
     // ==========================================
-    // MÓDULO 2: CONSOLIDADOR GLOBAL (PARETO)
+    // MÓDULO 2: CONSOLIDADOR GLOBAL
     // ==========================================
     let unifyFiles = []; let unifiedFinalData = []; let paretoData = {};
     function addFileToUnify(event) { const file = event.target.files[0]; if (!file) return; unifyFiles.push(file); const listEl = document.getElementById('unify-file-list'); const id = unifyFiles.length - 1; listEl.innerHTML += `<div class="file-item" id="ufile-${id}"><span>📄 ${file.name}</span><button onclick="removeFileToUnify(${id})">X</button></div>`; event.target.value = ''; }
     function removeFileToUnify(index) { unifyFiles[index] = null; document.getElementById(`ufile-${index}`).style.display = 'none'; }
     
     async function processUnification() {
-        const activeFiles = unifyFiles.filter(f => f !== null); if(activeFiles.length === 0) return alert('Agrega Excel.');
-        document.getElementById('unify-file-count').innerText = `Archivos unificados: ${activeFiles.length}`; let masterMap = {};
-        paretoData = {}; 
-        
+        const activeFiles = unifyFiles.filter(f => f !== null); if(activeFiles.length === 0) return alert('Agrega Excel.'); document.getElementById('unify-file-count').innerText = `Archivos unificados: ${activeFiles.length}`; let masterMap = {}; paretoData = {}; 
         for(let file of activeFiles) {
             const rows = await readExcelAsync(file); let start = rows.findIndex(r => r[0] === "SKU");
             if(start !== -1) {
-                let head = rows[start];
-                let iCat = head.findIndex(h => typeof h==='string' && h.includes("CATEGOR"));
-                let iPrice = head.findIndex(h => typeof h==='string' && h.includes("PRECIO"));
-                let iTeo = head.findIndex(h => typeof h==='string' && h.includes("TEÓRICO")); if(iTeo===-1) iTeo = 3; 
-                let iFis = head.findIndex(h => typeof h==='string' && h.includes("FÍSICO GLOBAL")); if(iFis===-1) iFis = 4;
-
+                let head = rows[start]; let iCat = head.findIndex(h => typeof h==='string' && h.includes("CATEGOR")); let iPrice = head.findIndex(h => typeof h==='string' && h.includes("PRECIO")); let iTeo = head.findIndex(h => typeof h==='string' && h.includes("TEÓRICO")); if(iTeo===-1) iTeo = 3; let iFis = head.findIndex(h => typeof h==='string' && h.includes("FÍSICO GLOBAL")); if(iFis===-1) iFis = 4;
                 for(let i = start + 1; i < rows.length; i++) {
                     if(!rows[i] || !rows[i][0]) continue;
-                    let sku = String(rows[i][0]).trim(); let name = String(rows[i][1] || '').trim(); 
-                    let cat = iCat !== -1 ? String(rows[i][iCat]||'GENERAL') : 'GENERAL';
-                    let price = iPrice !== -1 ? parseFloat(rows[i][iPrice])||0 : 0; 
-                    let teo = parseInt(rows[i][iTeo]) || 0; let fis = parseInt(rows[i][iFis]) || 0;
-                    
+                    if(String(rows[i][0]).toUpperCase().includes("RESUMEN")) break; // FIX PARA FILAS BASURA
+
+                    let sku = String(rows[i][0]).trim(); let name = String(rows[i][1] || '').trim(); let cat = iCat !== -1 ? String(rows[i][iCat]||'GENERAL') : 'GENERAL'; let price = iPrice !== -1 ? parseFloat(rows[i][iPrice])||0 : 0; let teo = parseInt(rows[i][iTeo]) || 0; let fis = parseInt(rows[i][iFis]) || 0;
                     if(!masterMap[sku]) masterMap[sku] = { sku, name, cat, price, teo: 0, fis: 0 };
                     masterMap[sku].teo += teo; masterMap[sku].fis += fis; if(price > 0) masterMap[sku].price = price;
                 }
             }
         }
         let filteredArray = Object.values(masterMap).filter(item => (item.fis - item.teo) !== 0);
-        
-        filteredArray.forEach(item => {
-            let diff = item.fis - item.teo;
-            if(diff < 0) { let impactoPerdida = Math.abs(diff * item.price); if(!paretoData[item.cat]) paretoData[item.cat] = 0; paretoData[item.cat] += impactoPerdida; }
-        });
-
-        filteredArray.sort((a, b) => ((a.fis - a.teo) * a.price) - ((b.fis - b.teo) * b.price));
-        unifiedFinalData = filteredArray; renderUnifiedTable(); goToScreen('unify-workspace-screen');
+        filteredArray.forEach(item => { let diff = item.fis - item.teo; if(diff < 0) { let impactoPerdida = Math.abs(diff * item.price); if(!paretoData[item.cat]) paretoData[item.cat] = 0; paretoData[item.cat] += impactoPerdida; } });
+        filteredArray.sort((a, b) => ((a.fis - a.teo) * a.price) - ((b.fis - b.teo) * b.price)); unifiedFinalData = filteredArray; renderUnifiedTable(); goToScreen('unify-workspace-screen');
     }
 
     function renderUnifiedTable() {
@@ -505,13 +446,10 @@
             let st = d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`; let colorImp = d>0?'var(--neon-yellow)':'var(--neon-pink)';
             tbody.innerHTML += `<tr><td style="color: #fff; font-weight:bold;">${i.sku}</td><td style="text-align:left;">${i.name}</td><td style="color:var(--neon-yellow);">${i.cat}</td><td>${moneyFormatter.format(i.price)}</td><td>${i.teo}</td><td style="font-weight:bold; color:var(--neon-cyan);">${i.fis}</td><td style="font-size: 1.1em;">${st}</td><td style="color:${colorImp}; font-weight:bold;">${moneyFormatter.format(imp)}</td></tr>`;
         });
-        
         document.getElementById('u-qty-missing').innerText = `${tMissQ} faltantes netos`; document.getElementById('u-sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`; document.getElementById('u-qty-surplus').innerText = `${tSurpQ} sobrantes netos`; document.getElementById('u-sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`; document.getElementById('u-sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM); document.getElementById('u-sum-balance').style.color = (tSurpM - tMissM) >= 0 ? 'var(--neon-cyan)' : 'var(--neon-pink)';
 
-        const paretoEl = document.getElementById('pareto-dashboard'); paretoEl.innerHTML = '';
-        let paretoSorted = Object.entries(paretoData).sort((a,b) => b[1] - a[1]);
-        if(paretoSorted.length === 0) { paretoEl.innerHTML = `<span style="color:var(--neon-green);">0 FUGAS DETECTADAS. EXCELENTE.</span>`; }
-        else { paretoSorted.forEach(([cat, monto]) => { paretoEl.innerHTML += `<div class="pareto-box"><span>${cat}</span><h4>-${moneyFormatter.format(monto)}</h4></div>`; }); }
+        const paretoEl = document.getElementById('pareto-dashboard'); paretoEl.innerHTML = ''; let paretoSorted = Object.entries(paretoData).sort((a,b) => b[1] - a[1]);
+        if(paretoSorted.length === 0) { paretoEl.innerHTML = `<span style="color:var(--neon-green);">0 FUGAS DETECTADAS. EXCELENTE.</span>`; } else { paretoSorted.forEach(([cat, monto]) => { paretoEl.innerHTML += `<div class="pareto-box"><span>${cat}</span><h4>-${moneyFormatter.format(monto)}</h4></div>`; }); }
     }
 
     function exportUnifiedToExcel() {
@@ -531,16 +469,13 @@
     }
 
     // ==========================================
-    // MÓDULO 3: COMPARATIVO DE VENTAS (PREDICTIVO Y PEDIDO)
+    // MÓDULO 3: VENTAS Y RESURTIDO (NUEVO % ROTACIÓN)
     // ==========================================
     let salesFile1 = null; let salesFile2 = null; let salesData = [];
 
     function setSalesFile(event, num) {
-        if(num === 1) salesFile1 = event.target.files[0];
-        if(num === 2) salesFile2 = event.target.files[0];
-        document.getElementById(`sales-btn-${num}`).innerText = `✔️ ARCHIVO ${num} CARGADO`;
-        document.getElementById(`sales-btn-${num}`).style.borderColor = "var(--neon-green)";
-        document.getElementById(`sales-btn-${num}`).style.color = "var(--neon-green)";
+        if(num === 1) salesFile1 = event.target.files[0]; if(num === 2) salesFile2 = event.target.files[0];
+        document.getElementById(`sales-btn-${num}`).innerText = `✔️ ARCHIVO ${num} CARGADO`; document.getElementById(`sales-btn-${num}`).style.borderColor = "var(--neon-green)"; document.getElementById(`sales-btn-${num}`).style.color = "var(--neon-green)";
     }
 
     async function processSalesAnalysis() {
@@ -553,7 +488,9 @@
             let iPrice=rows1[start1].findIndex(h=>typeof h==='string'&&h.includes("PRECIO")); let iTeo=rows1[start1].findIndex(h=>typeof h==='string'&&h.includes("TEÓRICO")); let iFis=rows1[start1].findIndex(h=>typeof h==='string'&&h.includes("FÍSICO"));
             if(iTeo===-1) iTeo=3; if(iFis===-1) iFis=4;
             for(let i=start1+1; i<rows1.length; i++) {
-                if(!rows1[i][0]) continue; let sku = String(rows1[i][0]);
+                if(!rows1[i][0]) continue; 
+                if(String(rows1[i][0]).toUpperCase().includes("RESUMEN")) break; // FIX FILAS BASURA
+                let sku = String(rows1[i][0]);
                 map1[sku] = { teo: parseInt(rows1[i][iTeo])||0, fis: parseInt(rows1[i][iFis])||0, price: iPrice!==-1?parseFloat(rows1[i][iPrice])||0:0, name: String(rows1[i][1])||"" };
             }
         }
@@ -563,7 +500,9 @@
             let iPrice=rows2[start2].findIndex(h=>typeof h==='string'&&h.includes("PRECIO")); let iTeo=rows2[start2].findIndex(h=>typeof h==='string'&&h.includes("TEÓRICO")); let iFis=rows2[start2].findIndex(h=>typeof h==='string'&&h.includes("FÍSICO"));
             if(iTeo===-1) iTeo=3; if(iFis===-1) iFis=4;
             for(let i=start2+1; i<rows2.length; i++) {
-                if(!rows2[i][0]) continue; let sku = String(rows2[i][0]);
+                if(!rows2[i][0]) continue; 
+                if(String(rows2[i][0]).toUpperCase().includes("RESUMEN")) break; // FIX FILAS BASURA
+                let sku = String(rows2[i][0]);
                 map2[sku] = { teo: parseInt(rows2[i][iTeo])||0, fis: parseInt(rows2[i][iFis])||0, price: iPrice!==-1?parseFloat(rows2[i][iPrice])||0:0, name: String(rows2[i][1])||"" };
             }
         }
@@ -583,62 +522,47 @@
     function updateEntradas(sku, val) { let item = salesData.find(i => i.sku === sku); if(item) { item.entradas = parseInt(val) || 0; renderSalesTable(); } }
 
     function renderSalesTable() {
-        let tbody = document.getElementById('sales-table-body'); tbody.innerHTML = '';
-        let totalVentas = 0; let totalRobo = 0;
-        
-        // LEEMOS LOS DÍAS EXACTOS QUE PASARON
-        let periodDays = parseInt(document.getElementById('sales-days').value) || 7;
+        let tbody = document.getElementById('sales-table-body'); tbody.innerHTML = ''; let totalVentas = 0; let totalRobo = 0; let periodDays = parseInt(document.getElementById('sales-days').value) || 7;
 
         salesData.forEach(i => {
-            let var1 = i.f1 - i.t1; let var2 = i.f2 - i.t2; 
-            let fugaNueva = -(var2 - var1); 
-            let salidaTotal = i.f1 + i.entradas - i.f2;
-            let ventaEstimada = salidaTotal - fugaNueva;
-
-            if(ventaEstimada > 0) totalVentas += ventaEstimada * i.price;
-            if(fugaNueva > 0) totalRobo += fugaNueva * i.price;
-
-            // CÁLCULO PREDICTIVO DINÁMICO (V12)
-            let diasVidaHTML = '';
-            let diasVidaExcel = '';
+            let var1 = i.f1 - i.t1; let var2 = i.f2 - i.t2; let fugaNueva = -(var2 - var1); let salidaTotal = i.f1 + i.entradas - i.f2; let ventaEstimada = salidaTotal - fugaNueva;
+            if(ventaEstimada > 0) totalVentas += ventaEstimada * i.price; if(fugaNueva > 0) totalRobo += fugaNueva * i.price;
+            
+            // PORCENTAJE DE ROTACIÓN: Ventas Reales / Inventario Disponible Inicial (Físico 1 + Entradas)
+            let rotacion = (i.f1 + i.entradas) > 0 ? (ventaEstimada / (i.f1 + i.entradas)) * 100 : 0;
+            i.rotacion = rotacion; // Guardar para exportar
+            
+            let diasVidaHTML = ''; let diasVidaExcel = '';
             if(ventaEstimada > 0) {
-                let ventaDiaria = ventaEstimada / periodDays; // USAMOS EL INPUT DE DÍAS
-                let diasRestantes = Math.round(i.f2 / ventaDiaria);
-                diasVidaExcel = diasRestantes;
+                let ventaDiaria = ventaEstimada / periodDays; let diasRestantes = Math.round(i.f2 / ventaDiaria); diasVidaExcel = diasRestantes;
                 if(diasRestantes <= 3) diasVidaHTML = `<span style="color:var(--neon-pink); font-weight:bold; font-size: 0.85em;">⚠️ ${diasRestantes} días (CRÍTICO)</span>`;
                 else if(diasRestantes > 30) diasVidaHTML = `<span style="color:var(--neon-cyan); font-size: 0.85em;">🧊 ${diasRestantes} días (SOBRESTOCK)</span>`;
                 else diasVidaHTML = `<span style="color:var(--neon-green); font-size: 0.85em;">✅ ${diasRestantes} días</span>`;
-            } else {
-                diasVidaHTML = `<span style="color:rgba(255,255,255,0.3); font-size: 0.8em;">Sin Rotación</span>`;
-                diasVidaExcel = "Sin Rotación";
-            }
-            i.diasExcel = diasVidaExcel; 
-            i.ventaRealSugerida = ventaEstimada; // Guardamos para la orden de compra
-
+            } else { diasVidaHTML = `<span style="color:rgba(255,255,255,0.3); font-size: 0.8em;">Sin Rotación</span>`; diasVidaExcel = "Sin Rotación"; }
+            i.diasExcel = diasVidaExcel; i.ventaRealSugerida = ventaEstimada;
             let fontFuga = fugaNueva > 0 ? 'var(--neon-pink)' : (fugaNueva < 0 ? 'var(--neon-green)' : 'rgba(255,255,255,0.5)');
 
             tbody.innerHTML += `<tr>
                 <td>${i.sku}</td><td style="text-align:left;">${i.name}</td><td style="color:var(--neon-cyan); font-weight:bold; font-size:1.1em;">${i.f1}</td>
                 <td><input type="number" class="inline-teo" value="${i.entradas}" onchange="updateEntradas('${i.sku}', this.value)" style="background: #fff; color: #000; border: none; font-size: 1.1em;"></td>
-                <td style="color:var(--neon-pink); font-weight:bold; font-size:1.1em;">${i.f2}</td>
-                <td style="color:${fontFuga}; font-weight:bold;">${fugaNueva}</td><td style="color:var(--neon-yellow); font-weight:bold; font-size:1.2em;">${ventaEstimada}</td>
+                <td style="color:var(--neon-pink); font-weight:bold; font-size:1.1em;">${i.f2}</td><td style="color:${fontFuga}; font-weight:bold;">${fugaNueva}</td>
+                <td style="color:var(--neon-yellow); font-weight:bold; font-size:1.2em;">${ventaEstimada}</td>
+                <td style="color:var(--neon-cyan); font-weight:bold;">${rotacion.toFixed(1)}%</td>
                 <td>${diasVidaHTML}</td>
             </tr>`;
         });
-
         document.getElementById('s-sum-ventas').innerText = moneyFormatter.format(totalVentas); document.getElementById('s-sum-robo').innerText = `-${moneyFormatter.format(totalRobo)}`;
     }
 
-    // EXPORTACIÓN 1: ANÁLISIS COMPLETO
     function exportSalesToExcel() {
         if(!salesData.length) return alert('No hay datos.');
         let periodDays = parseInt(document.getElementById('sales-days').value) || 7;
-        let ws_data = [ ["REPORTE DE ANÁLISIS PREDICTIVO Y ROTACIÓN"], ["FECHA:", getCurrentDateTime(), "", `DÍAS EVALUADOS: ${periodDays}`], [], ["SKU", "NOMBRE", "PRECIO", "FÍSICO VIEJO", "ENTRADAS", "FÍSICO NUEVO", "ROBO DETECTADO", "VENTA REAL ESTIMADA", "DÍAS DE INVENTARIO (VIDA)"] ];
+        let ws_data = [ ["REPORTE DE ANÁLISIS PREDICTIVO Y ROTACIÓN"], ["FECHA:", getCurrentDateTime(), "", `DÍAS EVALUADOS: ${periodDays}`], [], ["SKU", "NOMBRE", "PRECIO", "FÍSICO VIEJO", "ENTRADAS", "FÍSICO NUEVO", "ROBO DETECTADO", "VENTA REAL ESTIMADA", "% ROTACIÓN", "DÍAS DE INVENTARIO (VIDA)"] ];
         let tVen=0, tRob=0;
         salesData.forEach(i => {
             let var1 = i.f1 - i.t1; let var2 = i.f2 - i.t2; let fugaNueva = -(var2 - var1); let salidaTotal = i.f1 + i.entradas - i.f2; let ventaEstimada = salidaTotal - fugaNueva;
             if(ventaEstimada > 0) tVen += ventaEstimada * i.price; if(fugaNueva > 0) tRob += fugaNueva * i.price;
-            ws_data.push([i.sku, i.name, Number(i.price), Number(i.f1), Number(i.entradas), Number(i.f2), Number(fugaNueva), Number(ventaEstimada), i.diasExcel]);
+            ws_data.push([i.sku, i.name, Number(i.price), Number(i.f1), Number(i.entradas), Number(i.f2), Number(fugaNueva), Number(ventaEstimada), Number((i.rotacion||0).toFixed(2)), i.diasExcel]);
         });
 
         ws_data.push([]); ws_data.push(["RESUMEN DE ROTACIÓN"]); ws_data.push(["VENTA REAL ($) para Resurtir:", tVen]); ws_data.push(["FUGA POR ROBO ($):", -tRob]);
@@ -648,45 +572,66 @@
             if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"000000"} }; ws[cell].s.fill = { fgColor: {rgb:"FFD700"} }; } 
             if (row === 4) { ws[cell].s.font = { bold: true, color: {rgb:"000000"} }; ws[cell].s.fill = { fgColor: {rgb:"FFD700"} }; ws[cell].s.border = borderAll; }
             if (row >= 5 && row < 5 + salesData.length) { 
-                ws[cell].s.border = borderAll; if(col === 'C') ws[cell].z = '"$"#,##0.00'; 
+                ws[cell].s.border = borderAll; if(col === 'C') ws[cell].z = '"$"#,##0.00'; if(col === 'I') ws[cell].z = '0.00"%"'; // Formato porcentaje
                 if(col === 'G') { if(val > 0) { ws[cell].s.font.color = {rgb:"9C0006"}; ws[cell].s.fill = { fgColor: {rgb:"FFC7CE"} }; } }
                 if(col === 'H') { ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"FFF2CC"} }; }
-                if(col === 'I') { if(val <= 3) { ws[cell].s.font.color = {rgb:"9C0006"}; ws[cell].s.font.bold = true; } }
+                if(col === 'J') { if(val <= 3) { ws[cell].s.font.color = {rgb:"9C0006"}; ws[cell].s.font.bold = true; } }
             }
             if (row >= 5 + salesData.length + 2) { ws[cell].s.font.bold = true; if((col === 'B') && typeof val === 'number') { ws[cell].z = '"$"#,##0.00'; } }
         }
-        ws['!cols'] = [{wch:15},{wch:40},{wch:12},{wch:15},{wch:15},{wch:15},{wch:18},{wch:25},{wch:25}]; XLSX.utils.book_append_sheet(wb, ws, "Analisis_Rotacion"); XLSX.writeFile(wb, `ANALISIS_PREDICTIVO.xlsx`);
+        ws['!cols'] = [{wch:15},{wch:40},{wch:12},{wch:15},{wch:15},{wch:15},{wch:18},{wch:20},{wch:15},{wch:25}]; XLSX.utils.book_append_sheet(wb, ws, "Analisis_Rotacion"); XLSX.writeFile(wb, `ANALISIS_PREDICTIVO.xlsx`);
     }
 
-    // EXPORTACIÓN 2: PEDIDO AUTOMÁTICO A PROVEEDOR
     function exportSupplierOrder() {
         if(!salesData.length) return alert('No hay datos.');
-        let ws_data = [
-            ["ORDEN DE COMPRA SUGERIDA"], ["FECHA GENERACIÓN:", getCurrentDateTime()], [], 
-            ["SKU", "NOMBRE DEL PRODUCTO", "CANTIDAD A PEDIR (UNIDADES)"]
-        ];
-        
+        let ws_data = [ ["ORDEN DE COMPRA SUGERIDA"], ["FECHA GENERACIÓN:", getCurrentDateTime()], [], ["SKU", "NOMBRE DEL PRODUCTO", "% ROTACIÓN DEL ITEM", "CANTIDAD A PEDIR (UNIDADES)"] ];
         let orderHasItems = false;
-        salesData.forEach(i => {
-            // Solo pedimos lo que realmente se vendió (no mermas ni basura en 0)
-            if(i.ventaRealSugerida > 0) {
-                ws_data.push([i.sku, i.name, Number(i.ventaRealSugerida)]);
-                orderHasItems = true;
-            }
-        });
+        salesData.forEach(i => { if(i.ventaRealSugerida > 0) { ws_data.push([i.sku, i.name, Number((i.rotacion||0).toFixed(2)), Number(i.ventaRealSugerida)]); orderHasItems = true; } });
+        if(!orderHasItems) return alert("No tienes ventas reales registradas. No hay nada que pedir.");
 
-        if(!orderHasItems) return alert("No tienes ventas reales registradas. No hay nada que pedir al proveedor.");
-
-        let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data);
-        const borderAll = { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} };
-        
+        let wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(ws_data); const borderAll = { top: {style:"thin"}, bottom: {style:"thin"}, left: {style:"thin"}, right: {style:"thin"} };
         for (let cell in ws) {
             if (cell[0] === '!') continue; let col = cell.replace(/[0-9]/g, ''); let row = parseInt(cell.replace(/\D/g, '')); ws[cell].s = { font: { name: "Calibri", sz: 12 }, alignment: { vertical: "center" } };
-            if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"008000"} }; } // Verde Compra
+            if (row === 1) { ws[cell].s.font = { bold: true, sz: 14, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"008000"} }; } 
             if (row === 4) { ws[cell].s.font = { bold: true, color: {rgb:"FFFFFF"} }; ws[cell].s.fill = { fgColor: {rgb:"000000"} }; ws[cell].s.border = borderAll; }
-            if (row >= 5) { ws[cell].s.border = borderAll; if(col==='C') { ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"E2EFDA"} }; } }
+            if (row >= 5) { ws[cell].s.border = borderAll; if(col==='C') ws[cell].z = '0.00"%"'; if(col==='D') { ws[cell].s.font.bold = true; ws[cell].s.fill = { fgColor: {rgb:"E2EFDA"} }; } }
         }
-        ws['!cols'] = [{wch:15},{wch:45},{wch:30}]; XLSX.utils.book_append_sheet(wb, ws, "Pedido"); XLSX.writeFile(wb, `PEDIDO_PROVEEDOR.xlsx`);
+        ws['!cols'] = [{wch:15},{wch:45},{wch:20},{wch:30}]; XLSX.utils.book_append_sheet(wb, ws, "Pedido"); XLSX.writeFile(wb, `PEDIDO_PROVEEDOR.xlsx`);
+    }
+
+    // ==========================================
+    // MÓDULO 4: CREADOR DE PDF UNIVERSAL 
+    // ==========================================
+    async function processExcelToPDF(event) {
+        const file = event.target.files[0]; if (!file) return;
+        document.getElementById('pdf-status-text').innerHTML = `<span style="color: var(--neon-yellow);">Procesando archivo...</span>`;
+
+        try {
+            const rows = await readExcelAsync(file);
+            let headerIdx = rows.findIndex(r => r && r[0] && r[0].toString().toUpperCase().includes("SKU"));
+            if (headerIdx === -1) { alert("Error: El archivo no fue generado por esta Suite (No se encontró la columna SKU)."); document.getElementById('pdf-status-text').innerText = "Esperando archivo..."; event.target.value = ''; return; }
+
+            let title = rows[0] && rows[0][0] ? rows[0][0] : "REPORTE LOGÍSTICO"; let headers = rows[headerIdx]; let bodyData = []; let summaryData = []; let inSummary = false;
+
+            for(let i = headerIdx + 1; i < rows.length; i++) {
+                if (!rows[i] || rows[i].length === 0 || !rows[i][0]) continue; 
+                let firstCell = String(rows[i][0]).toUpperCase();
+                if (firstCell.includes("RESUMEN")) { inSummary = true; continue; }
+                if(inSummary) { summaryData.push(rows[i]); } else { bodyData.push(rows[i]); }
+            }
+
+            const doc = new jsPDF('landscape', 'pt', 'a4'); 
+            doc.setFontSize(16); doc.setTextColor(40, 40, 40); doc.text(title, 40, 40);
+            doc.setFontSize(9); doc.setTextColor(150, 150, 150); doc.text(`Generado el: ${getCurrentDateTime()}`, 40, 55);
+
+            doc.autoTable({ startY: 70, head: [headers], body: bodyData, theme: 'grid', styles: { fontSize: 8, cellPadding: 4 }, headStyles: { fillColor: [40, 55, 100], textColor: 255, fontStyle: 'bold' }, alternateRowStyles: { fillColor: [245, 245, 245] }, margin: { left: 40, right: 40 } });
+
+            if (summaryData.length > 0) { let finalY = doc.lastAutoTable.finalY || 70; doc.autoTable({ startY: finalY + 30, body: summaryData, theme: 'plain', styles: { fontSize: 10, fontStyle: 'bold', textColor: [50,50,50] }, margin: { left: 40 } }); }
+
+            doc.save(`${file.name.replace(/\.[^/.]+$/, "")}_PDF.pdf`);
+            document.getElementById('pdf-status-text').innerHTML = `<span style="color: var(--neon-green);">¡PDF Generado con Éxito! ✅</span>`;
+        } catch (error) { console.error(error); document.getElementById('pdf-status-text').innerHTML = `<span style="color: var(--neon-pink);">Error al procesar el archivo.</span>`; }
+        event.target.value = ''; 
     }
 </script>
 </body>
