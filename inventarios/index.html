@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEPGOD // Control de Inventarios</title>
+    <title>SEPGOD // Control de Inventarios Financiero</title>
     <style>
         :root {
             --neon-green: #39ff14;
@@ -38,7 +38,7 @@
             border-radius: 4px;
             padding: 30px;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1200px;
             margin-top: 20px;
         }
 
@@ -52,7 +52,7 @@
         }
 
         /* PANTALLA 1: SETUP */
-        #setup-screen { display: block; text-align: center; }
+        #setup-screen { display: block; text-align: center; max-width: 800px; }
         
         /* PANTALLA 2: WORKSPACE */
         #workspace-screen { display: none; }
@@ -68,7 +68,7 @@
         input:focus { box-shadow: 0 0 10px var(--neon-cyan); border-color: #fff; }
 
         .flex-row { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
-        .flex-row .input-group { flex: 1; min-width: 150px; margin-bottom: 0; }
+        .flex-row .input-group { flex: 1; min-width: 120px; margin-bottom: 0; }
 
         button {
             padding: 12px 20px; background: transparent; color: var(--neon-pink);
@@ -92,6 +92,23 @@
         .diff-missing { color: var(--neon-pink); font-weight: bold; }
         
         .header-info { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--neon-cyan); padding-bottom: 15px; margin-bottom: 20px; }
+
+        /* DASHBOARD FINANCIERO */
+        .summary-dashboard { display: flex; gap: 20px; justify-content: space-between; margin-top: 30px; flex-wrap: wrap; }
+        .summary-box { flex: 1; min-width: 250px; padding: 20px; text-align: center; border: 1px dashed; background: rgba(0,0,0,0.5); }
+        .summary-box.missing { border-color: var(--neon-pink); box-shadow: inset 0 0 15px rgba(255,0,127,0.1); }
+        .summary-box.missing h3 { color: var(--neon-pink); font-size: 1.8em; margin: 10px 0; text-shadow: 0 0 5px var(--neon-pink); }
+        .summary-box.surplus { border-color: var(--neon-yellow); box-shadow: inset 0 0 15px rgba(255,234,0,0.1); }
+        .summary-box.surplus h3 { color: var(--neon-yellow); font-size: 1.8em; margin: 10px 0; text-shadow: 0 0 5px var(--neon-yellow); }
+        .summary-box.balance { border-color: var(--neon-cyan); box-shadow: inset 0 0 15px rgba(0,243,255,0.1); }
+        .summary-box.balance h3 { color: var(--neon-cyan); font-size: 1.8em; margin: 10px 0; text-shadow: 0 0 5px var(--neon-cyan); }
+        .summary-box span { font-size: 0.9em; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+        .summary-box p { font-size: 0.85em; margin: 0; color: rgba(255,255,255,0.6); }
+
+        /* INPUT PARA AÑADIR RAPIDO EN TABLA */
+        .inline-add { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 5px; }
+        .inline-add input { width: 50px; padding: 4px; text-align: center; border-color: rgba(0,243,255,0.5); }
+        .inline-add button { padding: 4px 8px; font-size: 0.8em; min-width: auto; border-color: var(--neon-cyan); color: var(--neon-cyan); }
     </style>
 </head>
 <body>
@@ -104,7 +121,7 @@
             <input type="text" id="inv-title" placeholder="Ej. Pasillo 4 - Electrónica">
         </div>
 
-        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
+        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
             <button onclick="startNewInventory()">[ CREAR DESDE CERO ]</button>
             
             <label for="file-upload" class="btn-cyan" style="display: inline-block; padding: 12px 20px; border: 2px solid var(--neon-cyan); cursor: pointer; font-weight: bold; text-shadow: 0 0 5px var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);">
@@ -121,35 +138,66 @@
         </div>
 
         <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed var(--neon-pink); margin-bottom: 20px;">
-            <label style="color: var(--neon-pink); font-weight: bold; margin-bottom: 10px;">> REGISTRAR ARTÍCULO</label>
+            <label style="color: var(--neon-pink); font-weight: bold; margin-bottom: 10px;">> REGISTRAR / SUMAR ARTÍCULO</label>
             <div class="flex-row">
                 <div class="input-group"><label>SKU</label><input type="text" id="item-sku" placeholder="Ej. 10045"></div>
-                <div class="input-group" style="flex: 2;"><label>Nombre del Artículo</label><input type="text" id="item-name" placeholder="Ej. Monitor 24 pulg"></div>
-                <div class="input-group"><label>Cant. Teórica</label><input type="number" id="item-teo" placeholder="En sistema"></div>
-                <div class="input-group"><label>Cant. Física</label><input type="number" id="item-fis" placeholder="Contado"></div>
-                <button onclick="addItem()" style="height: 40px; margin-bottom: 0;">AGREGAR</button>
+                <div class="input-group" style="flex: 2;"><label>Nombre</label><input type="text" id="item-name" placeholder="Ej. Monitor 24 pulg"></div>
+                <div class="input-group"><label>Costo Unitario ($)</label><input type="number" id="item-price" placeholder="Ej. 2500" step="0.01"></div>
+                <div class="input-group"><label>Teórico</label><input type="number" id="item-teo" placeholder="Sistema"></div>
+                <div class="input-group"><label>Físico (Contado)</label><input type="number" id="item-fis" placeholder="Cant."></div>
+                <button onclick="addItem()" style="height: 40px; margin-bottom: 0;">REGISTRAR</button>
+            </div>
+            <p style="margin: 10px 0 0 0; font-size: 0.75em; color: rgba(255,255,255,0.5);">*Si ingresas un SKU existente, la cantidad FÍSICA ingresada se SUMARÁ a la cantidad anterior.</p>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table id="inventory-table">
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th style="text-align: left;">NOMBRE DEL ARTÍCULO</th>
+                        <th>PRECIO UNIT.</th>
+                        <th>TEÓRICO</th>
+                        <th>FÍSICO (REAL)</th>
+                        <th>VARIANZA</th>
+                        <th>IMPACTO FINANCIERO</th>
+                        <th>ELIMINAR</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="summary-dashboard">
+            <div class="summary-box missing">
+                <span>Total Faltantes (Fuga)</span>
+                <h3 id="sum-missing">-$0.00</h3>
+                <p id="qty-missing">0 artículos perdidos</p>
+            </div>
+            <div class="summary-box balance">
+                <span>Balance General</span>
+                <h3 id="sum-balance">$0.00</h3>
+                <p id="status-balance">INVENTARIO CUADRADO</p>
+            </div>
+            <div class="summary-box surplus">
+                <span>Total Sobrantes (Extra)</span>
+                <h3 id="sum-surplus">+$0.00</h3>
+                <p id="qty-surplus">0 artículos extra</p>
             </div>
         </div>
 
-        <table id="inventory-table">
-            <thead>
-                <tr>
-                    <th>SKU</th>
-                    <th style="text-align: left;">NOMBRE DEL ARTÍCULO</th>
-                    <th>TEÓRICO (SISTEMA)</th>
-                    <th>FÍSICO (REAL)</th>
-                    <th>VARIANZA (STATUS)</th>
-                    <th>ACCIÓN</th>
-                </tr>
-            </thead>
-            <tbody id="table-body">
-                </tbody>
-        </table>
     </div>
 
 <script>
     let inventoryData = [];
     let inventoryTitle = "INVENTARIO_GENERAL";
+
+    const moneyFormatter = new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency: 'MXN',
+        minimumFractionDigits: 2
+    });
 
     // INICIAR DESDE CERO
     function startNewInventory() {
@@ -165,34 +213,57 @@
         document.getElementById('workspace-screen').style.display = 'block';
     }
 
-    // AGREGAR ARTÍCULO MANUALMENTE
+    // AGREGAR O SUMAR ARTÍCULO DESDE EL PANEL SUPERIOR
     function addItem() {
-        const sku = document.getElementById('item-sku').value;
+        const sku = document.getElementById('item-sku').value.trim();
         const name = document.getElementById('item-name').value;
-        const teo = parseInt(document.getElementById('item-teo').value);
+        const price = parseFloat(document.getElementById('item-price').value) || 0;
+        const teo = parseInt(document.getElementById('item-teo').value) || 0;
         const fis = parseInt(document.getElementById('item-fis').value);
 
-        if(!sku || !name || isNaN(teo) || isNaN(fis)) {
-            alert('SYS.ERROR: Faltan datos del artículo.');
+        if(!sku || isNaN(fis)) {
+            alert('SYS.ERROR: El SKU y la Cantidad Física son obligatorios.');
             return;
         }
 
-        // Buscamos si el SKU ya existe en la lista para actualizarlo, si no, lo agregamos
         const existingIndex = inventoryData.findIndex(item => item.sku === sku);
         if (existingIndex >= 0) {
-            inventoryData[existingIndex] = { sku, name, teo, fis };
+            // SI EXISTE: Le SUMAMOS lo que acaba de ingresar al físico que ya tenía.
+            inventoryData[existingIndex].fis += fis;
+            // Actualizamos el precio o el teórico solo si el usuario los escribió de nuevo.
+            if(price > 0) inventoryData[existingIndex].price = price;
+            // Solo actualizamos el teórico si es diferente de 0, para no borrarlo por accidente
+            if(teo !== 0 && !isNaN(document.getElementById('item-teo').valueAsNumber)) {
+                inventoryData[existingIndex].teo = teo;
+            }
         } else {
-            inventoryData.push({ sku, name, teo, fis });
+            // SI ES NUEVO: Lo registramos normal
+            inventoryData.push({ sku, name: name || 'Artículo Sin Nombre', price, teo, fis });
         }
 
-        // Limpiar campos y hacer focus en el SKU para el siguiente escaneo
+        // Limpiar campos y hacer focus en el SKU
         document.getElementById('item-sku').value = '';
         document.getElementById('item-name').value = '';
+        document.getElementById('item-price').value = '';
         document.getElementById('item-teo').value = '';
         document.getElementById('item-fis').value = '';
         document.getElementById('item-sku').focus();
 
         renderTable();
+    }
+
+    // EDITAR FÍSICO DIRECTAMENTE EN LA TABLA (MÁS RÁPIDO)
+    function modifyPhysicalInline(sku) {
+        const inputId = `inline-mod-${sku}`;
+        const val = parseInt(document.getElementById(inputId).value);
+        
+        if(!isNaN(val)) {
+            const item = inventoryData.find(i => i.sku === sku);
+            if(item) {
+                item.fis += val; // Admite números negativos si escriben "-2"
+                renderTable();
+            }
+        }
     }
 
     // ELIMINAR ARTÍCULO
@@ -201,57 +272,107 @@
         renderTable();
     }
 
-    // DIBUJAR LA TABLA Y APLICAR LA LÓGICA DE VARIANZA
+    // DIBUJAR LA TABLA Y CALCULAR EL IMPACTO FINANCIERO
     function renderTable() {
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = '';
 
+        let totalMissingQty = 0;
+        let totalMissingMoney = 0;
+        let totalSurplusQty = 0;
+        let totalSurplusMoney = 0;
+
         inventoryData.forEach(item => {
             const diff = item.fis - item.teo;
+            const financialImpact = diff * item.price;
+            
             let statusHTML = '';
+            let impactHTML = '';
 
-            // LÓGICA DE VARIANZA SOLICITADA POR EL USUARIO
+            // LÓGICA DE VARIANZA Y DINERO
             if (diff === 0) {
-                // Exacto: Solo muestra el número original (ej. 50)
                 statusHTML = `<span class="diff-exact">${item.teo} (EXACTO)</span>`;
+                impactHTML = `<span style="color: rgba(255,255,255,0.5);">${moneyFormatter.format(0)}</span>`;
             } else if (diff > 0) {
-                // Sobra: Muestra +X
                 statusHTML = `<span class="diff-surplus">+${diff} (SOBRA)</span>`;
+                impactHTML = `<span style="color: var(--neon-yellow);">${moneyFormatter.format(financialImpact)}</span>`;
+                
+                totalSurplusQty += diff;
+                totalSurplusMoney += financialImpact;
             } else {
-                // Falta: Muestra -X
                 statusHTML = `<span class="diff-missing">${diff} (FALTA)</span>`;
+                impactHTML = `<span style="color: var(--neon-pink);">${moneyFormatter.format(financialImpact)}</span>`;
+                
+                totalMissingQty += Math.abs(diff);
+                totalMissingMoney += Math.abs(financialImpact);
             }
 
             const row = `<tr>
                 <td style="color: var(--neon-cyan);">${item.sku}</td>
                 <td style="text-align: left;">${item.name}</td>
+                <td>${moneyFormatter.format(item.price)}</td>
                 <td>${item.teo}</td>
-                <td>${item.fis}</td>
+                <td>
+                    <span style="font-size: 1.2em; font-weight: bold; display: block;">${item.fis}</span>
+                    <div class="inline-add">
+                        <input type="number" id="inline-mod-${item.sku}" placeholder="+/-">
+                        <button class="btn-cyan" onclick="modifyPhysicalInline('${item.sku}')">OK</button>
+                    </div>
+                </td>
                 <td>${statusHTML}</td>
-                <td><button onclick="deleteItem('${item.sku}')" style="padding: 2px 8px; font-size: 0.7em; border-color: red; color: red;">[ X ]</button></td>
+                <td>${impactHTML}</td>
+                <td><button onclick="deleteItem('${item.sku}')" style="padding: 2px 8px; font-size: 0.7em; border-color: red; color: red;">X</button></td>
             </tr>`;
             tbody.innerHTML += row;
         });
+
+        updateDashboard(totalMissingQty, totalMissingMoney, totalSurplusQty, totalSurplusMoney);
     }
 
-    // EXPORTAR A CSV
+    // ACTUALIZAR EL DASHBOARD INFERIOR
+    function updateDashboard(missQty, missMoney, surpQty, surpMoney) {
+        document.getElementById('qty-missing').innerText = `${missQty} artículos perdidos`;
+        document.getElementById('sum-missing').innerText = `-${moneyFormatter.format(missMoney)}`;
+
+        document.getElementById('qty-surplus').innerText = `${surpQty} artículos extra`;
+        document.getElementById('sum-surplus').innerText = `+${moneyFormatter.format(surpMoney)}`;
+
+        const balanceTotal = surpMoney - missMoney;
+        const balanceEl = document.getElementById('sum-balance');
+        const statusEl = document.getElementById('status-balance');
+
+        balanceEl.innerText = moneyFormatter.format(balanceTotal);
+
+        if (balanceTotal === 0 && missQty === 0 && surpQty === 0) {
+            balanceEl.style.color = 'var(--neon-cyan)';
+            statusEl.innerText = 'INVENTARIO CUADRADO EXACTO';
+        } else if (balanceTotal >= 0) {
+            balanceEl.style.color = 'var(--neon-yellow)';
+            statusEl.innerText = 'BALANCE A FAVOR (CUIDADO CON MALA RECEPCIÓN)';
+        } else {
+            balanceEl.style.color = 'var(--neon-pink)';
+            statusEl.innerText = 'MERMA / ROBO DETECTADO';
+        }
+    }
+
+    // EXPORTAR A CSV (ACTUALIZADO CON PRECIO Y DINERO)
     function exportInventory() {
         if(inventoryData.length === 0) {
             alert('No hay datos para exportar.');
             return;
         }
 
-        let csv = ['SKU,NOMBRE,TEORICO,FISICO,DIFERENCIA'];
+        let csv = ['SKU,NOMBRE,PRECIO_UNITARIO,TEORICO,FISICO,VARIANZA_CANTIDAD,IMPACTO_FINANCIERO'];
         inventoryData.forEach(item => {
             const diff = item.fis - item.teo;
-            // Quitamos comas del nombre para no romper el CSV
+            const impact = diff * item.price;
             const cleanName = item.name.replace(/,/g, ''); 
-            csv.push(`"${item.sku}","${cleanName}",${item.teo},${item.fis},${diff}`);
+            csv.push(`"${item.sku}","${cleanName}",${item.price},${item.teo},${item.fis},${diff},${impact}`);
         });
 
         const csvFile = new Blob(["\uFEFF" + csv.join("\n")], {type: "text/csv;charset=utf-8;"});
         const downloadLink = document.createElement("a");
-        downloadLink.download = `${inventoryTitle.replace(/ /g, '_')}_REPORTE.csv`;
+        downloadLink.download = `${inventoryTitle.replace(/ /g, '_')}_FINANCIERO.csv`;
         downloadLink.href = window.URL.createObjectURL(csvFile);
         downloadLink.style.display = "none";
         document.body.appendChild(downloadLink);
@@ -259,7 +380,7 @@
         document.body.removeChild(downloadLink);
     }
 
-    // IMPORTAR DESDE CSV (Para cargar plantillas)
+    // IMPORTAR DESDE CSV (V2: LEE PRECIOS)
     function loadCSV(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -273,20 +394,20 @@
             const rows = text.split('\n');
             inventoryData = [];
 
-            // Empezamos en 1 para saltar los encabezados (SKU, Nombre, Teórico, Físico)
             for (let i = 1; i < rows.length; i++) {
                 if (rows[i].trim() === '') continue;
                 
-                // Expresión regular simple para separar por comas ignorando comillas
+                // Formato V2 esperado: SKU, NOMBRE, PRECIO, TEORICO, FISICO...
                 const cols = rows[i].split(',');
-                if (cols.length >= 4) {
+                if (cols.length >= 5) {
                     const sku = cols[0].replace(/"/g, '').trim();
                     const name = cols[1].replace(/"/g, '').trim();
-                    const teo = parseInt(cols[2]) || 0;
-                    const fis = parseInt(cols[3]) || 0;
+                    const price = parseFloat(cols[2]) || 0;
+                    const teo = parseInt(cols[3]) || 0;
+                    const fis = parseInt(cols[4]) || 0;
                     
                     if (sku) {
-                        inventoryData.push({ sku, name, teo, fis });
+                        inventoryData.push({ sku, name, price, teo, fis });
                     }
                 }
             }
