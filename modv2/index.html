@@ -1,1 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creador de Países - Victoria 2</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            background-color: #e2e8f0; 
+            padding: 2rem; 
+            color: #333;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 25px; 
+            border-radius: 10px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
+        }
+        h1 { 
+            border-bottom: 3px solid #2c3e50; 
+            padding-bottom: 10px; 
+            color: #1a202c; 
+            margin-top: 0;
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 600; 
+            color: #4a5568; 
+        }
+        input, select { 
+            width: 100%; 
+            padding: 10px; 
+            margin-bottom: 15px; 
+            border-radius: 6px; 
+            border: 1px solid #cbd5e0; 
+            box-sizing: border-box; 
+            font-size: 14px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+        }
+        .row { display: flex; gap: 15px; }
+        .col { flex: 1; }
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: #2c3e50; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: background 0.2s;
+        }
+        button:hover { background: #1a202c; }
+    </style>
+</head>
+<body>
 
+<div class="container">
+    <h1>Creador de Países Vic2</h1>
+    
+    <label>TAG (3 Letras Mayúsculas):</label>
+    <input type="text" id="tag" maxlength="3" value="UAR" oninput="this.value = this.value.toUpperCase()">
+
+    <label>Nombre del País:</label>
+    <input type="text" id="name" value="Union Arabe">
+
+    <label>Color RGB (Separado por espacios):</label>
+    <input type="text" id="color" placeholder="Ej: 150 200 50" value="150 200 50">
+
+    <label>ID de la Provincia Capital:</label>
+    <input type="number" id="capital" value="857">
+
+    <div class="row">
+        <div class="col">
+            <label>Cultura Principal:</label>
+            <input type="text" id="culture" value="misri" oninput="this.value = this.value.toLowerCase()">
+        </div>
+        <div class="col">
+            <label>Religión:</label>
+            <input type="text" id="religion" value="sunni" oninput="this.value = this.value.toLowerCase()">
+        </div>
+    </div>
+
+    <label>Tipo de Gobierno:</label>
+    <select id="government">
+        <option value="absolute_monarchy">Monarquía Absoluta</option>
+        <option value="prussian_constitutionalism">Constitucionalismo Prusiano</option>
+        <option value="hms_government">Gobierno de Su Majestad</option>
+        <option value="democracy" selected>Democracia</option>
+        <option value="proletarian_dictatorship">Dictadura Proletaria</option>
+        <option value="presidential_dictatorship">Dictadura Presidencial</option>
+        <option value="bourgeois_dictatorship">Dictadura Burguesa</option>
+        <option value="fascist_dictatorship">Dictadura Fascista</option>
+    </select>
+
+    <button onclick="exportarMod()">Descargar Mod (.zip)</button>
+</div>
+
+<script>
+    function exportarMod() {
+        // 1. Recolectar la información que puso el usuario en los campos
+        const tag = document.getElementById('tag').value.toUpperCase() || 'UAR';
+        const name = document.getElementById('name').value || 'Union Arabe';
+        const color = document.getElementById('color').value || '150 200 50';
+        const capital = document.getElementById('capital').value || '857';
+        const culture = document.getElementById('culture').value.toLowerCase() || 'misri';
+        const religion = document.getElementById('religion').value.toLowerCase() || 'sunni';
+        const government = document.getElementById('government').value || 'democracy';
+
+        // 2. Instanciar la herramienta JSZip
+        const zip = new JSZip();
+
+        // 3. Generar el texto para cada archivo
+        // Archivo Common
+        const commonData = `color = { ${color} }\ngraphical_culture = MiddleEasternGFX\nparty = {\n    name = "Conservative"\n    start_date = 1836.1.1\n    end_date = 2000.1.1\n    ideology = conservative\n}`;
+        zip.file(`common/countries/${name}.txt`, commonData);
+
+        // Archivo Tag
+        const tagsData = `${tag} = "countries/${name}.txt"`;
+        zip.file(`common/country_tags/99_custom_countries.txt`, tagsData);
+
+        // Archivo History
+        const historyData = `capital = ${capital}\nprimary_culture = ${culture}\nreligion = ${religion}\ngovernment = ${government}\nplurality = 0.0\nnationalvalue = nv_order\ncivilized = yes`;
+        zip.file(`history/countries/${tag} - ${name}.txt`, historyData);
+
+        // Archivo Localisation
+        const locData = `${tag};${name};;;;;;;;;;;x\n${tag}_ADJ;${name}n;;;;;;;;;;;x`;
+        zip.file(`localisation/custom_countries.csv`, locData);
+
+        // 4. Empaquetar y forzar la descarga del ZIP
+        zip.generateAsync({ type: 'blob' }).then(function(content) {
+            saveAs(content, `mod_vic2_${tag}.zip`);
+        });
+    }
+</script>
+
+</body>
+</html>
