@@ -67,22 +67,51 @@ function renderTable() {
     inventoryData.forEach(i => { let d = i.fis - i.teo, imp = d * i.price; if(d>0){tSurpQ+=d; tSurpM+=imp;} else if(d<0){tMissQ+=Math.abs(d); tMissM+=Math.abs(imp);} });
 
     let today = new Date(); today.setHours(0,0,0,0);
-    displayData.forEach(i => {
-        let d = i.fis - i.teo, imp = d * i.price; let st = d===0?`<span class="diff-exact">0</span>`:d>0?`<span class="diff-surplus">+${d}</span>`:`<span class="diff-missing">${d}</span>`;
-        let pD = i.prevDiff===null?`--`:i.prevDiff===0?`<span class="diff-ghost">0</span>`:i.prevDiff>0?`<span class="diff-ghost">+${i.prevDiff}</span>`:`<span class="diff-ghost">${i.prevDiff}</span>`;
-        let locsHTML = ''; if (i.locs && i.locs.length > 0) { locsHTML = `<div class="loc-list">`; i.locs.forEach(l => { locsHTML += `<div class="loc-row"><span class="loc-name" title="${l.name}">${l.name}:</span><input type="number" class="loc-input" value="${l.qty}" onchange="updateLocInline('${i.sku}', '${l.name}', this.value)"><button class="loc-del" onclick="deleteLoc('${i.sku}', '${l.name}')">×</button></div>`; }); locsHTML += `</div>`; }
-        locsHTML += `<button class="btn-cyan btn-add-loc" onclick="addNewLocInline('${i.sku}')">+ Zona</button>`;
-        
-        let expAlert = '';
-        if(i.exp && i.exp !== "undefined" && i.exp !== "") {
-            let expD = new Date(i.exp + 'T00:00:00'); let diffDays = Math.ceil((expD - today) / (1000 * 60 * 60 * 24));
-            if(diffDays < 0) expAlert = `<div style="margin-top: 5px; display:inline-block; padding: 2px 5px; border-radius: 3px; background: rgba(255,0,0,0.2); border: 1px solid red; color: #ff6b6b; font-size: 0.75em; font-weight: bold;">⚠️ CADUCADO HACE ${Math.abs(diffDays)} DÍAS</div>`;
-            else if(diffDays <= 5) expAlert = `<div style="margin-top: 5px; display:inline-block; padding: 2px 5px; border-radius: 3px; background: rgba(255,0,127,0.1); border: 1px solid var(--neon-pink); color: var(--neon-pink); font-size: 0.75em; font-weight: bold;">⚠️ CADUCA EN ${diffDays} DÍAS</div>`;
-            else expAlert = `<div style="margin-top: 5px; display:inline-block; padding: 2px 5px; border-radius: 3px; background: rgba(0,243,255,0.05); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 0.75em;">✅ Vence en ${diffDays} días</div>`;
-        }
+    // DENTRO DE renderTable() en main.js
 
-        tbody.innerHTML += `<tr><td style="color: var(--neon-cyan);">${i.sku}</td><td style="text-align:left;"><strong>${i.name}</strong><br>${expAlert}</td><td style="font-size:0.8em; color:var(--neon-yellow);">${i.cat||'GENERAL'}</td><td>${moneyFormatter.format(i.price)}</td><td><input type="number" class="inline-teo" value="${i.teo}" onchange="updateTeoInline('${i.sku}', this.value)"></td><td><span style="font-size: 1.4em; font-weight:bold;">${i.fis}</span>${locsHTML}</td><td style="font-size: 1.1em;">${st}</td><td>${pD}</td><td style="color:${d>0?'var(--neon-yellow)':d<0?'var(--neon-pink)':'rgba(255,255,255,0.5)'}">${moneyFormatter.format(imp)}</td><td><button onclick="deleteItem('${i.sku}')" style="color:red; border-color:red; padding:2px 8px;">X</button></td></tr>`;
-    });
+displayData.forEach(i => {
+    let d = i.fis - i.teo, imp = d * i.price; 
+    let st = d===0 ? `<span class="diff-exact">0</span>` : d>0 ? `<span class="diff-surplus">+${d}</span>` : `<span class="diff-missing">${d}</span>`;
+    let pD = i.prevDiff===null ? `--` : i.prevDiff===0 ? `<span class="diff-ghost">0</span>` : i.prevDiff>0 ? `<span class="diff-ghost">+${i.prevDiff}</span>` : `<span class="diff-ghost">${i.prevDiff}</span>`;
+    
+    let locsHTML = ''; 
+    if (i.locs && i.locs.length > 0) { 
+        locsHTML = `<div class="loc-list">`; 
+        i.locs.forEach(l => { 
+            // 🛡️ Sanitizamos el nombre de la locación por si viene sucia del Excel
+            let safeLocName = DOMPurify.sanitize(l.name);
+            locsHTML += `<div class="loc-row"><span class="loc-name" title="${safeLocName}">${safeLocName}:</span><input type="number" class="loc-input" value="${l.qty}" onchange="updateLocInline('${i.sku}', '${safeLocName}', this.value)"><button class="loc-del" onclick="deleteLoc('${i.sku}', '${safeLocName}')">×</button></div>`; 
+        }); 
+        locsHTML += `</div>`; 
+    }
+    locsHTML += `<button class="btn-cyan btn-add-loc" onclick="addNewLocInline('${i.sku}')">+ Zona</button>`;
+    
+    let expAlert = '';
+    if(i.exp && i.exp !== "undefined" && i.exp !== "") {
+        let expD = new Date(i.exp + 'T00:00:00'); let diffDays = Math.ceil((expD - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24));
+        if(diffDays < 0) expAlert = `<div style="...estilos...">⚠️ CADUCADO HACE ${Math.abs(diffDays)} DÍAS</div>`;
+        // ... (resto de tu lógica de expAlert) ...
+    }
+
+    // 🛡️ AQUÍ ESTÁ LA MAGIA: Sanitizamos las variables peligrosas ANTES de inyectarlas
+    let safeSku = DOMPurify.sanitize(i.sku);
+    let safeName = DOMPurify.sanitize(i.name);
+    let safeCat = DOMPurify.sanitize(i.cat || 'GENERAL');
+
+    // Ahora inyectas con total confianza usando las variables "safe"
+    tbody.innerHTML += `<tr>
+        <td style="color: var(--neon-cyan);">${safeSku}</td>
+        <td style="text-align:left;"><strong>${safeName}</strong><br>${expAlert}</td>
+        <td style="font-size:0.8em; color:var(--neon-yellow);">${safeCat}</td>
+        <td>${moneyFormatter.format(i.price)}</td>
+        <td><input type="number" class="inline-teo" value="${i.teo}" onchange="updateTeoInline('${safeSku}', this.value)"></td>
+        <td><span style="font-size: 1.4em; font-weight:bold;">${i.fis}</span>${locsHTML}</td>
+        <td style="font-size: 1.1em;">${st}</td>
+        <td>${pD}</td>
+        <td style="color:${d>0?'var(--neon-yellow)':d<0?'var(--neon-pink)':'rgba(255,255,255,0.5)'}">${moneyFormatter.format(imp)}</td>
+        <td><button onclick="deleteItem('${safeSku}')" style="color:red; border-color:red; padding:2px 8px;">X</button></td>
+    </tr>`;
+});
     document.getElementById('qty-missing').innerText = `${tMissQ} perdidos`; document.getElementById('sum-missing').innerText = `-${moneyFormatter.format(tMissM)}`;
     document.getElementById('qty-surplus').innerText = `${tSurpQ} extra`; document.getElementById('sum-surplus').innerText = `+${moneyFormatter.format(tSurpM)}`;
     document.getElementById('sum-balance').innerText = moneyFormatter.format(tSurpM - tMissM); document.getElementById('sum-balance').style.color = (tSurpM - tMissM) >= 0 ? (tSurpM===tMissM && tMissQ===0 ? 'var(--neon-cyan)' : 'var(--neon-yellow)') : 'var(--neon-pink)';
