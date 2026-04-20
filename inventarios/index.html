@@ -273,6 +273,65 @@
     </div>
 
 <script>
+    // ==========================================
+// INTEGRACIÓN DE API DE CÓDIGOS DE BARRAS
+// ==========================================
+
+async function fetchProductData(barcode) {
+    if (!barcode) return;
+
+    const nameInput = document.getElementById('item-name');
+    const catInput = document.getElementById('item-cat');
+    
+    // Feedback visual temporal
+    const originalPlaceholder = nameInput.placeholder;
+    nameInput.placeholder = "Buscando en red...";
+
+    try {
+        // Usaremos Open Food Facts como ejemplo principal por ser 100% gratuita y sin keys
+        const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+        
+        if (!response.ok) throw new Error("Error en la petición de red");
+        
+        const data = await response.json();
+
+        if (data.status === 1 && data.product) {
+            // Éxito: autocompletar campos
+            nameInput.value = data.product.product_name || '';
+            
+            // Si tiene categorías, tomamos la primera
+            if (data.product.categories) {
+                catInput.value = data.product.categories.split(',')[0].trim().toUpperCase();
+            }
+        } else {
+            // No encontrado en Open Food Facts
+            nameInput.placeholder = "No encontrado. Ingresa manual.";
+            nameInput.value = '';
+        }
+    } catch (error) {
+        console.error("Error al consultar la API de códigos de barras:", error);
+        nameInput.placeholder = "Error de conexión";
+    }
+}
+
+// Vinculamos el evento al input del SKU cuando termina de escribir (o escanea)
+document.addEventListener("DOMContentLoaded", () => {
+    const skuInput = document.getElementById('item-sku');
+    if(skuInput) {
+        skuInput.addEventListener('blur', (e) => {
+            fetchProductData(e.target.value.trim());
+        });
+        
+        // También capturamos el Enter de la pistola lectora
+        skuInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Evitamos que haga submit u otra acción
+                fetchProductData(e.target.value.trim());
+                document.getElementById('item-name').focus();
+            }
+        });
+    }
+});
     window.jsPDF = window.jspdf.jsPDF;
     const moneyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2 });
     
