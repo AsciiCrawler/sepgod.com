@@ -69,13 +69,12 @@
             <label style="color: var(--neon-pink); font-weight: bold; margin-bottom: 10px;">> REGISTRAR ARTÍCULO FÍSICO</label>
             <div class="flex-row">
                 <div class="input-group" style="flex: 1.5;"><label style="color: var(--neon-yellow);">Ubicación</label><input type="text" id="item-loc" value="GENERAL" style="border-color: var(--neon-yellow);"></div>
-               <div class="input-group">
-    <label>SKU</label>
-    <div style="display: flex; gap: 5px;">
-        <input type="text" id="item-sku" placeholder="SKU">
-        <button id="btn-scan" class="btn-cyan" style="padding: 10px; min-width: 50px;">📷</button>
-    </div>
-</div>
+                <div class="input-group">
+                    <label>SKU</label>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="text" id="item-sku" placeholder="SKU">
+                        <button id="btn-scan" class="btn-cyan" style="padding: 10px; min-width: 50px;">📷</button>
+                    </div>
                     <div id="reader-container" style="display: none; margin-top: 10px; border: 1px dashed var(--neon-cyan); background: #000;">
                         <div id="reader" style="width: 100%;"></div>
 
@@ -196,12 +195,5 @@
     </div>
 
     <script type="module" src="main.js"></script>
-    <div id="reader-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; justify-content: center; align-items: center;">
-        <h3 style="color: var(--neon-cyan); margin-bottom: 20px; letter-spacing: 2px;">[ ESCANEANDO CÓDIGO ]</h3>
-        <div style="width: 90%; max-width: 400px; background: #000; padding: 10px; border: 2px solid var(--neon-cyan); border-radius: 8px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);">
-            <div id="reader" style="width: 100%;"></div>
-        </div>
-        <button id="btn-close-scan" style="margin-top: 30px; background: transparent; border: 2px solid var(--neon-pink); color: var(--neon-pink); padding: 15px 40px; font-size: 1.2em; cursor: pointer; text-transform: uppercase;">[ CANCELAR ]</button>
-    </div>
 </body>
 </html>
