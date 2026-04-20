@@ -1,6 +1,6 @@
 
 // main.js
-import { buscarProductoPorSKU } from './apiProductos.js';
+import { buscarProductoPorSKU, buscarSugerencias } from './apiProductos.js';
 
 window.jsPDF = window.jspdf.jsPDF;
 const moneyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2 });
