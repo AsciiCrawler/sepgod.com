@@ -463,59 +463,80 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     // ==========================================
-    // ESCÁNER DE CÁMARA NATIVO (CELULAR/PC)
+    // ESCÁNER DE CÁMARA NATIVO (VERSIÓN PRO)
     // ==========================================
     const btnScan = document.getElementById('btn-scan');
     const btnCloseScan = document.getElementById('btn-close-scan');
     const readerContainer = document.getElementById('reader-container');
-    let html5QrCode; // Variable para controlar el escáner
+    let html5QrCode; 
 
     if (btnScan) {
         btnScan.addEventListener('click', () => {
             readerContainer.style.display = 'block';
             
-            // Si el escáner no existe, lo creamos
+            // 1. Configuramos el escáner EXCLUSIVAMENTE para códigos de barras de productos
             if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("reader");
+                // Forzamos a que busque formatos de retail (EAN, UPC, CODE128)
+                html5QrCode = new Html5Qrcode("reader", { 
+                    formatsToSupport: [ 
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8,
+                        Html5QrcodeSupportedFormats.UPC_A,
+                        Html5QrcodeSupportedFormats.UPC_E,
+                        Html5QrcodeSupportedFormats.CODE_128,
+                        Html5QrcodeSupportedFormats.CODE_39
+                    ] 
+                });
             }
 
-            // Configuramos el rectángulo de escaneo (ideal para códigos de barras alargados)
-            const config = { fps: 10, qrbox: { width: 250, height: 100 } };
+            // 2. Optimizamos el cuadro de lectura para códigos rectangulares
+            const config = { 
+                fps: 15, // Más cuadros por segundo para que sea más rápido
+                qrbox: { width: 250, height: 120 }, // Forma de rectángulo horizontal
+                aspectRatio: 1.0 // Ayuda a que el video no se deforme en el celular
+            };
 
-            // Encendemos la cámara trasera ("environment")
+            // 3. Encendemos la cámara
             html5QrCode.start(
                 { facingMode: "environment" },
                 config,
                 (decodedText, decodedResult) => {
-                    // ¡ÉXITO! Leyó un código
-                    
-                    // 1. Detenemos la cámara
-                    html5QrCode.stop().then(() => {
-                        readerContainer.style.display = 'none';
+                    // ¡BINGO! CÓDIGO DETECTADO
+                    console.log("Código escaneado exitosamente:", decodedText);
+
+                    // Seleccionamos los inputs DIRECTAMENTE aquí para evitar errores de memoria
+                    const inputSkuExacto = document.getElementById('item-sku');
+                    const inputNameExacto = document.getElementById('item-name');
+
+                    if (inputSkuExacto) {
+                        // Inyectamos el texto
+                        inputSkuExacto.value = decodedText;
                         
-                        // 2. Metemos el código leído en el input
-                        skuInput.value = decodedText;
-                        
-                        // 3. (Magia) Disparamos manualmente el evento 'blur' para que 
-                        // nuestra API predictiva se active y busque el nombre automático
-                        skuInput.dispatchEvent(new Event('blur'));
-                        
-                        // Movemos el foco al siguiente campo útil
-                        nameInput.focus();
-                    }).catch(err => {
-                        console.error("Error al detener cámara:", err);
-                    });
+                        // Apagamos la cámara de inmediato
+                        html5QrCode.stop().then(() => {
+                            readerContainer.style.display = 'none';
+                            
+                            // DISPARAMOS EL EVENTO MAGICO PARA AUTOCOMPLETAR
+                            inputSkuExacto.dispatchEvent(new Event('blur'));
+                            
+                            if (inputNameExacto) {
+                                inputNameExacto.placeholder = "Buscando escaneo...";
+                                inputNameExacto.focus();
+                            }
+                        }).catch(err => console.error("Error apagando cámara:", err));
+                    }
                 },
                 (errorMessage) => {
-                    // Errores de lectura ignorables (pasa cuando aún no enfoca bien)
+                    // La cámara escanea 15 veces por segundo. 
+                    // Si no encuentra nada, entra aquí. Lo dejamos vacío para que no explote la consola.
                 }
             ).catch((err) => {
-                alert("Error al iniciar cámara. Asegúrate de dar permisos.");
+                alert("Error al iniciar cámara: " + err);
                 readerContainer.style.display = 'none';
             });
         });
 
-        // Botón para cancelar y cerrar la cámara
+        // Botón para cerrar
         btnCloseScan.addEventListener('click', () => {
             if (html5QrCode) {
                 html5QrCode.stop().then(() => {
@@ -526,7 +547,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-});
 
 // ==========================================
 // PREVENCIÓN DE IMPLOSIONES EN HTML
