@@ -463,20 +463,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     // ==========================================
-    // ESCÁNER DE CÁMARA NATIVO (MODAL FULLSCREEN)
+    // ESCÁNER DE CÁMARA NATIVO (VERSIÓN PRO)
     // ==========================================
     const btnScan = document.getElementById('btn-scan');
     const btnCloseScan = document.getElementById('btn-close-scan');
-    const readerModal = document.getElementById('reader-modal'); // Ahora usamos el Modal
+    const readerContainer = document.getElementById('reader-container');
     let html5QrCode; 
 
     if (btnScan) {
         btnScan.addEventListener('click', () => {
-            // Mostramos la pantalla negra a pantalla completa (usamos flex para centrar)
-            readerModal.style.display = 'flex';
+            readerContainer.style.display = 'block';
             
+            // 1. Configuramos el escáner EXCLUSIVAMENTE para códigos de barras de productos
             if (!html5QrCode) {
-                // Forzamos formatos de retail
+                // Forzamos a que busque formatos de retail (EAN, UPC, CODE128)
                 html5QrCode = new Html5Qrcode("reader", { 
                     formatsToSupport: [ 
                         Html5QrcodeSupportedFormats.EAN_13,
@@ -489,55 +489,65 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
 
-            // Configuración optimizada sin deformar la imagen
+            // 2. Optimizamos el cuadro de lectura para códigos rectangulares
             const config = { 
-                fps: 10,
-                qrbox: { width: 250, height: 150 },
-                aspectRatio: 1.0 // Fuerza a mantener la proporción de la cámara
+                fps: 15, // Más cuadros por segundo para que sea más rápido
+                qrbox: { width: 250, height: 120 }, // Forma de rectángulo horizontal
+                aspectRatio: 1.0 // Ayuda a que el video no se deforme en el celular
             };
 
+            // 3. Encendemos la cámara
             html5QrCode.start(
                 { facingMode: "environment" },
                 config,
                 (decodedText, decodedResult) => {
-                    // ¡ÉXITO!
+                    // ¡BINGO! CÓDIGO DETECTADO
+                    console.log("Código escaneado exitosamente:", decodedText);
+
+                    // Seleccionamos los inputs DIRECTAMENTE aquí para evitar errores de memoria
                     const inputSkuExacto = document.getElementById('item-sku');
                     const inputNameExacto = document.getElementById('item-name');
 
                     if (inputSkuExacto) {
+                        // Inyectamos el texto
                         inputSkuExacto.value = decodedText;
                         
+                        // Apagamos la cámara de inmediato
                         html5QrCode.stop().then(() => {
-                            readerModal.style.display = 'none'; // Ocultamos el modal
+                            readerContainer.style.display = 'none';
                             
-                            // Disparamos la búsqueda predictiva
+                            // DISPARAMOS EL EVENTO MAGICO PARA AUTOCOMPLETAR
                             inputSkuExacto.dispatchEvent(new Event('blur'));
                             
                             if (inputNameExacto) {
                                 inputNameExacto.placeholder = "Buscando escaneo...";
                                 inputNameExacto.focus();
                             }
-                        }).catch(err => console.error(err));
+                        }).catch(err => console.error("Error apagando cámara:", err));
                     }
                 },
-                (errorMessage) => { /* Ignoramos errores de cuadros sin leer */ }
+                (errorMessage) => {
+                    // La cámara escanea 15 veces por segundo. 
+                    // Si no encuentra nada, entra aquí. Lo dejamos vacío para que no explote la consola.
+                }
             ).catch((err) => {
-                alert("Error al iniciar cámara. Da permisos en tu navegador.");
-                readerModal.style.display = 'none';
+                alert("Error al iniciar cámara: " + err);
+                readerContainer.style.display = 'none';
             });
         });
 
-        // Botón rojo de cancelar
+        // Botón para cerrar
         btnCloseScan.addEventListener('click', () => {
             if (html5QrCode) {
                 html5QrCode.stop().then(() => {
-                    readerModal.style.display = 'none';
+                    readerContainer.style.display = 'none';
                 }).catch(err => console.error(err));
             } else {
-                readerModal.style.display = 'none';
+                readerContainer.style.display = 'none';
             }
         });
     }
+
 // ==========================================
 // PREVENCIÓN DE IMPLOSIONES EN HTML
 // (Añade esto al final de tu main.js)
