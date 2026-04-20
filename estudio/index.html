@@ -1,355 +1,162 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recall Station | Active Recall Suite</title>
+    <title>Mi Colección Virtual</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-deep: #0a0a0a;
-            --accent-neon: #00ff9d;
-            --accent-cyan: #00f2ff;
-            --card-bg: #141414;
-        }
-
-        body {
-            background-color: var(--bg-deep);
-            color: #e0e0e0;
-            font-family: 'Inter', sans-serif;
-            scroll-behavior: smooth;
-        }
-
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        .max-reading-width {
-            max-width: 75ch; /* Optimización para legibilidad  */
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* Estética Neon-Terminal */
-        .neon-border {
-            border: 1px solid rgba(0, 255, 157, 0.2);
-            transition: all 0.3s ease;
-        }
-        .neon-border:hover {
-            border-color: var(--accent-neon);
-            box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
-        }
-
-        /* Animaciones */
-        .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Flashcard Flip */
-        .flip-card {
-            background-color: transparent;
-            perspective: 1000px;
-            height: 300px;
-        }
-        .flip-card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-        }
-        .flip-card.flipped .flip-card-inner {
-            transform: rotateY(180deg);
-        }
-        .flip-card-front, .flip-card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            border-radius: 1rem;
-            text-align: center;
-        }
-        .flip-card-back {
-            transform: rotateY(180deg);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-neon); }
-    </style>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="bg-gray-900 text-gray-100 min-h-screen p-8 font-sans">
+    <div id="app" class="max-w-5xl mx-auto">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-amber-500 mb-2">Mi Librero Virtual 📚🎮🖥️</h1>
+            <p class="text-gray-400">Añade ítems manualmente o carga un archivo CSV para llenar tu estante.</p>
+        </header>
 
-    <nav class="border-b border-white/10 p-4 bg-black/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <i data-lucide="zap" class="text-green-400"></i>
-                <h1 class="mono text-xl font-bold tracking-tighter">RECALL<span class="text-green-400">_STATION</span></h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+            
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-white border-b border-gray-600 pb-2">Añadir desde Cero</h2>
+                <form @submit.prevent="addItem" class="flex flex-col gap-3">
+                    <input v-model="newItem.name" type="text" placeholder="Nombre del ítem..." class="px-4 py-2 bg-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                    <select v-model="newItem.category" class="px-4 py-2 bg-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <option value="Libros">Libros</option>
+                        <option value="Videojuegos/Peliculas">Videojuegos/Películas</option>
+                        <option value="Hardware">Hardware</option>
+                    </select>
+                    <button type="submit" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-4 rounded transition-colors">
+                        Guardar en el Estante
+                    </button>
+                </form>
             </div>
-            <div class="flex gap-6 mono text-sm font-medium">
-                <button onclick="switchTab('flashcards')" class="hover:text-green-400 transition-colors">FLASHCARDS</button>
-                <button onclick="switchTab('blurting')" class="hover:text-green-400 transition-colors">BLURTING</button>
-                <button onclick="switchTab('quiz')" class="hover:text-green-400 transition-colors">QUIZ</button>
+
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-white border-b border-gray-600 pb-2">Cargar desde Hoja de Cálculo (CSV)</h2>
+                <p class="text-xs text-gray-400 mb-3">Tu archivo debe tener dos columnas: <strong>name</strong> y <strong>category</strong>.</p>
+                <div class="flex items-center justify-center w-full">
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg class="w-8 h-8 mb-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                            </svg>
+                            <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Haz clic para subir</span> tu archivo .csv</p>
+                        </div>
+                        <input type="file" class="hidden" accept=".csv" @change="handleFileUpload" />
+                    </label>
+                </div>
             </div>
         </div>
-    </nav>
 
-    <main class="flex-1 p-6">
-        <div id="app-container" class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-4 text-center text-gray-300">Tu Colección</h2>
+        
+        <div class="bg-amber-900 p-4 rounded-t-lg shadow-2xl relative">
+            <div class="absolute inset-0 bg-black opacity-20 rounded-t-lg pointer-events-none"></div>
+            
+            <div class="relative z-10 flex flex-wrap gap-x-6 gap-y-16 items-end min-h-[200px] bg-amber-800 p-6 rounded-md shadow-inner border-b-[16px] border-amber-950">
+                
+                <div v-if="items.length === 0" class="w-full text-center text-amber-950/50 font-bold text-2xl self-center">
+                    El estante está vacío. ¡Agrega algo!
+                </div>
+
+                <div v-for="item in items" :key="item.id" class="relative flex flex-col items-center group cursor-pointer transition-transform duration-300 hover:-translate-y-4">
+                    <span class="text-6xl drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] filter transition-all group-hover:brightness-125">
+                        {{ getIcon(item.category) }}
+                    </span>
+                    
+                    <div class="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gray-900 text-white text-sm px-3 py-1 rounded shadow-lg whitespace-nowrap z-20 pointer-events-none">
+                        {{ item.name }}
+                        <div class="absolute left-1/2 transform -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                </div>
+
             </div>
-    </main>
-
-    <footer class="border-t border-white/10 p-4 bg-black/30">
-        <div class="max-w-6xl mx-auto flex justify-between items-center mono text-xs text-white/40">
-            <div id="status-bar">MODO: EXPLORACIÓN</div>
-            <div id="progress-bar">PROGRESO: 0%</div>
         </div>
-    </footer>
+        <div class="flex justify-between px-8">
+            <div class="w-8 h-12 bg-amber-950 rounded-b-sm shadow-xl"></div>
+            <div class="w-8 h-12 bg-amber-950 rounded-b-sm shadow-xl"></div>
+        </div>
+
+    </div>
 
     <script>
-        // 1. Estructura de Datos (Basada en Unidad 1.pdf)
-        const appData = {
-            metadata: { title: "Presentación de datos en tablas y gráficas" },
-            topics: [
-                {
-                    id: 1,
-                    title: "Definiciones de Estadística",
-                    summary: "Ciencia que utiliza conjuntos de datos numéricos para obtener inferencias basadas en el cálculo de probabilidades[cite: 1396, 1404]. Incluye recolección, organización e interpretación.",
-                    flashcards: [
-                        { q: "¿Qué estudia la estadística descriptiva?", a: "Proporciona métodos para recoger, organizar, resumir y analizar datos para conclusiones válidas[cite: 1419, 1827]." },
-                        { q: "¿Cuál es la raíz latina de la palabra estadística?", a: "Viene del latín 'status', que significa ciencia del Estado[cite: 1394]." }
-                    ]
-                },
-                {
-                    id: 2,
-                    title: "Variables y Escalas",
-                    summary: "Las variables se clasifican en Cualitativas (no numéricas) y Cuantitativas (Discretas/enteros o Continuas/fraccionarios)[cite: 1446, 1454, 1829]. Las escalas son: Nominal, Ordinal, Intervalo y Razón[cite: 1460].",
-                    flashcards: [
-                        { q: "¿Qué es una variable cuantitativa discreta?", a: "Aquella que solo puede tomar valores enteros, obtenida por conteo (ej. número de alumnos)[cite: 1457, 1458]." },
-                        { q: "¿Cuál es la característica de la escala nominal?", a: "Agrupa observaciones en categorías sin orden de preferencia[cite: 1462, 1464]." }
-                    ]
-                },
-                {
-                    id: 3,
-                    title: "Distribución de Frecuencias",
-                    summary: "Organiza datos en tablas. El rango es la diferencia entre el dato mayor y el menor[cite: 1546]. El número de clases se determina usualmente con la raíz cuadrada de N[cite: 1547].",
-                    flashcards: [
-                        { q: "¿Cómo se define la frecuencia absoluta?", a: "La cantidad de veces que un número o característica aparece en el conjunto de datos[cite: 1530]." },
-                        { q: "¿Qué representa la frecuencia relativa?", a: "La proporción de una clase respecto al total de datos (frecuencia / total)[cite: 1601]." }
-                    ]
-                }
-            ],
-            quiz: [
-                { q: "¿Cuál es el primer paso para crear una distribución por intervalos?", options: ["Calcular el rango", "Determinar número de clases", "Encontrar el mayor y menor de los datos"], correct: 2 },
-                { q: "Si una variable toma valores como temperatura (con decimales), es:", options: ["Cuantitativa discreta", "Cuantitativa continua", "Cualitativa nominal"], correct: 1 },
-                { q: "En un polígono de porcentajes acumulados, ¿cuál es el punto más alto?", options: ["El total de datos (n)", "El 100%", "La marca de clase"], correct: 1 }
-            ]
-        };
+        const { createApp, ref } = Vue;
 
-        // 2. Lógica de Estado
-        let state = {
-            activeTab: 'flashcards',
-            currentTopicIndex: 0,
-            flashcardIndex: 0,
-            quizStep: 0,
-            score: 0,
-            progress: JSON.parse(localStorage.getItem('recallProgress')) || { flashcardsSeen: 0, quizHighscore: 0 }
-        };
+        createApp({
+            setup() {
+                // Estado del nuevo ítem manual
+                const newItem = ref({ name: '', category: 'Libros' });
+                
+                // Lista reactiva de la colección
+                const items = ref([
+                    { id: 1, name: 'Clean Code', category: 'Libros' },
+                    { id: 2, name: 'The Witcher 3', category: 'Videojuegos/Peliculas' },
+                    { id: 3, name: 'Nvidia RTX 4090', category: 'Hardware' }
+                ]);
 
-        function saveState() {
-            localStorage.setItem('recallProgress', JSON.stringify(state.progress));
-        }
+                // Función para añadir manualmente
+                const addItem = () => {
+                    if (!newItem.value.name) return;
+                    items.value.push({
+                        id: Date.now(), // ID único rápido
+                        name: newItem.value.name,
+                        category: newItem.value.category
+                    });
+                    newItem.value.name = ''; // Limpiar input
+                };
 
-        // 3. Renderizado de Componentes
-        function render() {
-            const container = document.getElementById('app-container');
-            container.innerHTML = '';
-            lucide.createIcons();
+                // Función para procesar el CSV
+                const handleFileUpload = (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
 
-            if (state.activeTab === 'flashcards') renderFlashcards(container);
-            if (state.activeTab === 'blurting') renderBlurting(container);
-            if (state.activeTab === 'quiz') renderQuiz(container);
+                    Papa.parse(file, {
+                        header: true, // Asume que la primera fila tiene los nombres de las columnas
+                        skipEmptyLines: true,
+                        complete: (results) => {
+                            const newItems = [];
+                            results.data.forEach(row => {
+                                // Mapeamos las filas a nuestro formato si existen
+                                if (row.name && row.category) {
+                                    newItems.push({
+                                        id: Date.now() + Math.random(),
+                                        name: row.name.trim(),
+                                        category: row.category.trim()
+                                    });
+                                }
+                            });
+                            // Actualizamos el estado con los nuevos ítems
+                            items.value = [...items.value, ...newItems];
+                            alert(`Se cargaron ${newItems.length} ítems correctamente.`);
+                            event.target.value = ''; // Resetear el input de archivo
+                        },
+                        error: (error) => {
+                            console.error("Error al leer el CSV:", error);
+                            alert("Hubo un error leyendo el archivo. Asegúrate de que sea un CSV válido.");
+                        }
+                    });
+                };
 
-            updateStats();
-            lucide.createIcons();
-        }
+                // Diccionario visual (Lógica de presentación)
+                const getIcon = (category) => {
+                    const normalized = category.toLowerCase();
+                    if (normalized.includes('libro')) return '📘';
+                    if (normalized.includes('videojuego') || normalized.includes('pelicula') || normalized.includes('película')) return '💿';
+                    if (normalized.includes('hardware')) return '🖥️';
+                    return '📦'; // Por defecto
+                };
 
-        function switchTab(tab) {
-            state.activeTab = tab;
-            render();
-        }
-
-        // --- MÓDULO FLASHCARDS ---
-        function renderFlashcards(container) {
-            const topic = appData.topics[state.currentTopicIndex];
-            const card = topic.flashcards[state.flashcardIndex];
-            
-            container.innerHTML = `
-                <div class="fade-in max-reading-width space-y-8">
-                    <div class="flex justify-between items-center">
-                        <h2 class="mono text-green-400 text-sm tracking-widest uppercase">Flashcards: ${topic.title}</h2>
-                        <span class="text-xs text-white/40">${state.flashcardIndex + 1} / ${topic.flashcards.length}</span>
-                    </div>
-
-                    <div class="flip-card cursor-pointer" onclick="this.classList.toggle('flipped')">
-                        <div class="flip-card-inner">
-                            <div class="flip-card-front bg-[#111] neon-border">
-                                <p class="text-xl font-medium px-4">${card.q}</p>
-                                <p class="absolute bottom-4 text-[10px] mono text-white/20 uppercase">Click para revelar</p>
-                            </div>
-                            <div class="flip-card-back bg-green-950/20 neon-border border-green-500/50">
-                                <p class="text-lg leading-relaxed text-green-100">${card.a}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-center gap-4 pt-4">
-                        <button onclick="prevCard()" class="p-3 neon-border hover:bg-white/5 rounded-full"><i data-lucide="arrow-left"></i></button>
-                        <button onclick="nextCard()" class="p-3 neon-border hover:bg-white/5 rounded-full"><i data-lucide="arrow-right"></i></button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function nextCard() {
-            const topic = appData.topics[state.currentTopicIndex];
-            if (state.flashcardIndex < topic.flashcards.length - 1) {
-                state.flashcardIndex++;
-            } else if (state.currentTopicIndex < appData.topics.length - 1) {
-                state.currentTopicIndex++;
-                state.flashcardIndex = 0;
+                return {
+                    newItem,
+                    items,
+                    addItem,
+                    handleFileUpload,
+                    getIcon
+                };
             }
-            render();
-        }
-
-        function prevCard() {
-            if (state.flashcardIndex > 0) {
-                state.flashcardIndex--;
-            } else if (state.currentTopicIndex > 0) {
-                state.currentTopicIndex--;
-                state.flashcardIndex = appData.topics[state.currentTopicIndex].flashcards.length - 1;
-            }
-            render();
-        }
-
-        // --- MÓDULO BLURTING ---
-        function renderBlurting(container) {
-            const topic = appData.topics[state.currentTopicIndex];
-            container.innerHTML = `
-                <div class="fade-in max-reading-width space-y-6">
-                    <div class="header space-y-2">
-                        <h2 class="mono text-cyan-400 text-sm tracking-widest uppercase">Modo Blurting: ${topic.title}</h2>
-                        <p class="text-sm text-white/50">Escribe todo lo que recuerdas sobre este tema. Sin presión.</p>
-                    </div>
-                    
-                    <textarea id="blurting-input" 
-                        class="w-full h-64 bg-black/50 neon-border rounded-xl p-6 mono text-sm focus:outline-none focus:border-cyan-500 placeholder:text-white/10"
-                        placeholder="Escribe aquí..."></textarea>
-                    
-                    <div id="blurting-comparison" class="hidden space-y-4">
-                        <div class="p-6 bg-white/5 rounded-xl border border-white/10">
-                            <h3 class="mono text-xs text-white/40 mb-3 uppercase tracking-tighter">Resumen del PDF</h3>
-                            <p class="text-sm leading-relaxed">${topic.summary}</p>
-                        </div>
-                    </div>
-
-                    <button onclick="compareBlurting()" 
-                        class="w-full py-4 bg-cyan-500/10 border border-cyan-500/50 hover:bg-cyan-500/20 text-cyan-400 mono text-sm font-bold tracking-widest rounded-xl transition-all">
-                        FINALIZAR Y COMPARAR
-                    </button>
-                </div>
-            `;
-        }
-
-        function compareBlurting() {
-            document.getElementById('blurting-comparison').classList.remove('hidden');
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
-
-        // --- MÓDULO QUIZ ---
-        function renderQuiz(container) {
-            if (state.quizStep >= appData.quiz.length) {
-                renderQuizResult(container);
-                return;
-            }
-
-            const q = appData.quiz[state.quizStep];
-            container.innerHTML = `
-                <div class="fade-in max-reading-width space-y-8">
-                    <div class="flex justify-between items-center">
-                        <h2 class="mono text-yellow-500 text-sm tracking-widest uppercase">Auto-evaluación</h2>
-                        <span class="text-xs mono">${state.quizStep + 1} / ${appData.quiz.length}</span>
-                    </div>
-
-                    <div class="p-8 bg-[#111] neon-border rounded-2xl">
-                        <p class="text-xl mb-8">${q.q}</p>
-                        <div class="grid gap-4">
-                            ${q.options.map((opt, idx) => `
-                                <button onclick="checkQuiz(${idx})" 
-                                    class="text-left p-4 rounded-xl border border-white/10 hover:border-yellow-500/50 hover:bg-white/5 transition-all text-sm mono">
-                                    ${idx + 1}. ${opt}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function checkQuiz(idx) {
-            if (idx === appData.quiz[state.quizStep].correct) {
-                state.score++;
-            }
-            state.quizStep++;
-            render();
-        }
-
-        function renderQuizResult(container) {
-            state.progress.quizHighscore = Math.max(state.progress.quizHighscore, state.score);
-            saveState();
-            
-            container.innerHTML = `
-                <div class="fade-in text-center py-12 space-y-6">
-                    <i data-lucide="award" class="mx-auto text-yellow-500 w-16 h-16"></i>
-                    <h2 class="text-3xl font-bold mono">RESULTADO: ${state.score} / ${appData.quiz.length}</h2>
-                    <p class="text-white/50">Tu progreso ha sido guardado localmente.</p>
-                    <button onclick="resetQuiz()" class="px-8 py-3 bg-yellow-600 rounded-full mono text-sm font-bold">REINTENTAR</button>
-                </div>
-            `;
-        }
-
-        function resetQuiz() {
-            state.quizStep = 0;
-            state.score = 0;
-            render();
-        }
-
-        // --- SISTEMA ---
-        function updateStats() {
-            document.getElementById('status-bar').innerText = `MODO: ${state.activeTab.toUpperCase()}`;
-            const totalTasks = appData.topics.length + appData.quiz.length;
-            const completed = state.currentTopicIndex + (state.quizStep > 0 ? 1 : 0);
-            const percent = Math.round((completed / totalTasks) * 100);
-            document.getElementById('progress-bar').innerText = `PROGRESO: ${percent}%`;
-        }
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', () => {
-            render();
-        });
+        }).mount('#app');
     </script>
 </body>
 </html>
