@@ -393,10 +393,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-
 // ==========================================
 // PREVENCIÓN DE IMPLOSIONES EN HTML
-// (Expone las funciones al scope global para que el onClick funcione)
+// (Añade esto al final de tu main.js)
 // ==========================================
 window.goToScreen = goToScreen;
 window.startNewInventory = startNewInventory;
