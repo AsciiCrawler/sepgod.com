@@ -462,6 +462,70 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+    // ==========================================
+    // ESCÁNER DE CÁMARA NATIVO (CELULAR/PC)
+    // ==========================================
+    const btnScan = document.getElementById('btn-scan');
+    const btnCloseScan = document.getElementById('btn-close-scan');
+    const readerContainer = document.getElementById('reader-container');
+    let html5QrCode; // Variable para controlar el escáner
+
+    if (btnScan) {
+        btnScan.addEventListener('click', () => {
+            readerContainer.style.display = 'block';
+            
+            // Si el escáner no existe, lo creamos
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+
+            // Configuramos el rectángulo de escaneo (ideal para códigos de barras alargados)
+            const config = { fps: 10, qrbox: { width: 250, height: 100 } };
+
+            // Encendemos la cámara trasera ("environment")
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText, decodedResult) => {
+                    // ¡ÉXITO! Leyó un código
+                    
+                    // 1. Detenemos la cámara
+                    html5QrCode.stop().then(() => {
+                        readerContainer.style.display = 'none';
+                        
+                        // 2. Metemos el código leído en el input
+                        skuInput.value = decodedText;
+                        
+                        // 3. (Magia) Disparamos manualmente el evento 'blur' para que 
+                        // nuestra API predictiva se active y busque el nombre automático
+                        skuInput.dispatchEvent(new Event('blur'));
+                        
+                        // Movemos el foco al siguiente campo útil
+                        nameInput.focus();
+                    }).catch(err => {
+                        console.error("Error al detener cámara:", err);
+                    });
+                },
+                (errorMessage) => {
+                    // Errores de lectura ignorables (pasa cuando aún no enfoca bien)
+                }
+            ).catch((err) => {
+                alert("Error al iniciar cámara. Asegúrate de dar permisos.");
+                readerContainer.style.display = 'none';
+            });
+        });
+
+        // Botón para cancelar y cerrar la cámara
+        btnCloseScan.addEventListener('click', () => {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    readerContainer.style.display = 'none';
+                }).catch(err => console.error(err));
+            } else {
+                readerContainer.style.display = 'none';
+            }
+        });
+    }
 });
 
 // ==========================================
