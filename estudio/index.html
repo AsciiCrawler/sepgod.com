@@ -2,202 +2,27 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Colección Virtual PRO</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <title>CYBERPUNK DELIRIUM</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen p-8 font-sans">
-    <div id="app" class="max-w-5xl mx-auto">
-        
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-amber-500 mb-2">Mi Librero Virtual 📚🎮🖥️</h1>
-            <p class="text-gray-400">Ahora con auto-completado de libros vía Google Books API.</p>
-        </header>
+<body>
+    <div id="app">
+        <section id="entry-screen">
+            <button id="btn-enter" class="glitch-btn">ENTRAR AL SISTEMA</button>
+        </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
-            
-            <div>
-                <h2 class="text-xl font-semibold mb-4 text-white border-b border-gray-600 pb-2">Añadir Ítem</h2>
-                <form @submit.prevent="addItem" class="flex flex-col gap-3">
-                    <input v-model="newItem.name" type="text" placeholder="Ej: El Señor de los Anillos..." class="px-4 py-2 bg-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-amber-500" required :disabled="isSearching">
-                    <select v-model="newItem.category" class="px-4 py-2 bg-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-amber-500" :disabled="isSearching">
-                        <option value="Libros">Libros (Búsqueda Automática)</option>
-                        <option value="Videojuegos/Peliculas">Videojuegos/Películas</option>
-                        <option value="Hardware">Hardware</option>
-                    </select>
-                    <button type="submit" class="flex justify-center items-center bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 text-white font-bold py-2 px-4 rounded transition-colors" :disabled="isSearching">
-                        <span v-if="isSearching" class="animate-spin h-5 w-5 mr-3 border-t-2 border-b-2 border-white rounded-full"></span>
-                        {{ isSearching ? 'Buscando en la DB...' : 'Guardar en el Estante' }}
-                    </button>
-                </form>
-            </div>
-
-            <div>
-                <h2 class="text-xl font-semibold mb-4 text-white border-b border-gray-600 pb-2">Cargar Lote (CSV)</h2>
-                <div class="flex items-center justify-center w-full">
-                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
-                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg class="w-8 h-8 mb-4 text-gray-400" fill="none" viewBox="0 0 20 16" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                            </svg>
-                            <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Sube tu archivo .csv</span></p>
-                        </div>
-                        <input type="file" class="hidden" accept=".csv" @change="handleFileUpload" />
-                    </label>
+        <section id="bust-puzzle" class="hidden">
+            <div class="sun"></div>
+            <div class="grid"></div>
+            <div class="bust-container">
+                <div class="bust">🗿</div>
+                <div class="dialogue-box">
+                    <p id="cryptic-text">U0VOVElST04=</p>
                 </div>
+                <input type="text" id="logic-input" placeholder="DESCIFRA O MUERE" autocomplete="off">
             </div>
-        </div>
-
-        <div class="flex justify-between items-end mb-4 px-4">
-            <h2 class="text-2xl font-bold text-gray-300">Tu Colección ({{ items.length }})</h2>
-        </div>
-        
-        <div class="bg-amber-900 p-4 rounded-t-lg shadow-2xl relative">
-            <div class="absolute inset-0 bg-black opacity-20 rounded-t-lg pointer-events-none"></div>
-            
-            <div class="relative z-10 flex flex-wrap gap-x-6 gap-y-16 items-end min-h-[220px] bg-amber-800 p-6 rounded-md shadow-inner border-b-[16px] border-amber-950">
-                
-                <div v-if="items.length === 0" class="w-full text-center text-amber-950/50 font-bold text-2xl self-center">
-                    El estante está vacío. ¡Agrega algo!
-                </div>
-
-                <div v-for="item in items" :key="item.id" class="relative flex flex-col items-center group transition-transform duration-300 hover:-translate-y-2">
-                    
-                    <button @click="removeItem(item.id)" class="absolute -top-3 -right-3 bg-red-600 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity z-30 shadow-lg" title="Eliminar ítem">
-                        ✕
-                    </button>
-
-                    <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" class="w-16 h-24 object-cover shadow-[0_10px_10px_rgba(0,0,0,0.8)] rounded-sm border border-black/50 transition-all group-hover:brightness-110">
-                    
-                    <span v-else class="text-6xl drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] transition-all group-hover:brightness-125 select-none">
-                        {{ getIcon(item.category) }}
-                    </span>
-                    
-                    <div class="absolute -top-16 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gray-900 text-white text-sm px-3 py-2 rounded shadow-lg whitespace-nowrap z-20 pointer-events-none text-center min-w-[120px]">
-                        <p class="font-bold truncate max-w-[200px]">{{ item.name }}</p>
-                        <p v-if="item.author" class="text-xs text-amber-400 truncate max-w-[200px]">{{ item.author }}</p>
-                        <div class="absolute left-1/2 transform -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="flex justify-between px-8">
-            <div class="w-8 h-12 bg-amber-950 rounded-b-sm shadow-xl"></div>
-            <div class="w-8 h-12 bg-amber-950 rounded-b-sm shadow-xl"></div>
-        </div>
-
+        </section>
     </div>
-
-    <script>
-        const { createApp, ref } = Vue;
-
-        createApp({
-            setup() {
-                const newItem = ref({ name: '', category: 'Libros' });
-                const isSearching = ref(false); // Estado de carga
-                
-                // Lista con soporte para imágenes y autores
-                const items = ref([
-                    { id: 1, name: 'The Witcher 3', category: 'Videojuegos/Peliculas', imageUrl: null, author: null },
-                    { id: 2, name: 'Nvidia RTX 4090', category: 'Hardware', imageUrl: null, author: null }
-                ]);
-
-                // Función para añadir consultando la API de Google Books
-                const addItem = async () => {
-                    if (!newItem.value.name.trim()) return;
-                    
-                    let finalName = newItem.value.name;
-                    let finalImage = null;
-                    let finalAuthor = null;
-
-                    // Lógica específica si es Libro
-                    if (newItem.value.category === 'Libros') {
-                        isSearching.value = true;
-                        try {
-                            const query = encodeURIComponent(newItem.value.name);
-                            // Hacemos el fetch a la API pública de Google Books
-                            const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`);
-                            const data = await response.json();
-
-                            if (data.items && data.items.length > 0) {
-                                const bookInfo = data.items[0].volumeInfo;
-                                finalName = bookInfo.title || finalName; // Usa el título oficial
-                                // Forzamos HTTPS para evitar bloqueos del navegador
-                                finalImage = bookInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || null; 
-                                finalAuthor = bookInfo.authors ? bookInfo.authors.join(', ') : 'Autor Desconocido';
-                            }
-                        } catch (error) {
-                            console.error("Error consultando la API:", error);
-                        } finally {
-                            isSearching.value = false;
-                        }
-                    }
-
-                    // Guardamos el objeto final en el estado
-                    items.value.push({
-                        id: Date.now(),
-                        name: finalName,
-                        category: newItem.value.category,
-                        imageUrl: finalImage,
-                        author: finalAuthor
-                    });
-                    
-                    newItem.value.name = ''; 
-                };
-
-                // Función para eliminar
-                const removeItem = (id) => {
-                    items.value = items.value.filter(item => item.id !== id);
-                };
-
-                const handleFileUpload = (event) => {
-                    const file = event.target.files[0];
-                    if (!file) return;
-
-                    Papa.parse(file, {
-                        header: true,
-                        skipEmptyLines: true,
-                        complete: (results) => {
-                            const newItems = [];
-                            results.data.forEach(row => {
-                                if (row.name && row.category) {
-                                    newItems.push({
-                                        id: Date.now() + Math.random(),
-                                        name: row.name.trim(),
-                                        category: row.category.trim(),
-                                        imageUrl: null, // Los CSV suben por defecto sin imagen
-                                        author: null
-                                    });
-                                }
-                            });
-                            items.value = [...items.value, ...newItems];
-                            event.target.value = ''; 
-                        }
-                    });
-                };
-
-                const getIcon = (category) => {
-                    const normalized = category.toLowerCase();
-                    if (normalized.includes('libro')) return '📘';
-                    if (normalized.includes('videojuego') || normalized.includes('pelicula') || normalized.includes('película')) return '💿';
-                    if (normalized.includes('hardware')) return '🖥️';
-                    return '📦';
-                };
-
-                return {
-                    newItem,
-                    items,
-                    isSearching,
-                    addItem,
-                    removeItem,
-                    handleFileUpload,
-                    getIcon
-                };
-            }
-        }).mount('#app');
-    </script>
+    <script src="main.js"></script>
 </body>
 </html>
