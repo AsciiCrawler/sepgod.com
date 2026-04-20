@@ -88,3 +88,39 @@ td { color: #fff; }
 .file-item { background: rgba(0,243,255,0.1); border: 1px dashed var(--neon-cyan); padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; color: #fff; }
 .file-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-item button { padding: 2px 8px; font-size: 0.7em; border-color: red; color: red; margin: 0; }
+
+/* ==========================================
+   AUTOCOMPLETADO PREDICTIVO
+========================================== */
+.autocomplete-dropdown { 
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    right: 0; 
+    background: rgba(5, 5, 5, 0.95); 
+    border: 1px solid var(--neon-cyan); 
+    border-top: none; 
+    z-index: 100; 
+    max-height: 250px; 
+    overflow-y: auto; 
+    box-shadow: 0 10px 25px rgba(0, 243, 255, 0.2); 
+    border-radius: 0 0 4px 4px; 
+    display: none; 
+}
+.autocomplete-item { 
+    padding: 12px; 
+    cursor: pointer; 
+    color: #fff; 
+    font-size: 0.85em; 
+    border-bottom: 1px dashed rgba(0, 243, 255, 0.2); 
+    transition: 0.2s; 
+    display: flex;
+    flex-direction: column;
+}
+.autocomplete-item:hover { 
+    background: rgba(0, 243, 255, 0.1); 
+    padding-left: 18px; 
+}
+.autocomplete-item:last-child { border-bottom: none; }
+.auto-sku { color: var(--neon-pink); font-size: 0.8em; font-weight: bold; margin-bottom: 3px; }
+.auto-name { color: var(--neon-cyan); }
