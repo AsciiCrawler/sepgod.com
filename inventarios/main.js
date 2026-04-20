@@ -379,104 +379,67 @@ document.addEventListener("DOMContentLoaded", () => {
     const catInput = document.getElementById('item-cat');
     const priceInput = document.getElementById('item-price');
 
-    // 1. Lógica del Input de SKU (Exacto)
-    if(skuInput) {
-        const handleSearch = async (e) => {
-            const sku = e.target.value.trim();
-            if(!sku) return;
-            nameInput.placeholder = "Buscando en red...";
-            const producto = await buscarProductoPorSKU(sku);
-            if(producto) {
-                nameInput.value = producto.nombre;
-                catInput.value = producto.categoria;
-            } else {
-                nameInput.placeholder = "No encontrado. Manual.";
-            }
-        };
-
-        skuInput.addEventListener('blur', handleSearch);
-        skuInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSearch(e);
-                nameInput.focus();
-            }
-        });
-    }
-
-    // 2. Lógica del Input de Nombre (Predictivo)
+    // 1. Lógica del Input de Nombre (Predictivo)
     if(nameInput) {
-        // Preparamos el contenedor para que la lista flote correctamente
         nameInput.parentNode.style.position = 'relative';
-        
-        // Creamos la cajita negra desplegable
         const dropdown = document.createElement('div');
         dropdown.className = 'autocomplete-dropdown';
         nameInput.parentNode.appendChild(dropdown);
 
-        // La función que va a internet a buscar (protegida con Debounce de 400ms)
         const handleAutocomplete = debounce(async (e) => {
             const query = e.target.value.trim();
-            
             if (query.length < 3) {
                 dropdown.style.display = 'none';
                 return;
             }
-
-            // Mostramos un feedback visual mientras carga
             dropdown.innerHTML = `<div class="autocomplete-item" style="color:var(--neon-yellow);">Cargando red...</div>`;
             dropdown.style.display = 'block';
 
-            const sugerencias = await buscarSugerencias(query);
-            
-            if (sugerencias.length > 0) {
-                dropdown.innerHTML = '';
-                sugerencias.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'autocomplete-item';
-                    div.innerHTML = `<span class="auto-sku">SKU: ${item.sku}</span><span class="auto-name">${item.nombre}</span>`;
-                    
-                    // Al darle click a una sugerencia, rellenamos todo
-                    div.addEventListener('click', () => {
-                        skuInput.value = item.sku;
-                        nameInput.value = item.nombre;
-                        catInput.value = item.categoria;
-                        dropdown.style.display = 'none';
-                        priceInput.focus(); // Brincamos al precio automáticamente
+            // Nota: Asume que tienes importada buscarSugerencias arriba en tu main.js
+            try {
+                const sugerencias = await buscarSugerencias(query);
+                if (sugerencias.length > 0) {
+                    dropdown.innerHTML = '';
+                    sugerencias.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item';
+                        div.innerHTML = `<span class="auto-sku">SKU: ${item.sku}</span><span class="auto-name">${item.nombre}</span>`;
+                        div.addEventListener('click', () => {
+                            if(skuInput) skuInput.value = item.sku;
+                            nameInput.value = item.nombre;
+                            catInput.value = item.categoria;
+                            dropdown.style.display = 'none';
+                            priceInput.focus(); 
+                        });
+                        dropdown.appendChild(div);
                     });
-                    
-                    dropdown.appendChild(div);
-                });
-            } else {
-                dropdown.innerHTML = `<div class="autocomplete-item" style="color:var(--neon-pink);">0 Coincidencias en DB Global</div>`;
+                } else {
+                    dropdown.innerHTML = `<div class="autocomplete-item" style="color:var(--neon-pink);">0 Coincidencias en DB</div>`;
+                }
+            } catch (err) {
+                dropdown.innerHTML = `<div class="autocomplete-item" style="color:red;">API desconectada de momento</div>`;
             }
-        }, 400); // 400 milisegundos de espera
+        }, 400); 
 
-        // Activamos la función cada que el usuario escriba en el "Nombre"
         nameInput.addEventListener('input', handleAutocomplete);
-
-        // Ocultar la lista desplegable si damos click afuera en la pantalla
         document.addEventListener('click', (e) => {
             if (e.target !== nameInput && e.target !== dropdown) {
                 dropdown.style.display = 'none';
             }
         });
     }
-    // ==========================================
-    // ESCÁNER DE CÁMARA NATIVO (VERSIÓN PRO)
-    // ==========================================
+
+    // 2. ESCÁNER DE CÁMARA NATIVO (MODAL FULLSCREEN)
     const btnScan = document.getElementById('btn-scan');
     const btnCloseScan = document.getElementById('btn-close-scan');
-    const readerContainer = document.getElementById('reader-container');
+    const readerModal = document.getElementById('reader-modal'); 
     let html5QrCode; 
 
-    if (btnScan) {
+    if (btnScan && readerModal) {
         btnScan.addEventListener('click', () => {
-            readerContainer.style.display = 'block';
+            readerModal.style.display = 'flex';
             
-            // 1. Configuramos el escáner EXCLUSIVAMENTE para códigos de barras de productos
             if (!html5QrCode) {
-                // Forzamos a que busque formatos de retail (EAN, UPC, CODE128)
                 html5QrCode = new Html5Qrcode("reader", { 
                     formatsToSupport: [ 
                         Html5QrcodeSupportedFormats.EAN_13,
@@ -489,68 +452,51 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
 
-            // 2. Optimizamos el cuadro de lectura para códigos rectangulares
             const config = { 
-                fps: 15, // Más cuadros por segundo para que sea más rápido
-                qrbox: { width: 250, height: 120 }, // Forma de rectángulo horizontal
-                aspectRatio: 1.0 // Ayuda a que el video no se deforme en el celular
+                fps: 10,
+                qrbox: { width: 250, height: 150 },
+                aspectRatio: 1.0 
             };
 
-            // 3. Encendemos la cámara
             html5QrCode.start(
                 { facingMode: "environment" },
                 config,
                 (decodedText, decodedResult) => {
-                    // ¡BINGO! CÓDIGO DETECTADO
-                    console.log("Código escaneado exitosamente:", decodedText);
-
-                    // Seleccionamos los inputs DIRECTAMENTE aquí para evitar errores de memoria
-                    const inputSkuExacto = document.getElementById('item-sku');
-                    const inputNameExacto = document.getElementById('item-name');
-
-                    if (inputSkuExacto) {
-                        // Inyectamos el texto
-                        inputSkuExacto.value = decodedText;
-                        
-                        // Apagamos la cámara de inmediato
+                    if (skuInput) {
+                        skuInput.value = decodedText;
                         html5QrCode.stop().then(() => {
-                            readerContainer.style.display = 'none';
-                            
-                            // DISPARAMOS EL EVENTO MAGICO PARA AUTOCOMPLETAR
-                            inputSkuExacto.dispatchEvent(new Event('blur'));
-                            
-                            if (inputNameExacto) {
-                                inputNameExacto.placeholder = "Buscando escaneo...";
-                                inputNameExacto.focus();
+                            readerModal.style.display = 'none'; 
+                            skuInput.dispatchEvent(new Event('blur')); // Dispara la búsqueda
+                            if (nameInput) {
+                                nameInput.placeholder = "Buscando...";
+                                nameInput.focus();
                             }
-                        }).catch(err => console.error("Error apagando cámara:", err));
+                        }).catch(err => console.error(err));
                     }
                 },
-                (errorMessage) => {
-                    // La cámara escanea 15 veces por segundo. 
-                    // Si no encuentra nada, entra aquí. Lo dejamos vacío para que no explote la consola.
-                }
+                (errorMessage) => { /* Ignorar errores por cuadros vacíos */ }
             ).catch((err) => {
-                alert("Error al iniciar cámara: " + err);
-                readerContainer.style.display = 'none';
+                alert("Error al iniciar cámara. Da permisos en tu navegador.");
+                readerModal.style.display = 'none';
             });
         });
 
-        // Botón para cerrar
-        btnCloseScan.addEventListener('click', () => {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    readerContainer.style.display = 'none';
-                }).catch(err => console.error(err));
-            } else {
-                readerContainer.style.display = 'none';
-            }
-        });
+        if (btnCloseScan) {
+            btnCloseScan.addEventListener('click', () => {
+                if (html5QrCode) {
+                    html5QrCode.stop().then(() => {
+                        readerModal.style.display = 'none';
+                    }).catch(err => console.error(err));
+                } else {
+                    readerModal.style.display = 'none';
+                }
+            });
+        }
     }
+}); // <--- ESTA ES LA LLAVE Y PARÉNTESIS QUE SE TE HABÍAN BORRADO
 
 // ==========================================
 // PREVENCIÓN DE IMPLOSIONES EN HTML
-// (Añade esto al final de tu main.js)
 // ==========================================
 window.goToScreen = goToScreen;
 window.startNewInventory = startNewInventory;
