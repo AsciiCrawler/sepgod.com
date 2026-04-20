@@ -363,12 +363,23 @@ async function processExcelToPDF(event) {
 // ==========================================
 // INICIALIZACIÓN Y EVENTOS DOM
 // ==========================================
+
+// Función Debounce (El guardián anti-saturación de API)
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    // API de códigos de barras (Escáner)
     const skuInput = document.getElementById('item-sku');
     const nameInput = document.getElementById('item-name');
     const catInput = document.getElementById('item-cat');
+    const priceInput = document.getElementById('item-price');
 
+    // 1. Lógica del Input de SKU (Exacto)
     if(skuInput) {
         const handleSearch = async (e) => {
             const sku = e.target.value.trim();
@@ -392,7 +403,67 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // 2. Lógica del Input de Nombre (Predictivo)
+    if(nameInput) {
+        // Preparamos el contenedor para que la lista flote correctamente
+        nameInput.parentNode.style.position = 'relative';
+        
+        // Creamos la cajita negra desplegable
+        const dropdown = document.createElement('div');
+        dropdown.className = 'autocomplete-dropdown';
+        nameInput.parentNode.appendChild(dropdown);
+
+        // La función que va a internet a buscar (protegida con Debounce de 400ms)
+        const handleAutocomplete = debounce(async (e) => {
+            const query = e.target.value.trim();
+            
+            if (query.length < 3) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            // Mostramos un feedback visual mientras carga
+            dropdown.innerHTML = `<div class="autocomplete-item" style="color:var(--neon-yellow);">Cargando red...</div>`;
+            dropdown.style.display = 'block';
+
+            const sugerencias = await buscarSugerencias(query);
+            
+            if (sugerencias.length > 0) {
+                dropdown.innerHTML = '';
+                sugerencias.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+                    div.innerHTML = `<span class="auto-sku">SKU: ${item.sku}</span><span class="auto-name">${item.nombre}</span>`;
+                    
+                    // Al darle click a una sugerencia, rellenamos todo
+                    div.addEventListener('click', () => {
+                        skuInput.value = item.sku;
+                        nameInput.value = item.nombre;
+                        catInput.value = item.categoria;
+                        dropdown.style.display = 'none';
+                        priceInput.focus(); // Brincamos al precio automáticamente
+                    });
+                    
+                    dropdown.appendChild(div);
+                });
+            } else {
+                dropdown.innerHTML = `<div class="autocomplete-item" style="color:var(--neon-pink);">0 Coincidencias en DB Global</div>`;
+            }
+        }, 400); // 400 milisegundos de espera
+
+        // Activamos la función cada que el usuario escriba en el "Nombre"
+        nameInput.addEventListener('input', handleAutocomplete);
+
+        // Ocultar la lista desplegable si damos click afuera en la pantalla
+        document.addEventListener('click', (e) => {
+            if (e.target !== nameInput && e.target !== dropdown) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
 });
+
 // ==========================================
 // PREVENCIÓN DE IMPLOSIONES EN HTML
 // (Añade esto al final de tu main.js)
