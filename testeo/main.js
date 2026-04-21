@@ -1,6 +1,40 @@
 // --- ESTADO GLOBAL ---
 let gameState = { level: 1, inventory: [], score: 0 };
 
+// --- MOTOR DE AUDIO NATIVO (8-BIT SOUNDS) ---
+// Creamos el contexto de audio. Se inicializa en el primer clic del usuario.
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+
+function playHitSound() {
+    // Los navegadores bloquean el audio hasta que el usuario interactúa, esto lo desbloquea
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    // Creamos un oscilador (generador de tono) y un nodo de volumen
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    // Configuración 8-bit (Onda cuadrada)
+    oscillator.type = 'square'; 
+    
+    // El sonido empieza agudo (400Hz) y cae rápido a grave (50Hz) en 0.1 segundos
+    oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
+
+    // El volumen empieza al 30% y se desvanece rápido
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+
+    // Conectamos todo a los altavoces
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    // Reproducimos
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.1);
+}
+
+
 // --- NAVEGACIÓN DE PANTALLAS ---
 function switchScreen(screenId) {
     document.querySelectorAll('.screen').forEach(screen => {
@@ -53,18 +87,15 @@ function spawnEnemy(x, hp) {
     const el = document.createElement('div');
     el.className = 'enemy';
     el.innerText = '👾';
-    
-    // Forzamos posición inicial para que no salgan arriba
     el.style.left = x + 'px';
     el.style.bottom = '50px';
-    
     gameBoard.appendChild(el);
     enemies.push({ x: x, y: 50, w: 40, h: 40, vx: -1.5, hp: hp, el: el });
 }
 
 function throwKnife() {
     const now = Date.now();
-    if (now - lastThrowTime < 300) return; // Cooldown anti-spam
+    if (now - lastThrowTime < 300) return;
     lastThrowTime = now;
 
     const el = document.createElement('div');
@@ -114,7 +145,6 @@ function takeDamage() {
 
 // Bucle Principal
 function initLevel(levelNumber) {
-    // Limpieza total antes de empezar
     enemies.forEach(e => e.el.remove());
     projectiles.forEach(p => p.el.remove());
     enemies = [];
@@ -129,20 +159,26 @@ function initLevel(levelNumber) {
         spawnEnemy(900, 1);
         spawnEnemy(1200, 1);
     } else {
-        // Mockup del nivel 2 para cuando ganes
         spawnEnemy(500, 2);
         spawnEnemy(800, 2);
+        spawnEnemy(1100, 2);
     }
 }
 
 function startGame() {
-    // Reset jugador
+    // 1. Reset jugador
     physics.x = 20; physics.y = 50; physics.vx = 0; physics.vy = 0;
     physics.hp = 3; physics.invulnerable = false; physics.facing = 1;
     playerEl.classList.remove('damage-flash');
     playerEl.style.transform = "scaleX(1)";
     updateHealthUI();
     
+    // 2. FIX STICKY KEYS: Forzamos que todas las teclas estén sin pulsar al iniciar
+    keys = { ArrowLeft: false, ArrowRight: false, Space: false, a: false };
+    
+    // Inicializar Audio si estaba suspendido (requerido por navegadores)
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
     initLevel(gameState.level);
     
     if (gameLoopId) cancelAnimationFrame(gameLoopId);
@@ -189,25 +225,23 @@ function gameLoop() {
     playerEl.style.left = physics.x + 'px';
     playerEl.style.bottom = physics.y + 'px';
 
-    // 2. Proyectiles (Cuchillos)
+    // 2. Proyectiles
     for (let i = projectiles.length - 1; i >= 0; i--) {
         let p = projectiles[i];
         p.x += p.vx;
         p.el.style.left = p.x + 'px';
         p.el.style.bottom = p.y + 'px';
 
-        // Si sale de pantalla, limpiar memoria
         if (p.x > gameBoard.clientWidth || p.x < -50) {
             p.el.remove();
             projectiles.splice(i, 1);
         }
     }
 
-    // 3. Enemigos (Aliens)
+    // 3. Enemigos
     for (let i = enemies.length - 1; i >= 0; i--) {
         let e = enemies[i];
         
-        // Caminar hacia el jugador
         if (e.x > physics.x) e.x -= 1.5;
         else e.x += 1.5;
         
@@ -222,6 +256,10 @@ function gameLoop() {
             let p = projectiles[j];
             if (checkCollision(p, e)) {
                 e.hp -= 1;
+                
+                // --- SONIDO DE IMPACTO ---
+                playHitSound(); 
+                
                 p.el.remove();
                 projectiles.splice(j, 1);
 
@@ -236,10 +274,12 @@ function gameLoop() {
     }
 
     // 4. Victoria de Nivel
-    if (enemiesDefeated === 3 && gameState.level === 1) {
+    // NOTA: Ajustamos para que pueda seguir pasando niveles indefinidamente (como demo)
+    if (enemiesDefeated === 3) {
         enemiesDefeated = 0;
-        alert("¡Nivel 1 Completado! Pasando al Nivel 2...");
-        initLevel(2);
+        alert(`¡Nivel ${gameState.level} Completado!`);
+        initLevel(gameState.level + 1); // Avanza al siguiente nivel
+        keys = { ArrowLeft: false, ArrowRight: false, Space: false, a: false }; // Evita el bug pegajoso aquí también
     }
 
     gameLoopId = requestAnimationFrame(gameLoop);
@@ -267,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (loadedState.level !== undefined) {
                         gameState = loadedState;
                         switchScreen('screen-game');
-                        startGame(); // Arrancar juego tras cargar
+                        startGame();
                         alert("💾 ¡Partida cargada!");
                     }
                 } catch (err) {}
