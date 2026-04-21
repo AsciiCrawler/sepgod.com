@@ -9,12 +9,18 @@
 </head>
 <body>
     <main id="app">
-        <section id="screen-menu" class="screen active">
-            <h1>TÍTULO DEL JUEGO</h1>
-            <div class="menu-options">
-                <button id="btn-new">Nuevo</button>
-                <button id="btn-load">Cargar</button>
-                <button id="btn-credits">Créditos</button>
+        <section id="screen-game" class="screen hidden">
+            <h2><span id="ui-level">1</span>: Rushing Waving</h2>
+            
+            <div id="game-board">
+                <div class="vapor-sun"></div>
+                <div id="player">😎</div>
+                <div id="ground"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button id="btn-save" style="font-size: 1rem; padding: 10px; width: auto;">💾 Guardar</button>
+                <button id="btn-back-menu" style="font-size: 1rem; padding: 10px; width: auto;">Volver</button>
             </div>
         </section>
 
