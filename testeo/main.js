@@ -7,57 +7,133 @@ let gameState = {
 // --- MOTOR DEL JUEGO: RUSHING WAVING ---
 const playerEl = document.getElementById('player');
 const gameBoard = document.getElementById('game-board');
+const healthUi = document.getElementById('hud-health');
 
-// Estado físico del jugador
+// Estado físico y de combate del jugador
 let physics = {
-    x: 20,
-    y: 50, // 30px es la altura del suelo
-    vx: 0,
-    vy: 0,
-    speed: 6,        // Velocidad horizontal
-    jumpPower: 14,   // Fuerza de salto
-    gravity: 0.8,    // Gravedad
-    isGrounded: false
+    x: 20, y: 50, vx: 0, vy: 0,
+    w: 40, h: 40, // Ancho y alto de colisión
+    speed: 6, jumpPower: 14, gravity: 0.8,
+    isGrounded: false,
+    facing: 1, // 1 = derecha, -1 = izquierda
+    hp: 3,
+    invulnerable: false
 };
+
+// Entidades del juego
+let enemies = [];
+let projectiles = [];
+let enemiesDefeated = 0;
+let lastThrowTime = 0; // Para no spamear cuchillos
 
 // Controles
-let keys = {
-    ArrowLeft: false,
-    ArrowRight: false,
-    Space: false
-};
-
+let keys = { ArrowLeft: false, ArrowRight: false, Space: false, a: false };
 let gameLoopId;
 
-// Escuchar teclado
 window.addEventListener('keydown', (e) => {
-    if (e.code === 'ArrowLeft') keys.ArrowLeft = true;
-    if (e.code === 'ArrowRight') keys.ArrowRight = true;
+    if (e.key === 'ArrowLeft') keys.ArrowLeft = true;
+    if (e.key === 'ArrowRight') keys.ArrowRight = true;
     if (e.code === 'Space') keys.Space = true;
-    
-    // Evitar que la barra espaciadora haga scroll en la página
-    if(['Space', 'ArrowUp', 'ArrowDown'].includes(e.code)) {
-        e.preventDefault();
-    }
+    if (e.key.toLowerCase() === 'a') keys.a = true;
+    if(['Space', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
 });
 
 window.addEventListener('keyup', (e) => {
-    if (e.code === 'ArrowLeft') keys.ArrowLeft = false;
-    if (e.code === 'ArrowRight') keys.ArrowRight = false;
+    if (e.key === 'ArrowLeft') keys.ArrowLeft = false;
+    if (e.key === 'ArrowRight') keys.ArrowRight = false;
     if (e.code === 'Space') keys.Space = false;
+    if (e.key.toLowerCase() === 'a') keys.a = false;
 });
 
+// --- SISTEMA DE ENTIDADES ---
+function spawnEnemy(x, hp) {
+    const el = document.createElement('div');
+    el.className = 'enemy';
+    el.innerText = '👾';
+    gameBoard.appendChild(el);
+    // Añadimos el enemigo al array
+    enemies.push({ x: x, y: 50, w: 40, h: 40, vx: -1.5, hp: hp, el: el });
+}
+
+function throwKnife() {
+    const now = Date.now();
+    if (now - lastThrowTime < 300) return; // Cooldown de 300ms entre tiros
+    lastThrowTime = now;
+
+    const el = document.createElement('div');
+    el.className = 'projectile';
+    el.innerText = '🔪';
+    // Si dispara a la izquierda, volteamos el cuchillo
+    if (physics.facing === -1) el.style.transform = "scaleX(-1)";
+    gameBoard.appendChild(el);
+
+    projectiles.push({
+        x: physics.x + 10, y: physics.y + 10, 
+        w: 20, h: 20, 
+        vx: 12 * physics.facing, // Va rápido hacia donde miras
+        el: el
+    });
+}
+
+// Función matemática PRO para detectar choques entre rectángulos
+function checkCollision(r1, r2) {
+    return (r1.x < r2.x + r2.w && r1.x + r1.w > r2.x &&
+            r1.y < r2.y + r2.h && r1.y + r1.h > r2.y);
+}
+
+function updateHealthUI() {
+    healthUi.innerText = '❤️'.repeat(physics.hp) + '🖤'.repeat(3 - physics.hp);
+    if (physics.hp <= 0) {
+        alert("💀 ¡GAME OVER! Te atraparon los aliens vaporwave.");
+        stopGame();
+        switchScreen('screen-menu');
+    }
+}
+
+function takeDamage() {
+    if (physics.invulnerable) return;
+    physics.hp -= 1;
+    updateHealthUI();
+    
+    // Frames de invulnerabilidad
+    physics.invulnerable = true;
+    playerEl.classList.add('damage-flash');
+    
+    setTimeout(() => {
+        physics.invulnerable = false;
+        playerEl.classList.remove('damage-flash');
+    }, 1500); // 1.5 segundos a salvo
+}
+
+// --- GESTIÓN DE NIVELES ---
+function initLevel(levelNumber) {
+    // Limpiar entidades viejas del DOM
+    enemies.forEach(e => e.el.remove());
+    projectiles.forEach(p => p.el.remove());
+    enemies = [];
+    projectiles = [];
+    enemiesDefeated = 0;
+
+    gameState.level = levelNumber;
+    document.getElementById('ui-level').innerText = levelNumber;
+
+    if (levelNumber === 1) {
+        // Spawneamos 3 enemigos fuera de la pantalla por la derecha
+        spawnEnemy(600, 1);
+        spawnEnemy(900, 1);
+        spawnEnemy(1200, 1);
+    }
+}
+
 function startGame() {
-    // Resetear posición al iniciar
-    physics.x = 20;
-    physics.y = 50;
-    physics.vx = 0;
-    physics.vy = 0;
+    physics.x = 20; physics.y = 50; physics.vx = 0; physics.vy = 0;
+    physics.hp = 3; physics.invulnerable = false;
+    playerEl.classList.remove('damage-flash');
+    updateHealthUI();
     
-    // Cancelar cualquier loop anterior por seguridad
+    initLevel(gameState.level);
+    
     if (gameLoopId) cancelAnimationFrame(gameLoopId);
-    
-    // Iniciar bucle
     gameLoop();
 }
 
@@ -66,50 +142,107 @@ function stopGame() {
 }
 
 function gameLoop() {
-    // 1. Lógica Horizontal
+    // 1. INPUT DEL JUGADOR
     if (keys.ArrowLeft) {
         physics.vx = -physics.speed;
-        playerEl.style.transform = "scaleX(-1)"; // Voltear emoji
+        playerEl.style.transform = "scaleX(-1)";
+        physics.facing = -1;
     } else if (keys.ArrowRight) {
         physics.vx = physics.speed;
-        playerEl.style.transform = "scaleX(1)"; // Emoji normal
+        playerEl.style.transform = "scaleX(1)";
+        physics.facing = 1;
     } else {
-        physics.vx = 0; // Frenado instantáneo
+        physics.vx = 0;
     }
 
-    // 2. Lógica de Salto
     if (keys.Space && physics.isGrounded) {
         physics.vy = physics.jumpPower;
         physics.isGrounded = false;
     }
 
-    // 3. Aplicar Gravedad
-    physics.vy -= physics.gravity;
+    if (keys.a) {
+        throwKnife();
+    }
 
-    // 4. Actualizar Posición
+    // Gravedad y Posición
+    physics.vy -= physics.gravity;
     physics.x += physics.vx;
     physics.y += physics.vy;
 
-    // 5. Colisiones Básicas
-    // Colisión con el suelo (y = 30)
-    if (physics.y <= 50) {
-        physics.y = 50;
-        physics.vy = 0;
-        physics.isGrounded = true;
-    }
-
-    // Colisión con las paredes (límites del div)
-    const maxRight = gameBoard.clientWidth - playerEl.clientWidth;
+    // Colisiones con paredes y suelo
+    const maxRight = gameBoard.clientWidth - physics.w;
     if (physics.x < 0) physics.x = 0;
     if (physics.x > maxRight) physics.x = maxRight;
+    
+    if (physics.y <= 50) {
+        physics.y = 50; physics.vy = 0; physics.isGrounded = true;
+    }
 
-    // 6. Renderizar (dibujar en pantalla)
     playerEl.style.left = physics.x + 'px';
     playerEl.style.bottom = physics.y + 'px';
 
-    // 7. Pedir el siguiente frame
+    // 2. ACTUALIZAR PROYECTILES
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        let p = projectiles[i];
+        p.x += p.vx;
+        p.el.style.left = p.x + 'px';
+        p.el.style.bottom = p.y + 'px';
+
+        // Destruir si sale de pantalla
+        if (p.x > gameBoard.clientWidth || p.x < -50) {
+            p.el.remove();
+            projectiles.splice(i, 1);
+        }
+    }
+
+    // 3. ACTUALIZAR ENEMIGOS Y COLISIONES
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        let e = enemies[i];
+        
+        // IA básica: Caminar hacia el jugador
+        if (e.x > physics.x) e.x -= 1.5;
+        else e.x += 1.5;
+        
+        e.el.style.left = e.x + 'px';
+        e.el.style.bottom = e.y + 'px';
+
+        // Choque: Enemigo toca al Jugador
+        if (checkCollision(physics, e)) {
+            takeDamage();
+        }
+
+        // Choque: Cuchillo toca al Enemigo
+        for (let j = projectiles.length - 1; j >= 0; j--) {
+            let p = projectiles[j];
+            if (checkCollision(p, e)) {
+                // Daño al enemigo
+                e.hp -= 1;
+                // Destruir cuchillo
+                p.el.remove();
+                projectiles.splice(j, 1);
+
+                // Si muere el enemigo
+                if (e.hp <= 0) {
+                    e.el.remove();
+                    enemies.splice(i, 1);
+                    enemiesDefeated++;
+                    break; // Salimos del loop interno de proyectiles
+                }
+            }
+        }
+    }
+
+    // 4. CONDICIÓN DE VICTORIA DE NIVEL
+    if (enemiesDefeated === 3) {
+        enemiesDefeated = 0; // Reset rápido
+        alert("¡Nivel 1 Completado! Pasando al Nivel 2...");
+        initLevel(2); // Iniciaríamos el Nivel 2 (actualmente vacío)
+    }
+
     gameLoopId = requestAnimationFrame(gameLoop);
 }
+
+// IMPORTANTE: Asegúrate que tus listeners de los botones del menú sigan llamando a startGame() y stopGame() como configuramos antes.
 
 // --- ACTUALIZACIÓN DE EVENT LISTENERS ANTERIORES ---
 // Busca donde definimos el evento de 'btn-new' y añade startGame()
