@@ -290,7 +290,9 @@ function gameLoop() {
 
 // --- INICIALIZACIÓN DE EVENTOS DE BOTONES ---
 document.addEventListener('DOMContentLoaded', () => {
+    
     document.getElementById('btn-new').addEventListener('click', () => {
+        initAudio(); // <--- INICIAMOS AUDIO CON EL CLIC DEL USUARIO
         gameState = { level: 1, inventory: [], score: 0 }; 
         switchScreen('screen-game');
         startGame();
@@ -308,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const loadedState = JSON.parse(event.target.result);
                     if (loadedState.level !== undefined) {
+                        initAudio(); // <--- AQUÍ TAMBIÉN
                         gameState = loadedState;
                         switchScreen('screen-game');
                         startGame();
