@@ -2,38 +2,41 @@
 let gameState = { level: 1, inventory: [], score: 0 };
 
 // --- MOTOR DE AUDIO NATIVO (8-BIT SOUNDS) ---
-// Creamos el contexto de audio. Se inicializa en el primer clic del usuario.
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-const audioCtx = new AudioContext();
+let audioCtx; // Lo dejamos vacío al principio
+
+// Función para inicializar el audio de forma segura
+function initAudio() {
+    if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}
 
 function playHitSound() {
-    // Los navegadores bloquean el audio hasta que el usuario interactúa, esto lo desbloquea
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (!audioCtx) return; // Si no hay audio, no crasheamos
     
-    // Creamos un oscilador (generador de tono) y un nodo de volumen
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
 
-    // Configuración 8-bit (Onda cuadrada)
     oscillator.type = 'square'; 
     
-    // El sonido empieza agudo (400Hz) y cae rápido a grave (50Hz) en 0.1 segundos
-    oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+    oscillator.frequency.setValueAtTime(600, audioCtx.currentTime); // Un poco más agudo
     oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
 
-    // El volumen empieza al 30% y se desvanece rápido
     gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
 
-    // Conectamos todo a los altavoces
     oscillator.connect(gainNode);
     gainNode.connect(audioCtx.destination);
 
-    // Reproducimos
     oscillator.start();
     oscillator.stop(audioCtx.currentTime + 0.1);
 }
 
+// ... [Aquí sigue tu código de switchScreen, físicas, gameLoop, etc. Déjalo intacto] ...
 
 // --- NAVEGACIÓN DE PANTALLAS ---
 function switchScreen(screenId) {
