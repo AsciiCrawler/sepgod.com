@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Juego Épico</title>
+    <title>Rushing Waving</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <main id="app">
+        <section id="screen-menu" class="screen active">
+            <h1>Rushing Waving</h1>
+            <div class="menu-options">
+                <button id="btn-new">Nuevo Juego</button>
+                <button id="btn-load">Cargar Partida</button>
+                <button id="btn-credits">Créditos</button>
+            </div>
+        </section>
+
         <section id="screen-game" class="screen hidden">
-            <h2><span id="ui-level">1</span>: Rushing Waving</h2>
+            <h2>Nivel <span id="ui-level">1</span></h2>
             
             <div id="game-board">
                 <div class="vapor-sun"></div>
@@ -18,22 +27,15 @@
                 <div id="ground"></div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 1rem;">
-                <button id="btn-save" style="font-size: 1rem; padding: 10px; width: auto;">💾 Guardar</button>
-                <button id="btn-back-menu" style="font-size: 1rem; padding: 10px; width: auto;">Volver</button>
+            <div style="display: flex; gap: 10px; margin-top: 1rem; justify-content: center;">
+                <button id="btn-save" style="font-size: 1.2rem; padding: 10px; width: auto;">💾 Guardar</button>
+                <button id="btn-back-menu" style="font-size: 1.2rem; padding: 10px; width: auto;">Volver</button>
             </div>
-        </section>
-
-        <section id="screen-game" class="screen hidden">
-            <h2>Nivel <span id="ui-level">1</span></h2>
-            <p>Aquí va el contenido de tu juego...</p>
-            <button id="btn-save" style="margin-top: 2rem;">Guardar Partida</button>
-            <button id="btn-back-menu">Volver al Menú</button>
         </section>
 
         <section id="screen-credits" class="screen hidden">
             <h2>Créditos</h2>
-            <p>Desarrollado por un Dev Crack.</p>
+            <p>Desarrollado por el mejor.</p>
             <button id="btn-back-from-credits">Volver</button>
         </section>
     </main>
