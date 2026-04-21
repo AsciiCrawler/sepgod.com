@@ -21,17 +21,56 @@
         <section id="screen-game" class="screen hidden">
             <h2>Nivel <span id="ui-level">1</span></h2>
             
+            <div id="hud-health">❤️❤️❤️</div>
+            
             <div id="game-board">
                 <div class="vapor-sun"></div>
                 <div id="player">😎</div>
                 <div id="ground"></div>
-            </div>
+                </div>
+            ```
 
-            <div class="game-buttons">
-                <button id="btn-save">💾 Guardar</button>
-                <button id="btn-back-menu">Volver</button>
-            </div>
-        </section>
+### 2. Actualiza el CSS (Estilos para la vida, daño y entidades)
+Añade esto al final de tu archivo `styles.css`:
+
+```css
+/* --- HUD DE VIDA Y ENTIDADES COMBATE --- */
+#hud-health {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 2.5rem;
+    z-index: 20;
+    letter-spacing: 5px;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.enemy {
+    position: absolute;
+    font-size: 2.5rem;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    z-index: 9;
+    user-select: none;
+    filter: drop-shadow(0 0 5px var(--neon-pink));
+}
+
+.projectile {
+    position: absolute;
+    font-size: 1.5rem;
+    width: 20px;
+    height: 20px;
+    z-index: 8;
+    user-select: none;
+}
+
+/* Clase para cuando el jugador recibe daño (efecto parpadeo) */
+.damage-flash {
+    opacity: 0.5;
+    filter: brightness(200%) drop-shadow(0 0 20px red) !important;
+}
 
         <section id="screen-credits" class="screen hidden">
             <h2>Créditos</h2>
