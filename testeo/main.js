@@ -11,7 +11,7 @@ const gameBoard = document.getElementById('game-board');
 // Estado físico del jugador
 let physics = {
     x: 20,
-    y: 30, // 30px es la altura del suelo
+    y: 50, // 30px es la altura del suelo
     vx: 0,
     vy: 0,
     speed: 6,        // Velocidad horizontal
@@ -50,7 +50,7 @@ window.addEventListener('keyup', (e) => {
 function startGame() {
     // Resetear posición al iniciar
     physics.x = 20;
-    physics.y = 30;
+    physics.y = 50;
     physics.vx = 0;
     physics.vy = 0;
     
@@ -92,8 +92,8 @@ function gameLoop() {
 
     // 5. Colisiones Básicas
     // Colisión con el suelo (y = 30)
-    if (physics.y <= 30) {
-        physics.y = 30;
+    if (physics.y <= 50) {
+        physics.y = 50;
         physics.vy = 0;
         physics.isGrounded = true;
     }
