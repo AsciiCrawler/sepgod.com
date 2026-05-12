@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,58 +6,52 @@
     <title>Buscador de Grupos Huevo Pokémon 1.0</title>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+        /* Importamos Nunito para legibilidad UI y VT323 para los vibes de GBA */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=VT323&display=swap');
 
-        /* --- VARIABLES DE COLOR (MODO LUZ Y OSCURO) --- */
-      /* --- VARIABLES DE COLOR (MODO LUZ Y OSCURO) --- */
+        /* --- VARIABLES DE COLOR (GBA DARK VIBE) --- */
         :root {
-            --bg-body: #f8fafc;
-            --bg-pattern: #cbd5e1;
-            --text-main: #475569;
-            --text-heading: #1e293b;
-            --bg-container: rgba(255, 255, 255, 0.95);
-            --border-main: #e2e8f0;
-            --bg-input: #f1f5f9;
-            --text-input: #334155;
-            --bg-box: #ffffff;
-            --bg-step: #f8fafc;
-            --shadow-color: rgba(0, 0, 0, 0.05);
-            --tag-bg: #f1f5f9;
-            --tag-hover: #e0f2fe;
-            /* Nuevas variables para los nexos múltiples */
-            --tag-multi-bg: #faf5ff;
-            --tag-multi-border: #d8b4fe;
-            --tag-multi-text: #6b21a8;
+            /* Paleta base GBA Oscura/Retro */
+            --bg-body: #111827; 
+            --bg-pattern: #1f2937;
+            --text-main: #d1d5db;
+            --text-heading: #f9fafb;
+            --bg-container: #1e293b;
+            --border-main: #475569;
+            --border-thick: 4px solid #0f172a;
+            --bg-input: #0f172a;
+            --text-input: #f8fafc;
+            --bg-box: #334155;
+            --bg-step: #1e293b;
+            --shadow-color: rgba(0, 0, 0, 0.7);
+            --tag-bg: #374151;
+            --tag-hover: #3b82f6;
+            --tag-multi-bg: #4c1d95;
+            --tag-multi-border: #8b5cf6;
+            --tag-multi-text: #ddd6fe;
         }
 
         body.dark-mode {
-            --bg-body: #0f172a; 
-            --bg-pattern: #1e293b;
-            --text-main: #94a3b8;
-            --text-heading: #f8fafc;
-            --bg-container: rgba(30, 41, 59, 0.95);
-            --border-main: #334155;
-            --bg-input: #1e293b;
-            --text-input: #f8fafc;
-            --bg-box: #0f172a;
-            --bg-step: #1e293b;
-            --shadow-color: rgba(0, 0, 0, 0.4);
-            --tag-bg: #334155;
-            --tag-hover: #0284c7;
-            /* Nuevas variables para los nexos múltiples en Oscuro */
-            --tag-multi-bg: #3b0764;
-            --tag-multi-border: #6b21a8;
-            --tag-multi-text: #e9d5ff;
+            /* Mantenemos el toggle, pero profundizamos los negros */
+            --bg-body: #0a0a0a; 
+            --bg-pattern: #171717;
+            --bg-container: #18181b;
+            --bg-input: #000000;
+            --bg-box: #27272a;
+            --bg-step: #1f1f22;
         }
 
         body {
             font-family: 'Nunito', system-ui, sans-serif;
             background-color: var(--bg-body);
-            background-image: radial-gradient(var(--bg-pattern) 1px, transparent 1px);
-            background-size: 24px 24px;
+            /* Grid estilo pantalla retro */
+            background-image: 
+                linear-gradient(var(--bg-pattern) 2px, transparent 2px),
+                linear-gradient(90deg, var(--bg-pattern) 2px, transparent 2px);
+            background-size: 32px 32px;
             color: var(--text-main);
             display: flex; justify-content: center; align-items: flex-start;
-            min-height: 100vh; margin: 0; padding: 60px 20px 40px 20px; /* Padding top extra para no tapar el botón */
+            min-height: 100vh; margin: 0; padding: 60px 20px 40px 20px;
             box-sizing: border-box;
             transition: background-color 0.4s, color 0.4s;
         }
@@ -66,87 +59,142 @@
         /* --- ESTILO DEL BOTÓN GENGAR/PONYTA --- */
         .btn-tema {
             position: fixed; top: 20px; right: 20px;
-            background: var(--bg-container); border: 1px solid var(--border-main);
-            border-radius: 30px; padding: 6px 16px; display: flex; align-items: center; gap: 10px;
-            cursor: pointer; color: var(--text-heading); font-weight: 700; font-family: 'Nunito', sans-serif;
-            box-shadow: 0 4px 6px var(--shadow-color); transition: all 0.3s ease; z-index: 1000;
+            background: var(--bg-container); 
+            border: var(--border-thick);
+            border-radius: 8px;
+            padding: 6px 16px; display: flex; align-items: center; gap: 10px;
+            cursor: pointer; color: var(--text-heading); 
+            font-family: 'VT323', monospace; font-size: 1.2rem;
+            box-shadow: 4px 4px 0px #000;
+            transition: all 0.1s ease; z-index: 1000;
         }
-        .btn-tema img { height: 35px; width: auto; }
-        .btn-tema:hover { transform: translateY(-2px); box-shadow: 0 6px 12px var(--shadow-color); }
+        .btn-tema img { height: 35px; width: auto; image-rendering: pixelated; }
+        .btn-tema:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
 
         /* --- RESTO DE LOS ESTILOS ADAPTADOS --- */
         .contenedor {
-            background-color: var(--bg-container); backdrop-filter: blur(10px);
-            padding: 40px; border-radius: 24px; border: 1px solid var(--border-main);
-            box-shadow: 0 20px 40px var(--shadow-color); text-align: center; max-width: 550px; width: 100%;
-            transition: background-color 0.4s, border-color 0.4s;
+            background-color: var(--bg-container); 
+            padding: 40px; 
+            border-radius: 8px; 
+            border: var(--border-thick);
+            box-shadow: 8px 8px 0px #000; /* Sombra sólida estilo GameBoy */
+            text-align: center; max-width: 550px; width: 100%;
         }
 
-        h2 { margin-top: 0; color: var(--text-heading); font-weight: 700; letter-spacing: -0.5px; }
+        h2 { 
+            margin-top: 0; color: var(--text-heading); 
+            font-family: 'VT323', monospace; 
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 0px #000;
+            letter-spacing: 1px;
+        }
 
         .fila-input { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
 
         .slot-foto {
-            width: 60px; height: 60px; background: var(--bg-input); border-radius: 12px;
+            width: 60px; height: 60px; background: var(--bg-input); 
+            border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
-            border: 1px solid var(--border-main); overflow: hidden;
-            transition: background-color 0.4s, border-color 0.4s;
+            border: 2px solid var(--border-main); overflow: hidden;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5);
         }
-        .slot-foto img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .slot-foto img { max-width: 90%; max-height: 90%; object-fit: contain; image-rendering: pixelated; }
 
         input, select {
-            padding: 12px 16px; background-color: var(--bg-input); border: 1px solid transparent;
-            border-radius: 12px; font-size: 15px; color: var(--text-input); outline: none; flex-grow: 1;
-            transition: background-color 0.4s, color 0.4s;
+            padding: 12px 16px; background-color: var(--bg-input); 
+            border: 2px solid var(--border-main);
+            border-radius: 4px; font-size: 15px; color: var(--text-input); 
+            outline: none; flex-grow: 1;
+            font-family: 'Nunito', sans-serif;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
         }
         input { width: 40%; } select { width: 30%; cursor: pointer; }
-        input:focus, select:focus { border-color: #ef4444; background-color: var(--bg-box);}
+        input:focus, select:focus { border-color: #3b82f6; background-color: var(--bg-box);}
         select:disabled { opacity: 0.6; cursor: not-allowed; }
 
         button {
-            width: 100%; padding: 14px 20px; background-color: #ef4444; color: white; border: none;
-            border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+            width: 100%; padding: 14px 20px; background-color: #ef4444; color: white; 
+            border: 3px solid #7f1d1d;
+            border-radius: 6px; 
+            font-family: 'VT323', monospace; font-size: 1.4rem;
+            cursor: pointer; margin-top: 10px;
+            box-shadow: 4px 4px 0px #7f1d1d;
+            text-transform: uppercase;
+            transition: all 0.1s ease;
         }
-        button:hover { background-color: #dc2626; transform: translateY(-2px); }
+        button:hover { 
+            background-color: #dc2626; 
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #7f1d1d;
+        }
 
         #resultado { margin-top: 30px; font-size: 15px; line-height: 1.6; text-align: left; }
-        hr { border: 0; height: 1px; background: var(--border-main); margin: 20px 0; }
+        hr { border: 0; height: 2px; background: var(--border-main); margin: 20px 0; }
 
-        .formula-box { background: var(--bg-box); border: 1px solid var(--border-main); border-radius: 16px; padding: 20px; margin: 24px 0; transition: background-color 0.4s; }
-        .formula-titulo { font-weight: 700; color: var(--text-heading); margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+        /* Cajas de diálogo GBA */
+        .formula-box { 
+            background: var(--bg-box); 
+            border: 3px solid #94a3b8; 
+            border-radius: 8px; 
+            padding: 20px; margin: 24px 0; 
+            box-shadow: inset 0px 0px 0px 3px var(--bg-box), inset 0px 0px 0px 5px #475569;
+        }
+        .formula-titulo { 
+            font-family: 'VT323', monospace; font-size: 1.5rem;
+            color: #fbbf24; text-shadow: 1px 1px 0px #000;
+            margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; 
+        }
         
         .paso-fila {
             display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
-            padding: 10px; background: var(--bg-step); border-radius: 12px; border-left: 4px solid var(--border-main);
-            transition: background-color 0.4s;
+            padding: 10px; background: var(--bg-step); 
+            border-radius: 4px; border-left: 4px solid var(--border-main);
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
         }
         .paso-1 { border-left-color: #94a3b8; } .paso-2 { border-left-color: #c084fc; } .paso-3 { border-left-color: #fbbf24; }
 
         .badge {
-            padding: 4px 10px; border-radius: 20px; font-size: 0.9em; font-weight: 700;
+            padding: 4px 10px; border-radius: 4px; font-size: 0.9em; font-weight: 700;
             display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+            border: 1px solid rgba(0,0,0,0.2);
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
         }
-        .badge img { height: 25px; width: auto; object-fit: contain; margin-left: -4px; }
+        .badge img { height: 25px; width: auto; object-fit: contain; margin-left: -4px; image-rendering: pixelated; }
 
-        .badge-macho { background: #e0f2fe; color: #0284c7; }
-        .badge-hembra { background: #fce7f3; color: #db2777; }
-        .badge-nexo { background: #f3e8ff; color: #9333ea; border: 1px dashed #d8b4fe; }
-        .badge-meta { background: #fef3c7; color: #d97706; }
+        .badge-macho { background: #1e3a8a; color: #93c5fd; border-color: #1d4ed8; }
+        .badge-hembra { background: #831843; color: #f9a8d4; border-color: #be185d; }
+        .badge-nexo { background: #4c1d95; color: #d8b4fe; border-color: #7e22ce; }
+        .badge-meta { background: #78350f; color: #fde68a; border-color: #b45309; }
         
-        .operador { color: #94a3b8; font-weight: 900; font-size: 0.9em; }
-        .nota-sutil { font-size: 0.85em; color: var(--text-main); margin: 5px 0 0 10px; font-style: italic; }
+        .operador { color: #fbbf24; font-weight: 900; font-size: 1.2em; text-shadow: 1px 1px 0px #000; }
+        .nota-sutil { font-size: 0.85em; color: #9ca3af; margin: 5px 0 0 10px; font-style: italic; }
 
-        .gen-box { background: var(--bg-box); border: 1px solid var(--border-main); border-radius: 12px; padding: 16px; margin-top: 12px; transition: background-color 0.4s;}
-        .gen-titulo { margin: 0 0 8px 0; color: var(--text-main); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .gen-box { 
+            background: var(--bg-box); 
+            border: 2px solid var(--border-main); 
+            border-radius: 6px; padding: 16px; margin-top: 12px; 
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
+        }
+        .gen-titulo { 
+            margin: 0 0 8px 0; color: #fbbf24; 
+            font-family: 'VT323', monospace; font-size: 1.2rem;
+            text-shadow: 1px 1px 0px #000;
+            letter-spacing: 1px; 
+        }
         
         .nexo-tag {
-            display: inline-block; background: var(--tag-bg); color: var(--text-input); padding: 6px 14px;
-            border-radius: 8px; margin: 4px; font-size: 0.95em; font-weight: 600; cursor: pointer; border: 1px solid var(--border-main);
-            transition: all 0.2s;
+            display: inline-block; background: var(--tag-bg); color: var(--text-heading); 
+            padding: 6px 14px; border-radius: 4px; margin: 4px; 
+            font-size: 0.95em; font-weight: 600; cursor: pointer; 
+            border: 2px solid var(--border-main);
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+            transition: all 0.1s;
         }
-        .nexo-tag:hover { background: var(--tag-hover); color: var(--text-heading); transform: translateY(-2px); border-color: transparent;}
-        /* Agrega esto justo debajo de .nexo-tag:hover {...} */
+        .nexo-tag:hover { 
+            background: var(--tag-hover); 
+            transform: translate(2px, 2px); 
+            box-shadow: 0px 0px 0px rgba(0,0,0,0.4);
+        }
         .nexo-tag-multi {
             background: var(--tag-multi-bg);
             border-color: var(--tag-multi-border);
@@ -158,25 +206,37 @@
         }
 
         .btn-menu {
-            background-color: var(--bg-box); color: var(--text-heading); border: 2px solid var(--border-main); padding: 20px;
-            font-size: 1em; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; border-radius: 12px; width: 100%; font-family: 'Nunito', sans-serif;
-            transition: all 0.3s;
+            background-color: var(--bg-box); color: var(--text-heading); 
+            padding: 20px;
+            font-size: 1.2em; display: flex; flex-direction: column; align-items: center; gap: 8px; 
+            cursor: pointer; border-radius: 6px; width: 100%; 
+            font-family: 'VT323', monospace; text-transform: uppercase;
+            transition: all 0.1s;
         }
-        .btn-ivs:hover { border-color: #3b82f6; background-color: var(--bg-step);}
-        .btn-movimientos:hover { border-color: #f59e0b; background-color: var(--bg-step);}
+        .btn-menu span { font-size: 2.5em; text-shadow: 2px 2px 0px #000; }
+        .btn-menu:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,0.5); }
+        .btn-ivs:hover { border-color: #3b82f6; background-color: #1e3a8a;}
+        .btn-movimientos:hover { border-color: #f59e0b; background-color: #78350f;}
         
-        .btn-volver { width: auto; padding: 8px 16px; background-color: var(--bg-input); color: var(--text-input); margin: 0; font-size: 0.85em; box-shadow: none;}
-        .btn-volver:hover { background-color: var(--border-main); color: var(--text-heading); transform: none;}
+        .btn-volver { 
+            width: auto; padding: 8px 16px; background-color: var(--bg-input); 
+            color: var(--text-heading); margin: 0; font-size: 1rem; 
+            border: 2px solid var(--border-main); box-shadow: 2px 2px 0px #000;
+        }
+        .btn-volver:hover { background-color: #475569; transform: translate(2px, 2px); box-shadow: none; }
 
         .animar-entrada { animation: aparecerSuave 0.4s ease-out forwards; }
-        @keyframes aparecerSuave { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes aparecerSuave { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Alertas transparentes para que luzcan bien en cualquier fondo */
-        .alerta { padding: 16px; border-radius: 12px; margin-top: 16px; font-size: 0.95em; color: var(--text-heading);}
-        .alerta-roja { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); }
-        .alerta-naranja { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); }
-        .alerta-verde { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); }
-        
+        /* Alertas tipo GBA */
+        .alerta { 
+            padding: 16px; border-radius: 4px; margin-top: 16px; font-size: 0.95em; 
+            color: var(--text-heading); font-weight: bold;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+        }
+        .alerta-roja { background: #7f1d1d; border: 2px solid #ef4444; }
+        .alerta-naranja { background: #78350f; border: 2px solid #f59e0b; }
+        .alerta-verde { background: #14532d; border: 2px solid #10b981; }
     </style>
 </head>
 <body>
@@ -190,7 +250,7 @@
         
         <div id="menuSeleccion">
             <h2>🧬 Genética Pokémon</h2>
-            <p style="color: #64748b; margin-bottom: 24px;">3.0 Selecciona la herramienta que necesitas hoy:</p>
+            <p style="color: #94a3b8; margin-bottom: 24px;">3.0 Selecciona la herramienta que necesitas hoy:</p>
             
             <div style="display: flex; flex-direction: column; gap: 16px;">
                 <button class="btn-menu btn-ivs" onclick="abrirHerramienta('ivs')">
@@ -231,13 +291,13 @@
                         </select>
                     </div>
                     
-                    <select id="movimientoReceptorElegido" disabled style="width: 100%; font-weight: bold; color: #047857; background-color: #d1fae5; border: 1px solid #6ee7b7;">
+                    <select id="movimientoReceptorElegido" disabled style="width: 100%; font-weight: bold; color: #34d399; background-color: #064e3b; border: 1px solid #10b981;">
                         <option value="">Esperando Pokémon objetivo...</option>
                     </select>
                 </div>
             </div>
             
-            <button onclick="buscarPadresMovimiento()" style="background-color: #10b981; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">Encontrar Padres Compatibles</button>
+            <button onclick="buscarPadresMovimiento()" style="background-color: #10b981; border-color: #047857; box-shadow: 4px 4px 0px #047857;">Encontrar Padres Compatibles</button>
             <div id="resultadoBuscarMov"></div>
         </div>
     
@@ -282,7 +342,7 @@
                 <h2 style="margin: 0; font-size: 1.3em;">⚔️ Elige la Generación</h2>
             </div>
             
-            <p style="color: #64748b; margin-bottom: 24px;">Las reglas de crianza cambian según el juego. Elige tu versión:</p>
+            <p style="color: #94a3b8; margin-bottom: 24px;">Las reglas de crianza cambian según el juego. Elige tu versión:</p>
             
             <div style="display: flex; flex-direction: column; gap: 16px;">
                 <button class="btn-menu" style="border-color: #ec4899;" onclick="abrirHerramientaMovimientos('gen6')">
@@ -323,7 +383,7 @@
                         </select>
                     </div>
                     
-                    <select id="movimientoElegido" disabled style="width: 100%; font-weight: bold; color: #0284c7; background-color: #e0f2fe; border: 1px solid #bae6fd;">
+                    <select id="movimientoElegido" disabled style="width: 100%; font-weight: bold; color: #38bdf8; background-color: #0f172a; border: 1px solid #0284c7;">
                         <option value="">Esperando Pokémon donante...</option>
                     </select>
                 </div>
