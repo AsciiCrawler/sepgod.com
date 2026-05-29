@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGI Terminal // Proyecto 2M</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --panel-bg: #0a0f0d;
+            --text-main: #00ffcc;
+            --text-muted: #4d8076;
+            --accent: #ff0055;
+            --border-color: #00ffcc44;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        h1 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--text-main);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-shadow: 0 0 5px var(--text-main);
+        }
+
+        .sys-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-left: 4px solid var(--text-main);
+        }
+
+        .card h2 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0;
+        }
+
+        .card .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .accent-val {
+            color: var(--accent);
+            text-shadow: 0 0 5px var(--accent);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            text-align: right;
+            color: var(--text-muted);
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            border-bottom: 2px solid var(--text-main);
+        }
+
+        th:first-child, td:first-child {
+            text-align: center;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 255, 204, 0.05);
+        }
+
+        .glitch-bar {
+            height: 2px;
+            background: var(--text-main);
+            width: 100%;
+            margin: 20px 0;
+            box-shadow: 0 0 10px var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>SYS.INIT // DGI Projection Protocol</h1>
+        
+        <div class="sys-info">
+            <div class="card">
+                <h2>META ALCANZADA A LA EDAD</h2>
+                <div class="value accent-val" id="target-age">--</div>
+            </div>
+            <div class="card">
+                <h2>CAPITAL FASE 1 (MXN REAL)</h2>
+                <div class="value" id="target-capital">--</div>
+            </div>
+            <div class="card">
+                <h2>AÑO DE RETIRO PROYECTADO</h2>
+                <div class="value" id="target-year">--</div>
+            </div>
+        </div>
+
+        <div class="glitch-bar"></div>
+
+        <h1>DATA.LOG // Fase 2: Retiro (Hasta 72 años)</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Edad</th>
+                    <th>Capital Acumulado (MXN)</th>
+                    <th>Dividendo Libre (MXN Anual)</th>
+                    <th>Dividendo Libre (MXN Mensual)</th>
+                </tr>
+            </thead>
+            <tbody id="phase2-table">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Parameters
+        const currentAge = 28;
+        const currentYear = new Date().getFullYear();
+        const targetCapital = 2000000;
+        const initialYield = 0.04;
+        const realDivGrowth = 0.03;
+        const initialContribution = 28200;
+        const contributionAccelerator = 0.04;
+        const maxAge = 72;
+
+        // Formatter function for MXN Currency
+        const formatMXN = (num) => {
+            return new Intl.NumberFormat('es-MX', {
+                style: 'currency',
+                currency: 'MXN',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        };
+
+        // --- PHASE 1: Aggressive Accumulation ---
+        let age = currentAge;
+        let capital = 0;
+        let contribution = initialContribution;
+
+        // Loop until target is reached
+        while (capital < targetCapital) {
+            let startCapital = capital;
+            // Yield generated during the year (DRIP)
+            let dividends = startCapital * initialYield;
+            // Real appreciation of the underlying capital
+            let appreciation = startCapital * realDivGrowth;
+            
+            // End of year calculation
+            capital = startCapital + dividends + appreciation + contribution;
+            
+            // Prepare for next year
+            contribution = contribution * (1 + contributionAccelerator);
+            age++;
+        }
+
+        const ageReached = age;
+        const capitalReached = capital;
+        const yearReached = currentYear + (ageReached - currentAge);
+
+        // Update UI Summary Cards
+        document.getElementById('target-age').innerText = ageReached;
+        document.getElementById('target-capital').innerText = formatMXN(capitalReached);
+        document.getElementById('target-year').innerText = yearReached;
+
+        // --- PHASE 2: Retirement & Lifestyle ---
+        let phase2HTML = "";
+        let currentPhase2Capital = capitalReached;
+
+        for (let a = ageReached; a <= maxAge; a++) {
+            // In Phase 2, DRIP is off.
+            // Dividend available to spend is 4% of current capital
+            let spendableDividend = currentPhase2Capital * initialYield;
+            let monthlyDividend = spendableDividend / 12;
+            
+            // Generate Table Row
+            phase2HTML += `
+                <tr>
+                    <td>${a}</td>
+                    <td>${formatMXN(currentPhase2Capital)}</td>
+                    <td class="accent-val">${formatMXN(spendableDividend)}</td>
+                    <td>${formatMXN(monthlyDividend)}</td>
+                </tr>
+            `;
+
+            // Capital grows strictly by the real dividend growth rate (3%)
+            currentPhase2Capital = currentPhase2Capital * (1 + realDivGrowth);
+        }
+
+        // Inject Data into Table
+        document.getElementById('phase2-table').innerHTML = phase2HTML;
+
+    </script>
+</body>
+</html>
