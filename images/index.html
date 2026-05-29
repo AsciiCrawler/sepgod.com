@@ -9,12 +9,14 @@
 
         :root {
             --bg-color: #050505;
-            --panel-bg: #0d0d0d;
+            --panel-bg: #0a0a0c;
             --neon-cyan: #00f3ff;
             --neon-green: #39ff14;
+            --neon-pink: #ff007f;
             --text-main: #e0e0e0;
             --text-muted: #666666;
             --border-glow: 0 0 10px rgba(0, 243, 255, 0.2);
+            --scanline: rgba(0, 243, 255, 0.03);
         }
 
         * {
@@ -31,11 +33,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            background-image: linear-gradient(var(--scanline) 1px, transparent 1px);
+            background-size: 100% 3px;
         }
 
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             background: var(--panel-bg);
             border: 1px solid var(--neon-cyan);
             box-shadow: var(--border-glow);
@@ -53,22 +57,28 @@
             color: var(--neon-cyan);
             font-size: 1.5em;
             font-weight: bold;
-            text-shadow: 2px 0 var(--neon-green), -2px 0 red;
+            text-shadow: 2px 0 var(--neon-pink), -2px 0 var(--neon-green);
             letter-spacing: 2px;
+            margin-bottom: 10px;
         }
 
         .terminal-text {
-            color: var(--text-muted);
+            color: var(--text-main);
             font-size: 0.85em;
-            margin-top: 10px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
+
+        .highlight { color: var(--neon-green); }
+        .highlight-pink { color: var(--neon-pink); }
 
         .controls-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
             margin-bottom: 25px;
+            background: rgba(255,255,255,0.02);
+            padding: 20px;
+            border: 1px solid #222;
         }
 
         .input-group {
@@ -77,18 +87,26 @@
         }
 
         label {
-            font-size: 0.75em;
+            font-size: 0.8em;
             color: var(--neon-cyan);
             margin-bottom: 5px;
             text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .help-text {
+            font-size: 0.65em;
+            color: var(--text-muted);
+            margin-top: 5px;
+            min-height: 28px;
         }
 
         input {
             background: #000;
             border: 1px solid #333;
             color: var(--neon-green);
-            padding: 8px;
-            font-size: 1em;
+            padding: 10px;
+            font-size: 1.1em;
             outline: none;
             transition: all 0.3s ease;
         }
@@ -102,21 +120,50 @@
             background: transparent;
             color: var(--neon-cyan);
             border: 1px solid var(--neon-cyan);
-            padding: 12px 20px;
+            padding: 15px 20px;
             font-size: 1em;
             cursor: pointer;
             text-transform: uppercase;
             font-weight: bold;
-            letter-spacing: 1px;
-            transition: 0.2s;
+            letter-spacing: 2px;
+            transition: 0.3s;
             width: 100%;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         button:hover {
             background: var(--neon-cyan);
             color: #000;
-            box-shadow: 0 0 15px var(--neon-cyan);
+            box-shadow: 0 0 20px var(--neon-cyan);
+        }
+
+        /* Dashboard Resumen */
+        .summary-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            display: none; /* Oculto hasta ejecutar */
+        }
+
+        .summary-card {
+            border: 1px solid var(--neon-green);
+            background: rgba(57, 255, 20, 0.05);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .summary-card h4 {
+            color: var(--text-muted);
+            font-size: 0.7em;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .value {
+            color: var(--neon-green);
+            font-size: 1.3em;
+            font-weight: bold;
         }
 
         .data-table-container {
@@ -131,25 +178,33 @@
 
         th, td {
             text-align: right;
-            padding: 10px;
-            border-bottom: 1px solid #222;
+            padding: 12px 10px;
+            border-bottom: 1px solid #1a1a1a;
         }
 
         th {
-            color: var(--neon-green);
-            border-bottom: 1px solid var(--neon-green);
+            color: var(--text-main);
+            border-bottom: 1px solid var(--neon-cyan);
             text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 1px;
         }
 
         td:first-child, th:first-child { text-align: left; }
 
-        .phase-divider {
+        .phase-1 { color: #888; }
+        .phase-1 .drip-status { color: var(--neon-pink); font-size: 0.8em; }
+        
+        .phase-2 { background: rgba(0, 243, 255, 0.03); }
+        .phase-2 .drip-status { color: var(--neon-green); font-size: 0.8em; font-weight: bold; }
+
+        .phase-divider td {
+            text-align: center !important;
+            padding: 20px 0;
             color: var(--neon-cyan);
-            text-align: center;
-            padding: 15px 0;
             font-weight: bold;
             letter-spacing: 2px;
-            background: rgba(0, 243, 255, 0.05);
+            background: rgba(0, 243, 255, 0.08);
             border-top: 1px solid var(--neon-cyan);
             border-bottom: 1px solid var(--neon-cyan);
         }
@@ -165,10 +220,11 @@
         <div class="header-terminal">
             <div class="glitch">SYS.INIT // DGI_PROJECTION_PROTOCOL</div>
             <div class="terminal-text">
-                > ESTADO: EN LÍNEA.<br>
+                > ESTADO: <span class="highlight">EN LÍNEA.</span><br>
                 > HERRAMIENTA CUANTITATIVA DISEÑADA PARA PROYECCIÓN DE DIVIDENDOS (PODER ADQUISITIVO ACTUAL).<br>
-                > FASE 1: ACUMULACIÓN HOSTIL [DRIP ON]. FASE 2: RETIRO TÁCTICO [DRIP OFF].<br>
-                > INGRESE PARÁMETROS. PRESIONE EJECUTAR PARA COMPILAR TABLA DE DATOS FASE 2.
+                > <span class="highlight-pink">FASE 1: ACUMULACIÓN [DRIP ON].</span> El dividendo compra más acciones.<br>
+                > <span class="highlight">FASE 2: RETIRO TÁCTICO [DRIP OFF].</span> El dividendo paga tu estilo de vida.<br>
+                > INGRESE PARÁMETROS Y COMPILE LA MATRIZ DE DATOS.
             </div>
         </div>
 
@@ -176,38 +232,61 @@
             <div class="input-group">
                 <label>Edad Actual</label>
                 <input type="number" id="inAge" value="28">
+                <div class="help-text">Edad de inicio de la estrategia.</div>
             </div>
             <div class="input-group">
                 <label>Meta Capital (MXN)</label>
                 <input type="number" id="inTarget" value="2000000" step="100000">
+                <div class="help-text">Monto objetivo en poder adquisitivo actual para detonar el retiro.</div>
             </div>
             <div class="input-group">
                 <label>Yield Inicial (%)</label>
-                <input type="number" id="inYield" value="4" step="0.1">
+                <input type="number" id="inYield" value="4.0" step="0.1">
+                <div class="help-text">Porcentaje de retorno anual que pagan tus acciones/ETFs en dividendos.</div>
             </div>
             <div class="input-group">
                 <label>Crecimiento Real (%)</label>
-                <input type="number" id="inGrowth" value="3" step="0.1">
+                <input type="number" id="inGrowth" value="3.0" step="0.1">
+                <div class="help-text">Crecimiento del dividendo por encima de la inflación anual.</div>
             </div>
             <div class="input-group">
-                <label>Aportación Inicial</label>
+                <label>Aportación Año 1</label>
                 <input type="number" id="inContrib" value="28200" step="100">
+                <div class="help-text">Capital nuevo inyectado durante el primer año (MXN).</div>
             </div>
             <div class="input-group">
                 <label>Acelerador Aport. (%)</label>
-                <input type="number" id="inAccel" value="4" step="0.1">
+                <input type="number" id="inAccel" value="4.0" step="0.1">
+                <div class="help-text">Incremento a tu aportación anual. Ej: Si ganas más, aportas más.</div>
             </div>
         </div>
 
         <button id="btnExecute">EJECUTAR PROYECCIÓN >_</button>
+
+        <div class="summary-dashboard" id="summaryPanel">
+            <div class="summary-card">
+                <h4>Edad de Retiro (Meta)</h4>
+                <div class="value" id="outRetireAge">--</div>
+            </div>
+            <div class="summary-card">
+                <h4>Capital Total de tu Bolsillo</h4>
+                <div class="value" id="outTotalPocket">--</div>
+            </div>
+            <div class="summary-card">
+                <h4>Dividendo Mensual Inicial (Retiro)</h4>
+                <div class="value" id="outMonthlyDiv">--</div>
+            </div>
+        </div>
 
         <div class="data-table-container">
             <table id="resultsTable">
                 <thead>
                     <tr>
                         <th>Edad</th>
-                        <th>Capital Acumulado (MXN)</th>
-                        <th>Dividendos Anuales (MXN)</th>
+                        <th>Estado DRIP</th>
+                        <th>Aportación Año</th>
+                        <th>Capital Acumulado</th>
+                        <th>Dividendos (Año)</th>
                         <th>Actor/Actriz Actual</th>
                     </tr>
                 </thead>
@@ -218,9 +297,13 @@
     </div>
 
     <script>
-        // Diccionario de Actores por Edad Exacta (Proyección Actual)
+        // Diccionario Extendido de Actores por Edad Exacta
         const actorsByAge = {
-            40: "Robert Pattinson", 41: "Henry Cavill", 42: "Chris Hemsworth",
+            28: "Timothée Chalamet", 29: "Tom Holland", 30: "Harry Styles", 
+            31: "John Boyega", 32: "Austin Butler", 33: "Bill Skarsgård", 
+            34: "Liam Hemsworth", 35: "Nicholas Hoult", 36: "Zac Efron", 
+            37: "Robert Pattinson", 38: "Shia LaBeouf", 39: "Dave Franco",
+            40: "Chris Hemsworth", 41: "Henry Cavill", 42: "Chris Evans",
             43: "Ryan Gosling", 44: "Jake Gyllenhaal", 45: "Oscar Isaac",
             46: "Tom Hardy", 47: "Cillian Murphy", 48: "Colin Farrell",
             49: "Bradley Cooper", 50: "Christian Bale", 51: "Andrew Lincoln",
@@ -234,7 +317,7 @@
         };
 
         const formatCurrency = (num) => {
-            return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(num);
+            return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(num);
         };
 
         const executeProjection = () => {
@@ -249,51 +332,82 @@
             let currentAge = startAge;
             let capital = 0;
             let contrib = initialContrib;
+            let totalOut_of_Pocket = 0;
             
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = ''; // Limpiar tabla
+
             // Lógica Fase 1: Acumulación Agresiva
             while (capital < targetCapital && currentAge < 100) {
-                // Crecimiento real del capital existente
+                // 1. Crecimiento real del capital que ya estaba invertido
                 capital = capital * (1 + realGrowth);
-                // Sumar aportación del año
+                
+                // 2. Sumar aportación fresca del año
                 capital += contrib;
-                // Generar dividendos y aplicar DRIP
+                totalOut_of_Pocket += contrib;
+
+                // 3. Generar dividendos sobre el total
                 let dividends = capital * yieldRate;
+                
+                // 4. Reinvertir dividendos (DRIP)
                 capital += dividends;
                 
+                // Imprimir fila Fase 1
+                let actor = actorsByAge[currentAge] || "Desconocido";
+                let row = document.createElement('tr');
+                row.className = "phase-1";
+                row.innerHTML = `
+                    <td>${currentAge}</td>
+                    <td><span class="drip-status">[ REINVIERTE ]</span></td>
+                    <td>${formatCurrency(contrib)}</td>
+                    <td>${formatCurrency(capital)}</td>
+                    <td>${formatCurrency(dividends)}</td>
+                    <td style="color: var(--text-muted);">${actor}</td>
+                `;
+                tableBody.appendChild(row);
+
                 // Preparar siguiente año
                 contrib = contrib * (1 + accelRate);
                 currentAge++;
             }
 
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = ''; // Limpiar tabla
+            // Guardar datos para Dashboard
+            const retireAge = currentAge;
+            const firstRetireDividend = capital * yieldRate;
 
             // Insertar separador de Fase 2
             let dividerRow = document.createElement('tr');
-            dividerRow.innerHTML = `<td colspan="4" class="phase-divider">META ALCANZADA: INICIANDO FASE 2 (DRIP OFF)</td>`;
+            dividerRow.className = "phase-divider";
+            dividerRow.innerHTML = `<td colspan="6">>>> META DE ${formatCurrency(targetCapital)} ALCANZADA <<< <br> INICIANDO FASE 2: RETIRO Y ESTILO DE VIDA</td>`;
             tableBody.appendChild(dividerRow);
 
             // Lógica Fase 2: Retiro y Estilo de Vida (hasta 72 años)
             for (let age = currentAge; age <= 72; age++) {
-                // El capital crece solo por el crecimiento real
+                // El capital crece solo por el crecimiento real del dividendo (protección inflación)
                 capital = capital * (1 + realGrowth);
                 
-                // Yield se cobra en efectivo (no DRIP)
+                // Yield se cobra en efectivo (no DRIP) - Paga el estilo de vida
                 let cashDividends = capital * yieldRate;
                 
-                // Obtener actor o fallback
-                let actor = actorsByAge[age] || "Clasificado / Desconocido";
-
-                // Crear fila
+                let actor = actorsByAge[age] || "Clasificado";
                 let row = document.createElement('tr');
+                row.className = "phase-2";
                 row.innerHTML = `
-                    <td>${age}</td>
+                    <td style="color: var(--neon-cyan); font-weight:bold;">${age}</td>
+                    <td><span class="drip-status">[ COBRA EFECTIVO ]</span></td>
+                    <td>$0.00</td>
                     <td>${formatCurrency(capital)}</td>
-                    <td style="color: var(--neon-cyan);">${formatCurrency(cashDividends)}</td>
+                    <td style="color: var(--neon-cyan); font-weight:bold;">${formatCurrency(cashDividends)}</td>
                     <td style="color: var(--text-muted);">${actor}</td>
                 `;
                 tableBody.appendChild(row);
             }
+
+            // Actualizar Dashboard
+            document.getElementById('summaryPanel').style.display = 'grid';
+            document.getElementById('outRetireAge').innerText = retireAge + " Años";
+            document.getElementById('outTotalPocket').innerText = formatCurrency(totalOut_of_Pocket);
+            document.getElementById('outMonthlyDiv').innerText = formatCurrency(firstRetireDividend / 12) + " / mes";
         };
 
         // Event Listener
