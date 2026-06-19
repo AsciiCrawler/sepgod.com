@@ -70,13 +70,13 @@ function scrambleText(element, finalString) {
     }, 30);
 }
 
-document.querySelectorAll('.toggle-post-btn').forEach(btn => {
+document.querySelectorAll('.js-toggle-post').forEach(btn => {
     btn.addEventListener('click', function(e) {
         playBeep(450, 'sawtooth');
         
         const contentDiv = this.nextElementSibling;
         const postCard = this.closest('.post-card');
-        const titleEl = postCard.querySelector('.post-title');
+        const titleEl = postCard.querySelector('.post-card__title');
         
         if (!titleEl.hasAttribute('data-orig')) {
             titleEl.setAttribute('data-orig', titleEl.innerText);
@@ -87,7 +87,7 @@ document.querySelectorAll('.toggle-post-btn').forEach(btn => {
 
         if (isOpen) {
             contentDiv.style.display = 'none';
-            contentDiv.classList.remove('decrypt-anim'); 
+            contentDiv.classList.remove('is-decrypting');
             
             this.style.background = 'var(--neon-cyan)';
             this.style.color = 'var(--bg-dark)';
@@ -96,7 +96,7 @@ document.querySelectorAll('.toggle-post-btn').forEach(btn => {
             scrambleText(titleEl, originalTitle);
         } else {
             contentDiv.style.display = 'block';
-            contentDiv.classList.add('decrypt-anim'); 
+            contentDiv.classList.add('is-decrypting');
             
             this.style.background = 'var(--neon-magenta)';
             this.style.color = '#fff';
@@ -116,12 +116,12 @@ const audioBtn = document.getElementById('audioBtn');
 audioBtn.onclick = () => {
     if (bgm.paused) { 
         bgm.play(); 
-        audioBtn.innerText = "SYS.AUDIO_MUTE()"; 
-        audioBtn.classList.add('active'); 
+        audioBtn.innerText = "SYS.AUDIO_MUTE()";
+        audioBtn.classList.add('is-active');
     } else { 
         bgm.pause(); 
-        audioBtn.innerText = "SYS.AUDIO_PLAY()"; 
-        audioBtn.classList.remove('active'); 
+        audioBtn.innerText = "SYS.AUDIO_PLAY()";
+        audioBtn.classList.remove('is-active');
     } 
 };
 
@@ -203,8 +203,8 @@ document.getElementById('cmd-input').onkeydown = e => {
                 // Efecto de glitch global al entrar
                 const crt = document.getElementById('crt-screen');
                 if(crt) {
-                    crt.classList.add('global-glitch');
-                    setTimeout(() => crt.classList.remove('global-glitch'), 600);
+                    crt.classList.add('is-glitching');
+                    setTimeout(() => crt.classList.remove('is-glitching'), 600);
                 }
                 
                 printLog("================================", false);
@@ -217,33 +217,33 @@ document.getElementById('cmd-input').onkeydown = e => {
         }
         else if (cmd === 'hack') { 
             // Tu lógica de hack actual se mantiene intacta
-            document.getElementById('crt-screen').classList.add('global-glitch'); 
+            document.getElementById('crt-screen').classList.add('is-glitching'); 
             const pre = document.createElement('pre'); 
             pre.className = 'hack-art-output'; 
             pre.textContent = alienAscii; 
             terminalLogs.appendChild(pre); 
             terminalLogs.scrollTop = terminalLogs.scrollHeight; 
-            setTimeout(() => { document.getElementById('crt-screen').classList.remove('global-glitch'); }, 2000);
+            setTimeout(() => { document.getElementById('crt-screen').classList.remove('is-glitching'); }, 2000);
         }
         else {
             printLog("COMANDO_NO_RECONOCIDO", true); 
         }
     }
 };
-document.querySelectorAll('.btn-hover-sfx').forEach(btn => btn.onmouseenter = () => playBeep(800, 'square'));
+document.querySelectorAll('.js-sfx-hover').forEach(btn => btn.onmouseenter = () => playBeep(800, 'square'));
 
 document.querySelectorAll('[data-filter]').forEach(btn => {
     btn.onclick = e => {
-        playBeep(150, 'sawtooth'); 
-        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active'); 
+        playBeep(150, 'sawtooth');
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('is-active'));
+        e.target.classList.add('is-active');
         
         const cat = e.target.dataset.filter; 
         
-        document.getElementById('crt-screen').classList.add('global-glitch');
-        setTimeout(() => document.getElementById('crt-screen').classList.remove('global-glitch'), 200);
+        document.getElementById('crt-screen').classList.add('is-glitching');
+        setTimeout(() => document.getElementById('crt-screen').classList.remove('is-glitching'), 200);
 
-        document.querySelectorAll('.category-container').forEach(c => {
+        document.querySelectorAll('.post-group').forEach(c => {
             c.style.display = (cat === 'ALL' || c.id === `cat-${cat}`) ? 'block' : 'none';
         });
     };
@@ -288,8 +288,12 @@ const drawMatrix = (timestamp) => {
 // Arrancamos el motor de animación delegando el trabajo al navegador/GPU
 requestAnimationFrame(drawMatrix);
 
-const bootSeq = ["> CARGANDO SEPGOD_KERNEL...", "> MEMORIA ASIGNADA...", "> SISTEMA LISTO."]; 
-let bIdx = 0; 
+// Bloqueamos el scroll mientras la splash ocupa toda la pantalla.
+document.documentElement.classList.add('splash-active');
+document.body.classList.add('splash-active');
+
+const bootSeq = ["> CARGANDO SEPGOD_KERNEL...", "> MEMORIA ASIGNADA...", "> SISTEMA LISTO."];
+let bIdx = 0;
 
 const boot = setInterval(() => {
     if(bIdx < bootSeq.length) { document.getElementById('boot-text').innerHTML += bootSeq[bIdx++] + "<br>"; } 
@@ -300,8 +304,12 @@ const boot = setInterval(() => {
 }, 300);
 
 document.getElementById('enter-btn').onclick = () => {
-    document.getElementById('splash').style.opacity = '0'; 
-    setTimeout(() => document.getElementById('splash').style.display = 'none', 300); 
+    document.getElementById('splash').style.opacity = '0';
+    setTimeout(() => document.getElementById('splash').style.display = 'none', 300);
+
+    // Liberamos el scroll: vuelve el comportamiento normal de la página.
+    document.documentElement.classList.remove('splash-active');
+    document.body.classList.remove('splash-active');
     
     printLog("ENLACE ESTABLECIDO."); 
     
@@ -341,6 +349,7 @@ async function sysGeoTrack() {
         
         // Estilos en línea rápidos para que no rompa tu maquetación (ajústalos a tu gusto)
         flagImg.style.height = '15px';
+        flagImg.style.width = '20px'; // Reserva el ancho (~4:3) para evitar salto de layout al cargar.
         flagImg.style.verticalAlign = 'middle';
         flagImg.style.marginLeft = '10px';
         flagImg.style.borderRadius = '2px';

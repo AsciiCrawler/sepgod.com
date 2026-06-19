@@ -7,6 +7,18 @@ layout: null
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title }} // NEURAL_OVERRIDE</title>
+
+    <meta name="description" content="{{ page.excerpt | strip_html | normalize_whitespace | truncate: 160 }}">
+    <link rel="canonical" href="https://sepgod.com{{ page.url }}">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{{ page.title }}">
+    <meta property="og:description" content="{{ page.excerpt | strip_html | normalize_whitespace | truncate: 160 }}">
+    <meta property="og:url" content="https://sepgod.com{{ page.url }}">
+    <meta property="article:section" content="{{ page.category }}">
+    <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+
     <style>
         :root { 
             --neon-cyan: #00f3ff; 
