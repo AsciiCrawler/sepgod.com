@@ -10,6 +10,8 @@
     // --- Configuración (sin sistema de env: valores fijos de producción) ---
     var BACKEND_URL = "https://chat.asciicrawler.com";
     var WS_BASE_URL = "wss://chat.asciicrawler.com";
+    /* var BACKEND_URL = "http://localhost:8081";
+    var WS_BASE_URL = "ws://localhost:8081"; */
     var RECONNECT_BASE_MS = 500;
     var RECONNECT_MAX_MS = 30000;
     var CONNECT_TIMEOUT_MS = 10000;
@@ -27,12 +29,16 @@
         return BACKEND_URL + "/rooms/" + roomPath(room) + path;
     };
 
+    var globalAPIURL = function (path) {
+        return BACKEND_URL + path;
+    };
+
     var roomWSURL = function (room) {
         return WS_BASE_URL + "/rooms/" + roomPath(room) + "/ws";
     };
 
-    var sessionKey = function (room) {
-        return CHAT_SESSION_KEY + ":" + room;
+    var sessionKey = function () {
+        return CHAT_SESSION_KEY;
     };
 
     // --- Helpers de datos ---
@@ -110,8 +116,42 @@
             });
     };
 
+    var authenticateUser = function (room, action, username, password) {
+        return fetch(globalAPIURL("/" + action), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: username, password: password })
+        }).then(function (response) {
+            return response.text().then(function (body) {
+                var payload = null;
+                if (body) {
+                    try {
+                        payload = JSON.parse(body);
+                    } catch (e) {
+                        payload = body;
+                    }
+                }
+
+                if (!response.ok) {
+                    var message = typeof payload === "string" && payload.trim()
+                        ? payload
+                        : payload && (payload.error || payload.message)
+                            ? payload.error || payload.message
+                            : "No se pudo completar la autenticacion.";
+                    throw new Error(message);
+                }
+
+                if (!payload || !payload.username || !payload.token) {
+                    throw new Error("Respuesta de autenticacion invalida.");
+                }
+
+                return payload;
+            });
+        });
+    };
+
     var getUser = function (room) {
-        var key = sessionKey(room);
+        var key = sessionKey();
         var storedUser = localStorage.getItem(key);
         var afterStored;
 
@@ -173,6 +213,7 @@
         this.connectTimeout = null;
         this.shouldReconnect = true;
         this.isConnecting = false;
+        this.silentDisconnect = false;
     }
 
     ChatClient.prototype.connect = function () {
@@ -235,6 +276,10 @@
             self.isConnecting = false;
             self.clearConnectTimeout();
             self.onClose();
+            if (self.silentDisconnect) {
+                self.silentDisconnect = false;
+                return;
+            }
             if (event.reason === "chat unavailable" || event.reason === "chat is currently unavailable") {
                 self.shouldReconnect = false;
                 if (self.onStatusChange) self.onStatusChange("unavailable");
@@ -283,8 +328,9 @@
         }
     };
 
-    ChatClient.prototype.disconnect = function () {
+    ChatClient.prototype.disconnect = function (silent) {
         this.shouldReconnect = false;
+        this.silentDisconnect = !!silent;
         this.clearReconnectTimer();
         this.clearConnectTimeout();
         if (this.ws) {
@@ -316,6 +362,7 @@
     var hasConnectedOnce = false;
     var isConnecting = false;
     var pendingErrorTimeout = null;
+    var suppressNextOpenResync = false;
 
     var playNotification = function () {
         if (notificationAudio) {
@@ -432,7 +479,11 @@
         var userSpan = document.createElement("span");
         userSpan.textContent = "<" + message.username + ">";
         userSpan.className = "chat__message-user";
-        userSpan.style.color = getUserColor(message.username);
+        if (message.role === "ADMIN") {
+            userSpan.classList.add("chat__message-user--admin");
+        } else {
+            userSpan.style.color = getUserColor(message.username);
+        }
 
         var textSpan = document.createElement("span");
         textSpan.textContent = message.text;
@@ -453,6 +504,14 @@
             messageContainer.scrollTo(0, messageContainer.scrollHeight);
         }
         updateLoadingVisibility();
+    };
+
+    var insertLocalSystemMessage = function (text) {
+        insertMessage({
+            username: "system",
+            text: text,
+            created_at: Math.floor(Date.now() / 1000)
+        }, false);
     };
 
     var showStatusMessage = function (message, buttonText) {
@@ -498,9 +557,90 @@
         showStatusMessage("CANAL FUERA DE LINEA.", "VERIFICAR_DE_NUEVO");
     };
 
+    var parseSlashCommand = function (rawValue) {
+        if (!rawValue || rawValue.charAt(0) !== "/") return null;
+
+        var match = rawValue.match(/^\/(login|register)(?:\s+(\S+)\s+(.+))?$/);
+        if (!match) {
+            return {
+                error: "Comando no soportado. Usa /login usuario password o /register usuario password."
+            };
+        }
+        var action = match[1].toLowerCase();
+        var username = match[2];
+        var password = match[3];
+
+        if (!username || !password || !password.trim()) {
+            return {
+                error: "Uso: /" + action + " usuario password."
+            };
+        }
+
+        return {
+            action: action,
+            username: username,
+            password: password.trim()
+        };
+    };
+
+    var createChatClient = function (user) {
+        chatClient = new ChatClient(
+            chatRoom,
+            user,
+            function (msg) {
+                insertMessage(msg);
+                playNotification();
+                updateStats();
+            },
+            function () {},
+            function () {},
+            undefined,
+            handleStatusChange
+        );
+        chatClient.connect();
+    };
+
+    var reconnectWithUser = function (user) {
+        suppressNextOpenResync = true;
+        if (chatClient) {
+            chatClient.disconnect(true);
+            chatClient = null;
+        }
+        createChatClient(user);
+    };
+
+    var handleAuthCommand = function (command) {
+        setChatControlsEnabled(false);
+
+        authenticateUser(chatRoom, command.action, command.username, command.password)
+            .then(function (user) {
+                localStorage.setItem(sessionKey(), JSON.stringify(user));
+                insertLocalSystemMessage("AUTH_OK: sesion actualizada como " + user.username + ".");
+                reconnectWithUser(user);
+            })
+            .catch(function (error) {
+                insertLocalSystemMessage("AUTH_ERROR: " + error.message);
+                if (!isConnecting && !errorNode) setChatControlsEnabled(true);
+            });
+    };
+
     var handleSendMessage = function () {
-        if (!chatClient || !chatInput || !chatInput.value.trim()) return;
-        chatClient.sendMessage(chatInput.value);
+        if (!chatInput || !chatInput.value.trim()) return;
+
+        var rawValue = chatInput.value;
+        var command = parseSlashCommand(rawValue);
+        if (command) {
+            chatInput.value = "";
+            if (command.error) {
+                insertLocalSystemMessage("AUTH_ERROR: " + command.error);
+                return;
+            }
+            handleAuthCommand(command);
+            return;
+        }
+
+        if (!chatClient) return;
+        chatClient.sendMessage(rawValue);
         chatInput.value = "";
     };
 
@@ -528,9 +668,10 @@
             var wasConnected = hasConnectedOnce;
             hasConnectedOnce = true;
             markConnected();
-            if (wasConnected) {
+            if (wasConnected && !suppressNextOpenResync) {
                 resyncMessages();
             }
+            suppressNextOpenResync = false;
             return;
         }
         if (status === "unavailable") {
@@ -579,20 +720,7 @@
                     }
 
                     // 4. Conexión
-                    chatClient = new ChatClient(
-                        chatRoom,
-                        user,
-                        function (msg) {
-                            insertMessage(msg);
-                            playNotification();
-                            updateStats();
-                        },
-                        function () {},
-                        function () {},
-                        undefined,
-                        handleStatusChange
-                    );
-                    chatClient.connect();
+                    createChatClient(user);
                 });
             });
         });
@@ -620,4 +748,5 @@
 
     // Arranque
     init();
+    setInterval(updateStats, 5000);
 })();
