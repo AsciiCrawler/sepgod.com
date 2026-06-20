@@ -1,425 +1,1076 @@
+/* normalize.css se carga antes que esta hoja mediante <link> en index.html,
+   evitando el round-trip extra de @import que provocaba el "flash" sin estilos. */
+
 /* =========================================================================
    CSS: EL DISEÑO Y LA PINTURA DE LA PÁGINA
+   Estructura basada en docs/css_rules.md:
+   1. Design tokens · 2. Reset/base · 3. Typography · 4. Layout
+   5. Components (BEM) · 6. Page sections · 7. State & a11y · 8. Media queries
    ========================================================================= */
 
-/* 1. PALETA DE COLORES (Variables Globales) */
+/* =========================================================================
+   1. DESIGN TOKENS (Variables Globales)
+   ========================================================================= */
 :root {
-    --neon-cyan: #00f3ff;       
-    --neon-magenta: #ff0055;    
-    --neon-yellow: #fcee0a;     
-    --bg-dark: #020202;         
-    --terminal-green: #00ff41;  
-    --font-main: 'Courier New', Courier, monospace; 
+    /* Paleta neón */
+    --neon-cyan: #00f3ff;
+    --neon-magenta: #ff0055;
+    --neon-yellow: #fcee0a;
+    --bg-dark: #020202;
+    --terminal-green: #00ff41;
+
+    /* Texto */
+    --color-text-body: #d1d1d1;
+    --color-text-muted: #aaa;
+    --color-white: #fff;
+
+    /* Superficies */
+    --surface: rgba(5, 5, 5, 0.9);
+    --surface-post: rgba(0, 0, 0, 0.8);
+    --surface-input: rgba(0, 0, 0, 0.5);
+    --surface-track: #222;
+
+    /* Bordes y brillos */
+    --border-cyan: rgba(0, 243, 255, 0.3);
+    --border-cyan-soft: rgba(0, 243, 255, 0.2);
+    --glow-cyan: rgba(0, 243, 255, 0.1);
+    --glow-cyan-faint: rgba(0, 243, 255, 0.05);
+    --glow-magenta: rgba(255, 0, 85, 0.1);
+    --focus-ring: rgba(0, 243, 255, 0.35);
+
+    /* Tipografía */
+    --font-main: 'Courier New', Courier, monospace;
 }
 
-
-        /* 2. REGLA UNIVERSAL (*) */
-
-        * { 
-
-            box-sizing: border-box; 
-
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="%2300f3ff" stroke="%23020202" stroke-width="1.5" d="M2,2 L2,18 L7,13 L10,19 L13,17 L10,12 L16,12 Z"/></svg>'), auto;
-
-            scrollbar-width: thin; 
-
-            scrollbar-color: var(--neon-cyan) var(--bg-dark); 
-
-        }
-
-
-
-        /* 3. EL CUERPO PRINCIPAL (body) */
-
-        body {
-
-            background-color: var(--bg-dark); 
-
-            color: var(--neon-cyan);         
-
-            font-family: var(--font-main);   
-
-            margin: 0;                       
-
-            height: 100vh;                   
-
-            overflow: hidden;                 
-
-        }
-
-
-
-   /* 4. EFECTOS DE TELEVISIÓN ANTIGUA (CRT) */
-        #crt-screen {
-            position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column;
-            overflow: hidden;
-            animation: turn-on 1s ease-out forwards;
-            /* OPTIMIZACIÓN PRO: Prepara el contenedor para aceleración gráfica */
-            transform: translateZ(0);
-            will-change: transform;
-        }
-
-        #matrix-canvas { 
-            position: absolute; inset: 0; z-index: -2; opacity: 0.15; 
-            /* OPTIMIZACIÓN PRO: Acelera el pintado del canvas */
-            transform: translateZ(0);
-        }
-
-        .crt-overlay {
-            position: absolute; inset: 0; z-index: 9998;
-            pointer-events: none;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), radial-gradient(circle, transparent 50%, #000 120%);
-            background-size: 100% 4px, 100% 100%;
-            animation: flicker 0.2s infinite;
-            /* OPTIMIZACIÓN PRO: Le dice al navegador "Oye, la opacidad de esto va a cambiar todo el tiempo, dáselo a la GPU" */
-            transform: translateZ(0);
-            will-change: opacity;
-        }
-
-
-        /* 5. EL CREADOR DE ANIMACIONES (@keyframes) */
-
-        @keyframes turn-on { 0%, 40% { transform: scaleY(0.001); filter: brightness(5); } 100% { transform: scaleY(1); filter: brightness(1); } }
-
-        @keyframes flicker { 0%, 10% { opacity: 0.95; } 5%, 100% { opacity: 1; } }
-
-        @keyframes glitch-simple { 0%, 100% { transform: translate(0); } 25% { transform: translate(-2px, 2px); } 75% { transform: translate(2px, -2px); } }
-
-        @keyframes fadeInContent { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .global-glitch { animation: glitch-simple 0.2s infinite; filter: hue-rotate(90deg); }
-
-
-
-        /* 6. DISEÑO DEL DIBUJO ASCII */
-
-        .hack-art-output {
-
-            color: var(--terminal-green); font-family: var(--font-main); 
-
-            font-size: 4px; 
-
-            line-height: 1; white-space: pre; margin: 10px 0; overflow-x: hidden; 
-
-            text-shadow: 0 0 5px rgba(0, 255, 65, 0.5); 
-
-        }
-
-
-
-        /* 7. CABECERA */
-
-        header { text-align: center; padding: 20px 0; border-bottom: 1px solid rgba(0,243,255,0.3); }
-
-        .glitch-box { font-size: 2.5rem; font-weight: 900; letter-spacing: 10px; color: var(--neon-cyan); text-shadow: 2px 2px var(--neon-magenta); }
-
-        .subtitle-header { font-size: 0.8rem; color: var(--neon-yellow); margin-top: 5px; }
-
-
-
-        /* 8. ESTRUCTURA PRINCIPAL */
-
-        .main-wrapper { 
-
-            display: grid; 
-
-            max-width: 1800px; 
-
-            grid-template-columns: 300px 1px 1fr 1px 450px; 
-
-            gap: 15px; padding: 20px; 
-
-            height: calc(100vh - 100px); 
-
-            margin: auto; 
-
-        }
-
-        .cyan-line { background: var(--neon-cyan); opacity: 0.3; } 
-
-
-
-        /* 9. PANELES IZQUIERDOS Y MÓDULOS */
-
-        .side-panel { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; } 
-
-        
-
-        .module { background: rgba(5, 5, 5, 0.9); border: 1px solid rgba(0,243,255,0.3); padding: 15px; position: relative; transition: 0.2s; }
-
-        .module:hover { border-color: var(--neon-cyan); } 
-
-        
-
-        .module-header { color: var(--neon-yellow); font-size: 0.85rem; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,243,255,0.3); padding-bottom: 5px; }
-
-
-
-        .btn-cyber { background: rgba(0,0,0,0.5); border: 1px solid rgba(0,243,255,0.3); color: var(--neon-cyan); width: 100%; padding: 10px; font-weight: bold; font-family: inherit; margin-bottom: 8px; transition: 0.2s; text-align: left; border-radius: 0; }
-
-        .btn-cyber:hover, .btn-cyber.active { background: rgba(0, 243, 255, 0.1); border-color: var(--neon-cyan); padding-left: 20px; } 
-
-        .btn-cyber.active { border-color: var(--neon-magenta); color: #fff; background: rgba(255,0,85,0.15); } 
-
-
-
-        /* FILTRO HORIZONTAL SUPERIOR */
-
-        .top-filter-module {
-
-            background: rgba(5, 5, 5, 0.9); border: 1px solid rgba(0,243,255,0.3); padding: 15px; margin-bottom: 25px; transition: 0.2s;
-
-        }
-
-        .top-filter-module:hover { border-color: var(--neon-cyan); }
-
-        .horizontal-filters { display: flex; flex-direction: row; gap: 10px; flex-wrap: wrap; }
-
-        .horizontal-filters .btn-cyber { width: auto; flex-grow: 1; text-align: center; margin-bottom: 0; }
-
-        .horizontal-filters .btn-cyber:hover, .horizontal-filters .btn-cyber.active { padding-left: 10px; transform: translateY(-2px); }
-
-
-
-        /* 10. ZONA CENTRAL */
-
-        #center-zone { padding: 0 20px; overflow-y: auto; }
-
-        .category-container { display: block; margin-bottom: 30px; transition: opacity 0.3s; }
-
-        .category-header { color: var(--neon-magenta); font-size: 1.2rem; margin-bottom: 15px; text-shadow: 0 0 5px rgba(255,0,85,0.5); }
-
-        
-
-        .post-card { background: rgba(0,0,0,0.8); border: 1px solid rgba(0,243,255,0.2); padding: 15px; margin-bottom: 10px; border-left: 3px solid var(--neon-cyan); transition: 0.2s; }
-
-        .post-card:hover { border-color: var(--neon-cyan); border-left-color: var(--neon-magenta); background: rgba(0,243,255,0.05); }
-
-        .post-title { font-size: 1.1rem; color: #fff; margin-bottom: 5px; text-transform: uppercase; }
-
-        .post-card:hover .post-title { color: var(--neon-cyan); transition: color 0.3s ease; }
-
-        .post-date { color: var(--terminal-green); font-size: 0.8rem; margin-bottom: 10px; }
-
-        
-
-        .btn-action { display: inline-block; background: var(--neon-cyan); color: var(--bg-dark); border: none; font-family: inherit; padding: 4px 10px; font-size: 0.8rem; font-weight: bold; transition: 0.2s; cursor: pointer; text-decoration: none; }
-
-        .btn-action:hover { background: #fff; color: #000; }
-
-
-
-        /* CONTENIDO EXPANDIBLE DEL POST */
-
-        .post-content {
-
-            display: none;
-
-            margin-top: 15px;
-
-            border-top: 1px dashed rgba(0,243,255,0.3);
-
-            padding-top: 15px;
-
-            font-size: 0.95rem;
-
-            color: #d1d1d1;
-
-            line-height: 1.6;
-
-            animation: fadeInContent 0.3s ease-in-out;
-
-            text-shadow: none;
-
-        }
-
-        
-
-        .post-content a { color: var(--neon-magenta); text-decoration: underline; }
-
-        .post-content img { max-width: 100%; height: auto; border: 1px solid var(--neon-cyan); border-radius: 4px; margin: 10px 0; }
-
-        .post-content h1, .post-content h2, .post-content h3 { color: #fff; }
-
-        .post-content code { background: rgba(0, 243, 255, 0.1); padding: 2px 5px; color: var(--terminal-green); }
-
-
-
-        /* =========================================================================
-
-           10.5 NUEVO: MÓDULO ABOUT ME (Perfil del Usuario)
-
-           ========================================================================= */
-
-        .about-me-module {
-
-            background: rgba(5, 5, 5, 0.9);
-
-            border: 1px solid var(--neon-magenta);
-
-            padding: 20px;
-
-            margin-bottom: 25px;
-
-            position: relative;
-
-            box-shadow: inset 0 0 15px rgba(255, 0, 85, 0.1);
-
-            transition: 0.3s;
-
-        }
-
-        .about-me-module:hover {
-
-            border-color: var(--neon-cyan);
-
-            box-shadow: inset 0 0 15px rgba(0, 243, 255, 0.1);
-
-        }
-
-        .about-me-content {
-
-            color: #d1d1d1;
-
-            font-size: 0.95rem;
-
-            line-height: 1.6;
-
-            animation: fadeInContent 0.5s ease-in-out;
-
-        }
-
-        .about-me-content h3 {
-
-            color: var(--neon-cyan);
-
-            margin: 5px 0 15px 0;
-
-            text-transform: uppercase;
-
-            letter-spacing: 1px;
-
-            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
-
-        }
-
-        .about-me-content h4 {
-
-            color: var(--neon-yellow);
-
-            margin: 20px 0 10px 0;
-
-            font-size: 0.9rem;
-
-        }
-
-        .about-me-content ul {
-
-            padding-left: 20px;
-
-            margin: 10px 0;
-
-        }
-
-        .about-me-content li {
-
-            margin-bottom: 8px;
-
-            color: var(--terminal-green); /* Color de las viñetas */
-
-        }
-
-        .about-me-content li .text {
-
-            color: #d1d1d1; /* Color del texto de la lista */
-
-        }
-
-        .highlight-magenta {
-
-            color: var(--neon-magenta);
-
-            font-weight: bold;
-
-        }
-
-        .about-me-content blockquote {
-
-            border-left: 3px solid var(--neon-cyan);
-
-            background: rgba(0, 243, 255, 0.05);
-
-            margin: 20px 0 0 0;
-
-            padding: 15px;
-
-            font-style: italic;
-
-            color: var(--terminal-green);
-
-        }
-
-
-
-        /* 11. ESTRUCTURA DE LA COLUMNA DERECHA */
-
-        .side-panel-right { display: grid; grid-template-columns: 200px 1fr; gap: 15px; height: 100%; overflow: hidden; }
-
-        .sub-col-gifs { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
-
-        .terminal-module { display: flex; flex-direction: column; height: 100%; margin: 0; }
-
-
-
-        /* 12. LA TERMINAL DE COMANDOS */
-
-        #sys-log-container { display: flex; flex-direction: column; flex-grow: 1; height: 0; overflow-y: auto; font-size: 0.75rem; color: #aaa; }
-
-        .terminal-input-wrapper { display: flex; margin-top: 10px; border-top: 1px dashed rgba(0,243,255,0.3); padding-top: 10px; }
-
-        .terminal-input-wrapper input { background: transparent; border: none; color: var(--terminal-green); font-family: inherit; width: 100%; outline: none; }
-
-        
-
-        /* 13. PANTALLA NEGRA DE CARGA */
-
-        #splash { position: fixed; inset: 0; background: var(--bg-dark); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.3s; }
-
-        #boot-text { color: var(--terminal-green); font-size: 1rem; width: 60vw; height: 200px; }
-
-        #enter-btn { background: transparent; color: var(--neon-cyan); border: 2px solid var(--neon-cyan); padding: 15px 40px; font-size: 1.5rem; font-family: inherit; display: none; transition: 0.2s; }
-
-        #enter-btn:hover { background: var(--neon-cyan); color: #000; }
-
-
-
-        /* 14. LOS GIFs DE MONITOREO */
-
-        .cyber-gif { width: 100%; height: auto; display: block; border: 1px solid rgba(0,243,255,0.3); filter: contrast(120%) brightness(90%); }
-
-        .neighbor-img { width: 100%; height: auto; display: block; border: 1px solid rgba(0,243,255,0.3); filter: contrast(120%) brightness(80%); transition: all 0.3s ease; }
-
-        .neighbor-img:hover { border-color: var(--neon-magenta); filter: contrast(100%) brightness(110%); transform: scale(1.03); }
+/* =========================================================================
+   2. RESET / BASE
+   ========================================================================= */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="%2300f3ff" stroke="%23020202" stroke-width="1.5" d="M2,2 L2,18 L7,13 L10,19 L13,17 L10,12 L16,12 Z"/></svg>'), auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon-cyan) var(--bg-dark);
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    font-family: var(--font-main);
+    color: var(--neon-cyan);
+    background-color: var(--bg-dark);
+}
 
 /* =========================================================================
-           NUEVO: ANIMACIÓN DE DESENCRIPTADO PARA EL CONTENIDO
-           ========================================================================= */
-        .decrypt-anim {
-            /* Usamos steps() para que parezca un barrido de terminal en lugar de un fade suave */
-            animation: decryptFade 0.5s steps(10, end) forwards;
-        }
+   3. TYPOGRAPHY
+   (Los encabezados se estilizan dentro de sus componentes; ver sección 6.)
+   ========================================================================= */
 
-        @keyframes decryptFade {
-            0% { opacity: 0; filter: blur(4px) hue-rotate(90deg); transform: translateX(-10px); }
-            50% { opacity: 0.8; filter: blur(1px) invert(20%); transform: translateX(5px); }
-            100% { opacity: 1; filter: none; transform: translateX(0); }
-        }
+/* =========================================================================
+   ANIMACIONES (@keyframes)
+   ========================================================================= */
+@keyframes turn-on {
+    0%, 40% { transform: scaleY(0.001); filter: brightness(5); }
+    100% { transform: scaleY(1); filter: brightness(1); }
+}
 
-      /* 15. RESPONSIVE DESIGN */
-    @media (max-width: 1200px) { 
-        .main-wrapper { grid-template-columns: 1fr; height: auto; overflow: auto; } 
-        .cyan-line { display: none; } 
-        .side-panel-right { grid-template-columns: 1fr; height: auto; } 
-        .terminal-module { height: 400px; }
-        .horizontal-filters .btn-cyber { width: 100%; flex-basis: 100%; }
+@keyframes flicker {
+    0%, 10% { opacity: 0.95; }
+    5%, 100% { opacity: 1; }
+}
+
+@keyframes glitch-simple {
+    0%, 100% { transform: translate(0); }
+    25% { transform: translate(-2px, 2px); }
+    75% { transform: translate(2px, -2px); }
+}
+
+@keyframes fadeInContent {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes decryptFade {
+    0% { opacity: 0; filter: blur(4px) hue-rotate(90deg); transform: translateX(-10px); }
+    50% { opacity: 0.8; filter: blur(1px) invert(20%); transform: translateX(5px); }
+    100% { opacity: 1; filter: none; transform: translateX(0); }
+}
+
+/* =========================================================================
+   4. LAYOUT
+   ========================================================================= */
+.layout {
+    display: grid;
+    max-width: 1800px;
+    grid-template-columns: 280px 1px 1fr 1px 280px;
+    gap: 15px;
+    padding: 20px;
+    height: calc(100vh - 100px);
+    margin: auto;
+}
+
+.layout__divider {
+    background: var(--neon-cyan);
+    opacity: 0.3;
+}
+
+.layout__center {
+    padding: 0 20px;
+    overflow-y: auto;
+}
+
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+}
+
+/* Riel derecho: GIFs y terminal forman un único flujo con un solo scroll.
+   No hay sub-contenedores con scroll propio; sólo .media-rail desplaza. */
+.media-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* =========================================================================
+   5. COMPONENTS (BEM)
+   ========================================================================= */
+
+/* --- Efecto CRT (pantalla) --- */
+.crt-screen {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: turn-on 1s ease-out forwards;
+    /* Prepara el contenedor para aceleración gráfica. */
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+.crt-screen__canvas {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    opacity: 0.15;
+    /* Acelera el pintado del canvas. */
+    transform: translateZ(0);
+}
+
+.crt-screen__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), radial-gradient(circle, transparent 50%, #000 120%);
+    background-size: 100% 4px, 100% 100%;
+    animation: flicker 0.2s infinite;
+    /* La opacidad cambia constantemente: delegar a la GPU. */
+    transform: translateZ(0);
+    will-change: opacity;
+}
+
+/* --- Dibujo ASCII --- */
+.hack-art-output {
+    color: var(--terminal-green);
+    font-family: var(--font-main);
+    font-size: 4px;
+    line-height: 1;
+    white-space: pre;
+    margin: 10px 0;
+    overflow-x: hidden;
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+}
+
+/* --- Cabecera --- */
+.site-header {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-cyan);
+}
+
+.site-header__title {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 10px;
+    color: var(--neon-cyan);
+    text-shadow: 2px 2px var(--neon-magenta);
+}
+
+.site-header__subtitle {
+    font-size: 0.8rem;
+    color: var(--neon-yellow);
+    margin-top: 5px;
+}
+
+/* --- Módulo (bloque reutilizable) --- */
+.module {
+    position: relative;
+    padding: 15px;
+    background: var(--surface);
+    border: 1px solid var(--border-cyan);
+    transition: 0.2s;
+}
+
+.module:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px var(--glow-cyan);
+}
+
+.module--tight {
+    padding: 10px;
+}
+
+.module--terminal {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.module__header {
+    color: var(--neon-yellow);
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed var(--border-cyan);
+    padding-bottom: 5px;
+}
+
+.module__header--row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.module__text {
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.module__stats {
+    margin-top: 10px;
+    font-size: 0.7rem;
+}
+
+.module__prompt {
+    color: var(--neon-magenta);
+    margin-right: 5px;
+}
+
+/* El log fluye dentro del scroll único del riel: sin scroll propio. */
+.module__log {
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.module__input {
+    display: flex;
+    margin-top: 10px;
+    border-top: 1px dashed var(--border-cyan);
+    padding-top: 10px;
+}
+
+.module__field {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--terminal-green);
+    font-family: inherit;
+    outline: none;
+}
+
+/* --- Barras de monitoreo (CPU / RAM) --- */
+.meter {
+    height: 3px;
+    background: var(--surface-track);
+}
+
+.meter__bar {
+    height: 100%;
+    transition: 0.5s;
+}
+
+.meter__bar--cyan {
+    background: var(--neon-cyan);
+}
+
+.meter__bar--magenta {
+    background: var(--neon-magenta);
+}
+
+/* --- Botones --- */
+.button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.button--cyber {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: var(--surface-input);
+    border: 1px solid var(--border-cyan);
+    border-radius: 0;
+    color: var(--neon-cyan);
+    font-weight: bold;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.button--cyber:hover,
+.button--cyber.is-active {
+    background: var(--glow-cyan);
+    border-color: var(--neon-cyan);
+    padding-left: 20px;
+}
+
+.button--cyber.is-active {
+    border-color: var(--neon-magenta);
+    color: var(--color-white);
+    background: rgba(255, 0, 85, 0.15);
+}
+
+/* Variante usada en la barra de filtros horizontal. */
+.button--filter {
+    width: auto;
+    flex-grow: 1;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.button--filter:hover,
+.button--filter.is-active {
+    padding-left: 10px;
+    transform: translateY(-2px);
+}
+
+.button--action {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--neon-cyan);
+    color: var(--bg-dark);
+    border: none;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.button--action:hover {
+    background: var(--color-white);
+    color: #000;
+}
+
+.button--xs {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+}
+
+/* --- Barra de filtros --- */
+.filter-bar {
+    background: var(--surface);
+    border: 1px solid var(--border-cyan);
+    padding: 15px;
+    margin-bottom: 25px;
+    transition: 0.2s;
+}
+
+.filter-bar:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px var(--glow-cyan);
+}
+
+.filter-bar__list {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* --- Grupos y tarjetas de posts --- */
+.post-group {
+    display: block;
+    margin-bottom: 25px;
+    transition: opacity 0.3s;
+}
+
+.post-group__title {
+    color: var(--neon-magenta);
+    font-size: 1.2rem;
+    font-weight: normal;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
+}
+
+.post-card {
+    background: var(--surface-post);
+    border: 1px solid var(--border-cyan-soft);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--neon-cyan);
+    transition: 0.2s;
+}
+
+.post-card:hover {
+    border-color: var(--neon-cyan);
+    border-left-color: var(--neon-magenta);
+    background: var(--glow-cyan-faint);
+}
+
+.post-card__title {
+    font-size: 1.1rem;
+    font-weight: normal;
+    color: var(--color-white);
+    margin-top: 0;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.post-card:hover .post-card__title {
+    color: var(--neon-cyan);
+    transition: color 0.3s ease;
+}
+
+.post-card__date {
+    color: var(--terminal-green);
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+}
+
+/* Contenido expandible del post (markdown renderizado). */
+.post-card__content {
+    display: none;
+    margin-top: 15px;
+    border-top: 1px dashed var(--border-cyan);
+    padding-top: 15px;
+    font-size: 0.95rem;
+    color: var(--color-text-body);
+    line-height: 1.6;
+    animation: fadeInContent 0.3s ease-in-out;
+    text-shadow: none;
+}
+
+.post-card__content a {
+    color: var(--neon-magenta);
+    text-decoration: underline;
+}
+
+.post-card__content img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--neon-cyan);
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.post-card__content h1,
+.post-card__content h2,
+.post-card__content h3 {
+    color: var(--color-white);
+}
+
+.post-card__content code {
+    background: var(--glow-cyan);
+    padding: 2px 5px;
+    color: var(--terminal-green);
+}
+
+/* --- Módulo About Me (perfil del usuario) --- */
+.about {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--neon-magenta);
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: inset 0 0 15px var(--glow-magenta);
+    transition: 0.3s;
+}
+
+.about:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: inset 0 0 15px var(--glow-cyan), 0 0 12px var(--glow-cyan);
+}
+
+.about__body {
+    color: var(--color-text-body);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    animation: fadeInContent 0.5s ease-in-out;
+}
+
+.about__body h3 {
+    color: var(--neon-cyan);
+    margin: 5px 0 15px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+}
+
+.about__body h4 {
+    color: var(--neon-yellow);
+    margin: 20px 0 10px 0;
+    font-size: 0.9rem;
+}
+
+.about__body ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.about__body li {
+    margin-bottom: 8px;
+    color: var(--terminal-green); /* Color de las viñetas */
+}
+
+.about__item-text {
+    color: var(--color-text-body); /* Color del texto de la lista */
+}
+
+.about__body blockquote {
+    border-left: 3px solid var(--neon-cyan);
+    background: var(--glow-cyan-faint);
+    margin: 20px 0 0 0;
+    padding: 15px;
+    font-style: italic;
+    color: var(--terminal-green);
+}
+
+/* --- Canal de chat (WebSocket) --- */
+.chat {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border-cyan);
+    padding: 15px;
+    margin-bottom: 25px;
+    transition: 0.2s;
+}
+
+.chat:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px var(--glow-cyan);
+}
+
+.chat__beta {
+    color: var(--neon-magenta);
+    font-weight: bold;
+}
+
+.chat__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin-bottom: 10px;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+}
+
+.chat__stats > span {
+    white-space: nowrap;
+}
+
+/* La zona de mensajes desplaza verticalmente y ancla el overlay de carga. */
+.chat__messages {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px;
+    background: var(--surface-input);
+    border: 1px solid var(--border-cyan-soft);
+}
+
+.chat__message {
+    line-height: 1.325rem;
+    margin: 4px 0;
+    color: var(--color-text-body);
+}
+
+.chat__message-user {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+/* Nombre de usuario ADMIN: efecto arcoiris animado. */
+.chat__message-user--admin {
+    background-image: linear-gradient(
+        90deg,
+        #ff0000, #ff8800, #ffee00, #00ff00, #00ffee, #0088ff, #8800ff, #ff0000
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: chat-rainbow 4s linear infinite;
+}
+
+@keyframes chat-rainbow {
+    to {
+        background-position: 200% center;
     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chat__message-user--admin {
+        animation: none;
+    }
+}
+
+/* Evita que cadenas largas (URLs, tokens) rompan el ancho del contenedor. */
+.chat__message-text--anywhere {
+    line-break: anywhere;
+    overflow-wrap: anywhere;
+}
+
+.chat__message-time {
+    float: right;
+    margin-left: auto;
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+}
+
+.chat__input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.chat__field {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    background: var(--surface-input);
+    border: 1px solid var(--border-cyan);
+    color: var(--neon-cyan);
+    font-family: inherit;
+}
+
+.chat__field::placeholder {
+    color: var(--color-text-muted);
+}
+
+.chat__field:focus-visible {
+    border-color: var(--neon-cyan);
+}
+
+.chat__send {
+    flex-shrink: 0;
+}
+
+.chat__field:disabled,
+.chat__send:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+/* Estado de error / canal no disponible (sólo texto, estética terminal). */
+.chat__status {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.chat__status-text {
+    color: var(--neon-magenta);
+    text-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
+}
+
+.chat__status-button {
+    padding: 6px 18px;
+    background: transparent;
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: inherit;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.chat__status-button:hover {
+    background: var(--glow-cyan);
+}
+
+/* Overlay de carga: skeleton + barrido tipo terminal sobre los mensajes. */
+.chat__loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 10px;
+    overflow: hidden;
+    background: radial-gradient(circle at top, rgba(5, 5, 5, 0.96), rgba(0, 0, 0, 0.88));
+    opacity: 1;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+}
+
+.chat__loading.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.chat__loading::after {
+    content: "";
+    position: absolute;
+    left: -20%;
+    right: -20%;
+    top: -35%;
+    height: 35%;
+    background: linear-gradient(180deg, transparent, rgba(0, 243, 255, 0.12), transparent);
+    animation: chat-scan 3.2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.chat__loading-header,
+.chat__loading-list {
+    position: relative;
+    z-index: 1;
+}
+
+.chat__loading-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--neon-yellow);
+}
+
+.chat__loading-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.chat__loading-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--neon-cyan);
+    animation: chat-dot-pulse 1.2s ease-in-out infinite;
+}
+
+.chat__loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.chat__loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+.chat__loading-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat__loading-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 60px;
+    gap: 8px;
+    align-items: center;
+}
+
+.chat__loading-bar {
+    position: relative;
+    height: 12px;
+    border-radius: 2px;
+    background: rgba(0, 243, 255, 0.08);
+    overflow: hidden;
+}
+
+.chat__loading-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.18), transparent);
+    transform: translateX(-100%);
+    animation: chat-shimmer 1.6s ease-in-out infinite;
+}
+
+.chat__loading-bar--user {
+    width: 72px;
+}
+
+.chat__loading-bar--text {
+    justify-self: start;
+}
+
+.chat__loading-bar--short {
+    width: 45%;
+}
+
+.chat__loading-bar--medium {
+    width: 65%;
+}
+
+.chat__loading-bar--long {
+    width: 85%;
+}
+
+.chat__loading-bar--time {
+    width: 52px;
+    height: 10px;
+    justify-self: end;
+}
+
+@keyframes chat-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes chat-dot-pulse {
+    0%, 100% { opacity: 0.35; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes chat-scan {
+    0% { transform: translateY(-30%); opacity: 0; }
+    45% { opacity: 0.55; }
+    100% { transform: translateY(140%); opacity: 0; }
+}
+
+/* --- Pantalla de carga (splash) --- */
+.splash {
+    position: fixed;
+    inset: 0;
+    /* Alto/ancho reales del viewport: dvh/dvw evitan el hueco bajo la barra
+       del navegador en móvil; vh/vw quedan como respaldo para navegadores viejos. */
+    width: 100vw;
+    width: 100dvw;
+    height: 100vh;
+    height: 100dvh;
+    padding: 20px;
+    background: var(--bg-dark);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.splash__boot {
+    color: var(--terminal-green);
+    font-size: clamp(0.8rem, 3vw, 1rem);
+    width: min(90vw, 600px);
+    max-height: 40vh;
+    overflow: hidden;
+}
+
+.splash__enter {
+    background: transparent;
+    color: var(--neon-cyan);
+    border: 2px solid var(--neon-cyan);
+    padding: clamp(10px, 3vw, 15px) clamp(20px, 7vw, 40px);
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    font-family: inherit;
+    display: none;
+    transition: 0.2s;
+}
+
+.splash__enter:hover {
+    background: var(--neon-cyan);
+    color: #000;
+}
+
+/* --- GIFs de monitoreo e imagen del vecino --- */
+.cyber-gif {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--border-cyan);
+    filter: contrast(120%) brightness(90%);
+    transition: border-color 0.3s ease, filter 0.3s ease;
+}
+
+.cyber-gif:hover {
+    border-color: var(--neon-magenta);
+    filter: contrast(110%) brightness(105%);
+}
+
+.neighbor-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--border-cyan);
+    filter: contrast(120%) brightness(80%);
+    transition: all 0.3s ease;
+}
+
+.neighbor-img:hover {
+    border-color: var(--neon-magenta);
+    filter: contrast(100%) brightness(110%);
+    transform: scale(1.03);
+}
+
+/* =========================================================================
+   7. STATE & ACCESSIBILITY HELPERS
+   ========================================================================= */
+.is-glitching {
+    animation: glitch-simple 0.2s infinite;
+    filter: hue-rotate(90deg);
+}
+
+/* Barrido tipo terminal para el contenido recién mostrado. */
+.is-decrypting {
+    animation: decryptFade 0.5s steps(10, end) forwards;
+}
+
+:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* --- Utilidades --- */
+.text-magenta {
+    color: var(--neon-magenta);
+    font-weight: bold;
+}
+
+.text-green {
+    color: var(--terminal-green);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.block-link {
+    display: block;
+}
+
+.muted-note {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 5px 0 10px;
+}
+
+.mt-1 {
+    margin-top: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* =========================================================================
+   8. MEDIA QUERIES
+   ========================================================================= */
+@media (max-width: 1200px) {
+    /* Una vez apiladas las columnas, el contenido supera el alto del viewport.
+       Liberamos el overflow fijo de body/.crt-screen para permitir scroll vertical
+       y que ninguna sección quede recortada fuera de pantalla. */
+    body {
+        height: auto;
+        overflow-y: auto;
+    }
+
+    .crt-screen {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+    }
+
+    .layout {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: auto;
+    }
+
+    .layout__divider {
+        display: none;
+    }
+
+    .media-rail {
+        height: auto;
+        overflow: visible;
+    }
+
+    .button--filter {
+        width: 100%;
+        flex-basis: 100%;
+    }
+}
+
+/* Ajuste fino para teléfonos: tipografía, espaciado y alto de terminal. */
+@media (max-width: 480px) {
+    .layout {
+        padding: 10px;
+    }
+
+    .module {
+        padding: 10px;
+    }
+
+    .site-header {
+        padding: 12px 0;
+    }
+
+    .site-header__title {
+        font-size: 1.5rem;
+        letter-spacing: 4px;
+    }
+
+    .chat__messages {
+        height: 260px;
+    }
+
+    .splash {
+        padding: 16px;
+    }
+
+    .splash__boot {
+        width: 92vw;
+        max-height: 35vh;
+    }
+}
+
+/* Bloqueo de scroll mientras la splash está visible. La clase .splash-active la
+   pone/quita script.js. Especificidad (0,1,1) gana sobre el body { overflow-y:auto }
+   del media query de tablet/móvil, así que el bloqueo manda mientras está activa. */
+html.splash-active,
+body.splash-active {
+    overflow: hidden;
+    height: 100%;
+}

@@ -1,376 +1,331 @@
 ---
-
 layout: null
-
 ---
-
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-    <link rel="stylesheet" href="./style.css">
-    <meta charset="UTF-8"> 
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-
-    
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Bienvenido a SEPGOD_OS. El rincón digital de Sergio Arturo Ramos Rodriguez sobre retro gaming, cultura japonesa, cyberpunk, tecnología y desarrollo web. Entra al Mainframe.">
-
     <meta name="keywords" content="Sergio Arturo Ramos Rodriguez, sepgod, sepgod_os, retro gaming, cyberpunk, desarrollo web, blog personal">
 
-    
+    <link rel="canonical" href="https://sepgod.com">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SEPGOD_OS">
+    <meta property="og:description" content="Bienvenido a SEPGOD_OS. El rincón digital de Sergio Arturo Ramos Rodriguez sobre retro gaming, cultura japonesa, cyberpunk, tecnología y desarrollo web. Entra al Mainframe.">
+    <meta property="og:url" content="https://sepgod.com">
+    <meta property="og:image" content="https://sepgod.com/images/Bh1M.webp">
+    <meta property="og:image:width" content="500">
+    <meta property="og:image:height" content="370">
 
-    <title>SEPGOD_OS // V1.0 :: MAINFRAME_ACCESS</title> 
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SEPGOD_OS">
+    <meta name="twitter:description" content="Bienvenido a SEPGOD_OS. El rincón digital de Sergio Arturo Ramos Rodriguez sobre retro gaming, cultura japonesa, cyberpunk, tecnología y desarrollo web. Entra al Mainframe.">
+    <meta name="twitter:image" content="https://sepgod.com/images/Bh1M.webp">
 
-    
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebSite",
+                "@id": "https://sepgod.com/#website",
+                "url": "https://sepgod.com",
+                "name": "SEPGOD_OS",
+                "description": "El rincón digital de Sergio Arturo Ramos Rodriguez sobre retro gaming, cultura japonesa, cyberpunk, tecnología y desarrollo web.",
+                "inLanguage": "es",
+                "author": { "@id": "https://sepgod.com/#person" }
+            },
+            {
+                "@type": "Person",
+                "@id": "https://sepgod.com/#person",
+                "name": "Sergio Arturo Ramos Rodriguez",
+                "alternateName": "Sepgod",
+                "url": "https://sepgod.com",
+                "knowsAbout": ["Retro Gaming", "Cyberpunk", "Cultura Japonesa", "Anime", "Desarrollo Web", "Pixel Art"]
+            }
+        ]
+    }
+    </script>
+
+    <!-- Cortina anti-FOUC: pinta el fondo oscuro al instante y oculta el
+         contenido hasta que el DOM y el CSS bloqueante estén listos. -->
+    <style>
+        html { background: #020202; }
+        body { visibility: hidden; }
+        body.ready { visibility: visible; }
+    </style>
+    <noscript><style>body { visibility: visible; }</style></noscript>
+
+    <!-- normalize.css va antes de style.css (orden de cascada: reset y luego diseño). -->
+    <link rel="stylesheet" href="./normalize.css">
+    <link rel="stylesheet" href="./style.css">
+
+    <title>SEPGOD_OS // V1.0 :: MAINFRAME_ACCESS</title>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.body.classList.add('ready');
+        });
+    </script>
 </head>
-
 <body>
 
+<div id="crt-screen" class="crt-screen">
+    <canvas id="matrix-canvas" class="crt-screen__canvas"></canvas>
+    <div class="crt-screen__overlay"></div>
 
-
-<div id="crt-screen">
-
-    <canvas id="matrix-canvas"></canvas>
-
-    <div class="crt-overlay"></div>
-
-
-
-    <div id="splash">
-
-        <div id="boot-text"></div>
-
-        <button id="enter-btn">INICIAR_ENLACE</button>
-
+    <div id="splash" class="splash">
+        <div id="boot-text" class="splash__boot"></div>
+        <button id="enter-btn" class="splash__enter" type="button">INICIAR_ENLACE</button>
     </div>
 
-
-
-    <header>
-
-        <h1 class="glitch-box" style="margin: 0;">SEPGOD_OS_V1.0</h1>
-
-        <div class="subtitle-header">SECURE CONDUIT // KERNEL MATRIX</div>
-
+    <header class="site-header">
+        <h1 class="site-header__title">SEPGOD_OS_V1.0</h1>
+        <div class="site-header__subtitle">SECURE CONDUIT // KERNEL MATRIX</div>
     </header>
 
-
-
-    <div class="main-wrapper">
-
-        
+    <div class="layout">
 
         <div class="side-panel">
-
             <div class="module">
-
-                <div class="module-header">> ARE WE JUST DATA?</div>
-
-                <div style="font-size: 0.8rem; line-height: 1.5;">
-
-                    USR: <span style="color:var(--neon-magenta)">GUEST_GHOST</span><br>
-
-                    NET: <span style="color:var(--terminal-green)">LINK_ESTABLISHED</span><br>
-
+                <div class="module__header">> ARE WE JUST DATA?</div>
+                <div class="module__text">
+                    USR: <span class="text-magenta">GUEST_GHOST</span><br>
+                    NET: <span class="text-green">LINK_ESTABLISHED</span><br>
                     PING: <span id="ping-ms">12</span>ms
-
                 </div>
-
-                <div style="margin-top:10px; font-size:0.7rem;">
-
+                <div class="module__stats">
                     <div>CPU: <span id="cpu-val">12%</span></div>
-
-                    <div style="height:3px; background:#222;"><div id="cpu-meter" style="height:100%; width:12%; background:var(--neon-cyan); transition:0.5s;"></div></div>
-
-                    <div style="margin-top:5px;">RAM: <span id="ram-val">45%</span></div>
-
-                    <div style="height:3px; background:#222;"><div id="ram-meter" style="height:100%; width:45%; background:var(--neon-magenta); transition:0.5s;"></div></div>
-
+                    <div class="meter"><div id="cpu-meter" class="meter__bar meter__bar--cyan" style="width:12%;"></div></div>
+                    <div class="mt-1">RAM: <span id="ram-val">45%</span></div>
+                    <div class="meter"><div id="ram-meter" class="meter__bar meter__bar--magenta" style="width:45%;"></div></div>
                 </div>
-
             </div>
-
-            
 
             <div class="module">
-
-                <div class="module-header">> ECHOES OF EXISTENCE.</div>
-
-                <button class="btn-cyber active" id="audioBtn">SYS.AUDIO_MUTE()</button>
-
+                <div class="module__header">> ECHOES OF EXISTENCE.</div>
+                <button class="button button--cyber is-active" id="audioBtn" type="button">SYS.AUDIO_MUTE()</button>
                 <audio id="bgm" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
-
             </div>
 
-
-
-            <div class="module" style="padding: 10px;">
-
-                <div class="module-header">> TRUTH IS A GLITCH.</div>
-
-                 <a href="https://sepgod.com/simulator" target="_blank" class="btn-hover-sfx" style="display: block;">
-                
-                <img src="https://i.gifer.com/Bh1M.gif" alt="Señal interceptada" class="cyber-gif">
-         </a>
+            <div class="module module--tight">
+                <div class="module__header">> TRUTH IS A GLITCH.</div>
+                <a href="https://sepgod.com/simulator" target="_blank" rel="noopener" class="block-link js-sfx-hover">
+                    <img src="images/Bh1M.webp" alt="Señal interceptada" class="cyber-gif" width="500" height="370">
+                </a>
             </div>
 
-
-
-            <div class="module" style="padding: 10px;">
-
-                <div class="module-header">> TIME IS A FLAT CIRCLE.</div>
-               <a href="https://sepgod.com/grupohuevo" target="_blank" class="btn-hover-sfx" style="display: block;">
-
-
-                <img src="https://i.gifer.com/C2pO.gif" alt="Flujo de red" class="cyber-gif">
-         </a>
+            <div class="module module--tight">
+                <div class="module__header">> TIME IS A FLAT CIRCLE.</div>
+                <a href="https://sepgod.com/grupohuevo" target="_blank" rel="noopener" class="block-link js-sfx-hover">
+                    <img src="images/C2pO.webp" alt="Flujo de red" class="cyber-gif" width="499" height="386">
+                </a>
             </div>
 
         </div>
 
+        <div class="layout__divider"></div>
 
+        <div class="layout__center">
 
-        <div class="cyan-line"></div>
-
-
-
-        <div id="center-zone">
-
-            
-
-           <div class="about-me-module">
-                <div class="module-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="about">
+                <div class="module__header module__header--row">
                     <span>> KNOW THYSELF.</span>
-                    <button id="toggle-about-btn" class="btn-action btn-hover-sfx" style="font-size: 0.7rem; padding: 2px 8px;">MINIMIZAR</button>
+                    <button id="toggle-about-btn" class="button button--action button--xs js-sfx-hover" type="button">MINIMIZAR</button>
                 </div>
-                <div class="about-me-content" id="about-me-content">
-                    
+                <div class="about__body" id="about-me-content">
+
                     <h3>Welcome to My Digital Corner</h3>
 
                     <p>Hi there! I’m Sepgod, a digital culture enthusiast with a passion for stories that transcend the screen. This space was born from a simple need: to document and share my fascination with the worlds we inhabit—whether through a controller, a line of code, or an animated series.</p>
-
-
 
                     <h4>> What Will You Find Here?</h4>
 
                     <p>My goal is to explore the intersection of nostalgia and innovation. On this blog, we dive deep into:</p>
 
                     <ul>
-
-                        <li><span class="text"><span class="highlight-magenta">Retro Gaming:</span> From the magic of 8 and 16-bit eras to the hunt for classic hardware. We celebrate the art of collecting and the titles that defined entire genres.</span></li>
-
-                        <li><span class="text"><span class="highlight-magenta">Anime and Japan:</span> Analysis of impactful stories—ranging from gritty cyberpunk to laid-back slice-of-life—alongside my journey learning the language and exploring the culture.</span></li>
-
-                       
-
-                        <li><span class="text"><span class="highlight-magenta">Personal Projects:</span> A look behind the scenes of my own experiments, from creating pixel art to managing small-scale digital projects.</span></li>
-
+                        <li><span class="about__item-text"><span class="text-magenta">Retro Gaming:</span> From the magic of 8 and 16-bit eras to the hunt for classic hardware. We celebrate the art of collecting and the titles that defined entire genres.</span></li>
+                        <li><span class="about__item-text"><span class="text-magenta">Anime and Japan:</span> Analysis of impactful stories—ranging from gritty cyberpunk to laid-back slice-of-life—alongside my journey learning the language and exploring the culture.</span></li>
+                        <li><span class="about__item-text"><span class="text-magenta">Personal Projects:</span> A look behind the scenes of my own experiments, from creating pixel art to managing small-scale digital projects.</span></li>
                     </ul>
-
-
 
                     <h4>> My Philosophy</h4>
 
                     <p>I firmly believe that hobbies aren't just a way to pass the time; they are a way to understand the world and connect with others. Whether I’m analyzing the economy of an RPG or hunting for the perfect aesthetic on a vintage digital camera, this blog is for those who see details where others only see pixels.</p>
 
-
-
                     <blockquote>
-
                         "Exploring the past, building the future, and enjoying every frame of the present."
-
                     </blockquote>
 
                 </div>
-
             </div>
 
-            <div class="top-filter-module">
-
-                <div class="module-header">> PERCEPTION IS REALITY.</div>
-
-                <div class="horizontal-filters">
-
-                    <button class="btn-cyber active btn-hover-sfx" data-filter="ALL">SELECT * FROM DATA</button>
-
-                    <button class="btn-cyber btn-hover-sfx" data-filter="PROYECTOS">/PROYECTOS/</button>
-
-                    <button class="btn-cyber btn-hover-sfx" data-filter="PENSAMIENTOS">/PENSAMIENTOS/</button>
-
-                    <button class="btn-cyber btn-hover-sfx" data-filter="ARTES">/ARTES/</button>
-
+            <section class="chat" id="chat" data-chat-room="sepgod">
+                <div class="module__header module__header--row">
+                    <span>> OPEN CHANNEL.</span>
+                    <span class="chat__beta">[BETA]</span>
                 </div>
 
+                <div class="chat__stats" id="chat-stats" aria-live="polite" hidden>
+                    <span>clients: <span id="chat-stats-clients">-</span></span>
+                    <span>msgs: <span id="chat-stats-messages">-</span></span>
+                    <span>uptime: <span id="chat-stats-uptime">-</span></span>
+                    <span>db: <span id="chat-stats-db">-</span></span>
+                </div>
+
+                <div class="chat__messages" id="chat-messages">
+                    <div class="chat__loading" id="chat-loading" role="status" aria-live="polite">
+                        <div class="chat__loading-header">
+                            <span class="chat__loading-title">CONECTANDO AL CANAL</span>
+                            <span class="chat__loading-dots" aria-hidden="true">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
+                        </div>
+                        <div class="chat__loading-list">
+                            <div class="chat__loading-row">
+                                <span class="chat__loading-bar chat__loading-bar--user"></span>
+                                <span class="chat__loading-bar chat__loading-bar--text chat__loading-bar--short"></span>
+                                <span class="chat__loading-bar chat__loading-bar--time"></span>
+                            </div>
+                            <div class="chat__loading-row">
+                                <span class="chat__loading-bar chat__loading-bar--user"></span>
+                                <span class="chat__loading-bar chat__loading-bar--text chat__loading-bar--long"></span>
+                                <span class="chat__loading-bar chat__loading-bar--time"></span>
+                            </div>
+                            <div class="chat__loading-row">
+                                <span class="chat__loading-bar chat__loading-bar--user"></span>
+                                <span class="chat__loading-bar chat__loading-bar--text chat__loading-bar--medium"></span>
+                                <span class="chat__loading-bar chat__loading-bar--time"></span>
+                            </div>
+                            <div class="chat__loading-row">
+                                <span class="chat__loading-bar chat__loading-bar--user"></span>
+                                <span class="chat__loading-bar chat__loading-bar--text chat__loading-bar--long"></span>
+                                <span class="chat__loading-bar chat__loading-bar--time"></span>
+                            </div>
+                            <div class="chat__loading-row">
+                                <span class="chat__loading-bar chat__loading-bar--user"></span>
+                                <span class="chat__loading-bar chat__loading-bar--text chat__loading-bar--short"></span>
+                                <span class="chat__loading-bar chat__loading-bar--time"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat__input-row">
+                    <input
+                        class="chat__field"
+                        id="chat-input"
+                        type="text"
+                        maxlength="256"
+                        autocomplete="off"
+                        aria-label="Mensaje del chat"
+                        placeholder="> transmitir mensaje...">
+                    <button class="button button--action chat__send js-sfx-hover" id="chat-button" type="button">ENVIAR</button>
+                </div>
+
+                <audio id="chat-notification-audio" preload="auto">
+                    <source src="./sounds/notification.mp3" type="audio/mpeg">
+                </audio>
+            </section>
+
+            <div class="filter-bar">
+                <div class="module__header">> PERCEPTION IS REALITY.</div>
+                <div class="filter-bar__list">
+                    <button class="button button--cyber button--filter is-active js-sfx-hover" type="button" data-filter="ALL">SELECT * FROM DATA</button>
+                    <button class="button button--cyber button--filter js-sfx-hover" type="button" data-filter="PROYECTOS">/PROYECTOS/</button>
+                    <button class="button button--cyber button--filter js-sfx-hover" type="button" data-filter="PENSAMIENTOS">/PENSAMIENTOS/</button>
+                    <button class="button button--cyber button--filter js-sfx-hover" type="button" data-filter="ARTES">/ARTES/</button>
+                </div>
             </div>
 
-
-
-            <div class="category-container" id="cat-PROYECTOS">
-
-                <div class="category-header">SYS.DIR // PROYECTOS</div>
-
+            <div class="post-group" id="cat-PROYECTOS">
+                <h2 class="post-group__title">SYS.DIR // PROYECTOS</h2>
                 {% for post in site.categories.PROYECTOS %}
-
                 <div class="post-card">
-
-                    <div class="post-title">{{ post.title }}</div>
-
-                    <div class="post-date">TS: {{ post.date | date: "%Y-%m-%d" }}</div>
-
-                    <button class="btn-action btn-hover-sfx toggle-post-btn" data-text-open="EJECUTAR_ARCHIVO" data-text-close="CERRAR_ARCHIVO">EJECUTAR_ARCHIVO</button>
-
-                    <div class="post-content">
-
+                    <h3 class="post-card__title">{{ post.title }}</h3>
+                    <div class="post-card__date">TS: {{ post.date | date: "%Y-%m-%d" }}</div>
+                    <button class="button button--action js-sfx-hover js-toggle-post" type="button" data-text-open="EJECUTAR_ARCHIVO" data-text-close="CERRAR_ARCHIVO">EJECUTAR_ARCHIVO</button>
+                    <div class="post-card__content">
                         {{ post.content }}
-
                     </div>
-
                 </div>
-
                 {% endfor %}
-
             </div>
 
-
-
-            <div class="category-container" id="cat-PENSAMIENTOS">
-
-                <div class="category-header">SYS.DIR // PENSAMIENTOS</div>
-
+            <div class="post-group" id="cat-PENSAMIENTOS">
+                <h2 class="post-group__title">SYS.DIR // PENSAMIENTOS</h2>
                 {% for post in site.categories.PENSAMIENTOS %}
-
                 <div class="post-card">
-
-                    <div class="post-title">{{ post.title }}</div>
-
-                    <div class="post-date">TS: {{ post.date | date: "%Y-%m-%d" }}</div>
-
-                    <button class="btn-action btn-hover-sfx toggle-post-btn" data-text-open="EXTRAER_MEMORIA" data-text-close="SELLAR_MEMORIA">EXTRAER_MEMORIA</button>
-
-                    <div class="post-content">
-
+                    <h3 class="post-card__title">{{ post.title }}</h3>
+                    <div class="post-card__date">TS: {{ post.date | date: "%Y-%m-%d" }}</div>
+                    <button class="button button--action js-sfx-hover js-toggle-post" type="button" data-text-open="EXTRAER_MEMORIA" data-text-close="SELLAR_MEMORIA">EXTRAER_MEMORIA</button>
+                    <div class="post-card__content">
                         {{ post.content }}
-
                     </div>
-
                 </div>
-
                 {% endfor %}
-
             </div>
 
-            
-
-            <div class="category-container" id="cat-ARTES">
-
-                <div class="category-header">SYS.DIR // ARTES</div>
-
+            <div class="post-group" id="cat-ARTES">
+                <h2 class="post-group__title">SYS.DIR // ARTES</h2>
                 {% for post in site.categories.ARTES %}
-
                 <div class="post-card">
-
-                    <div class="post-title">{{ post.title }}</div>
-
-                    <div class="post-date">TS: {{ post.date | date: "%Y-%m-%d" }}</div>
-
-                    <button class="btn-action btn-hover-sfx toggle-post-btn" data-text-open="VISUALIZAR_RENDER" data-text-close="APAGAR_RENDER">VISUALIZAR_RENDER</button>
-
-                    <div class="post-content">
-
+                    <h3 class="post-card__title">{{ post.title }}</h3>
+                    <div class="post-card__date">TS: {{ post.date | date: "%Y-%m-%d" }}</div>
+                    <button class="button button--action js-sfx-hover js-toggle-post" type="button" data-text-open="VISUALIZAR_RENDER" data-text-close="APAGAR_RENDER">VISUALIZAR_RENDER</button>
+                    <div class="post-card__content">
                         {{ post.content }}
-
                     </div>
-
                 </div>
-
                 {% endfor %}
-
             </div>
 
         </div>
 
+        <div class="layout__divider"></div>
 
+        <div class="media-rail">
 
-        <div class="cyan-line"></div>
-
-
-
-        <div class="side-panel-right">
-
-            <div class="sub-col-gifs">
-
-                <div class="module" style="padding: 10px;">
-
-                    <div class="module-header">> WHERE DO WE GO NOW?</div>
-                     <a href="https://sepgod.com/inventarios/" target="_blank" class="btn-hover-sfx" style="display: block;">
-
-                    <img src="https://i.gifer.com/Bh1W.gif" alt="Mapa de red" class="cyber-gif">
-                         </a>
-
-                </div>
-
-
-
-                <div class="module" style="padding: 10px;">
-
-                    <div class="module-header">> WHAT IS REAL?</div>
-
-                    <img src="https://i.gifer.com/Bh1Q.gif" alt="Núcleo del sistema" class="cyber-gif">
-
-                </div>
-
-
-
-                <div class="module" style="padding: 10px; text-align: center;">
-
-                    <div class="module-header">> DIGITAL_NEIGHBOR</div>
-
-                    <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px; margin-top: 5px;">Enlace externo detectado en el radar de red:</p>
-
-                    <a href="https://asciicrawler.com/" target="_blank" class="btn-hover-sfx" style="display: block;">
-
-                        <img src="https://asciicrawler.com/assets/profile._WERjmoF_Z9iJTC.webp" alt="ASCii CRAWLER Node" class="neighbor-img">
-
-                    </a>
-
-                </div>
-
+            <div class="module module--tight">
+                <div class="module__header">> WHERE DO WE GO NOW?</div>
+                <a href="https://sepgod.com/inventarios/" target="_blank" rel="noopener" class="block-link js-sfx-hover">
+                    <img src="images/Bh1W.webp" alt="Mapa de red" class="cyber-gif" width="500" height="333">
+                </a>
             </div>
 
-
-
-            <div class="module terminal-module">
-
-                <div class="module-header">> THE ABYSS STARES BACK.</div>
-
-                <div class="sys-log" id="sys-log-container"></div>
-
-                <div class="terminal-input-wrapper">
-
-                    <span style="color:var(--neon-magenta); margin-right:5px;">$</span>
-
-                    <input type="text" id="cmd-input" placeholder="Comando (ej: help)" autocomplete="off">
-
-                </div>
-
+            <div class="module module--tight">
+                <div class="module__header">> WHAT IS REAL?</div>
+                <img src="images/Bh1Q.webp" alt="Núcleo del sistema" class="cyber-gif" width="500" height="357">
             </div>
 
+            <div class="module module--tight text-center">
+                <div class="module__header">> DIGITAL_NEIGHBOR</div>
+                <p class="muted-note">Enlace externo detectado en el radar de red:</p>
+                <a href="https://asciicrawler.com/" target="_blank" rel="noopener" class="block-link js-sfx-hover">
+                    <img src="images/profile._WERjmoF_Z9iJTC.webp" alt="ASCii CRAWLER Node" class="neighbor-img" width="160" height="160">
+                </a>
+            </div>
 
+            <div class="module module--terminal">
+                <div class="module__header">> THE ABYSS STARES BACK.</div>
+                <div class="module__log" id="sys-log-container"></div>
+                <div class="module__input">
+                    <span class="module__prompt">$</span>
+                    <input type="text" id="cmd-input" class="module__field" placeholder="Comando (ej: help)" autocomplete="off">
+                </div>
+            </div>
 
-        </div> 
-
+        </div>
     </div>
-
 </div>
 
 <script src="./script.js"></script>
-
-
+<script src="./chat.js"></script>
 
 </body>
-
 </html>
