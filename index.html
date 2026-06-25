@@ -132,35 +132,39 @@ layout: null
         <div class="layout__center">
 
             <div class="about">
-                <div class="module__header module__header--row">
-                    <span>> KNOW THYSELF.</span>
-                    <button id="toggle-about-btn" class="button button--action button--xs js-sfx-hover" type="button">MINIMIZAR</button>
-                </div>
-                <div class="about__body" id="about-me-content">
+                <!-- Iniciamos el contenedor nativo colapsable -->
+                <details>
+                    <!-- El summary reemplaza a tu antiguo header. Actúa como el botón principal -->
+                    <summary class="module__header module__header--row" style="cursor: pointer; list-style: none;">
+                        <span>> KNOW THYSELF.</span>
+                        <span class="button button--action button--xs js-sfx-hover">EXPANDIR_DATA</span>
+                    </summary>
+                    
+                    <!-- Todo lo que esté aquí abajo estará oculto hasta el clic -->
+                    <div class="about__body" id="about-me-content">
+                        <h3>Welcome to My Digital Corner</h3>
 
-                    <h3>Welcome to My Digital Corner</h3>
+                        <p>Hi there! I’m Sepgod, a digital culture enthusiast with a passion for stories that transcend the screen. This space was born from a simple need: to document and share my fascination with the worlds we inhabit—whether through a controller, a line of code, or an animated series.</p>
 
-                    <p>Hi there! I’m Sepgod, a digital culture enthusiast with a passion for stories that transcend the screen. This space was born from a simple need: to document and share my fascination with the worlds we inhabit—whether through a controller, a line of code, or an animated series.</p>
+                        <h4>> What Will You Find Here?</h4>
 
-                    <h4>> What Will You Find Here?</h4>
+                        <p>My goal is to explore the intersection of nostalgia and innovation. On this blog, we dive deep into:</p>
 
-                    <p>My goal is to explore the intersection of nostalgia and innovation. On this blog, we dive deep into:</p>
+                        <ul>
+                            <li><span class="about__item-text"><span class="text-magenta">Retro Gaming:</span> From the magic of 8 and 16-bit eras to the hunt for classic hardware. We celebrate the art of collecting and the titles that defined entire genres.</span></li>
+                            <li><span class="about__item-text"><span class="text-magenta">Anime and Japan:</span> Analysis of impactful stories—ranging from gritty cyberpunk to laid-back slice-of-life—alongside my journey learning the language and exploring the culture.</span></li>
+                            <li><span class="about__item-text"><span class="text-magenta">Personal Projects:</span> A look behind the scenes of my own experiments, from creating pixel art to managing small-scale digital projects.</span></li>
+                        </ul>
 
-                    <ul>
-                        <li><span class="about__item-text"><span class="text-magenta">Retro Gaming:</span> From the magic of 8 and 16-bit eras to the hunt for classic hardware. We celebrate the art of collecting and the titles that defined entire genres.</span></li>
-                        <li><span class="about__item-text"><span class="text-magenta">Anime and Japan:</span> Analysis of impactful stories—ranging from gritty cyberpunk to laid-back slice-of-life—alongside my journey learning the language and exploring the culture.</span></li>
-                        <li><span class="about__item-text"><span class="text-magenta">Personal Projects:</span> A look behind the scenes of my own experiments, from creating pixel art to managing small-scale digital projects.</span></li>
-                    </ul>
+                        <h4>> My Philosophy</h4>
 
-                    <h4>> My Philosophy</h4>
+                        <p>I firmly believe that hobbies aren't just a way to pass the time; they are a way to understand the world and connect with others. Whether I’m analyzing the economy of an RPG or hunting for the perfect aesthetic on a vintage digital camera, this blog is for those who see details where others only see pixels.</p>
 
-                    <p>I firmly believe that hobbies aren't just a way to pass the time; they are a way to understand the world and connect with others. Whether I’m analyzing the economy of an RPG or hunting for the perfect aesthetic on a vintage digital camera, this blog is for those who see details where others only see pixels.</p>
-
-                    <blockquote>
-                        "Exploring the past, building the future, and enjoying every frame of the present."
-                    </blockquote>
-
-                </div>
+                        <blockquote>
+                            "Exploring the past, building the future, and enjoying every frame of the present."
+                        </blockquote>
+                    </div>
+                </details>
             </div>
 
             <section class="chat" id="chat" data-chat-room="sepgod">
