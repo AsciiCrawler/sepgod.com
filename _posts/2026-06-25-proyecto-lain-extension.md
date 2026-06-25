@@ -10,7 +10,7 @@ Un pequeño vistazo detrás de escena a mis experimentos digitales. Esta vez qui
 El resultado es **"Navi - The Wired"**, una extensión súper ligera de Vanilla JS y CSS que reemplaza la pestaña nueva de tu navegador por una terminal clásica.
 
 Puedes descargar el proyecto aquí:
-**👉 [Descargar Navi - The Wired (.zip)](/downloads/Lain_extension.rar)** 
+**👉 [Descargar Navi - The Wired (.zip)](/downloads/Lain extension.rar)** 
 ---
 
 ### 🖥️ Cómo instalar "Navi - The Wired" en tu navegador
