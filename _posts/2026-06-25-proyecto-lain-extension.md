@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Personal Project: Navi - The Wired (Browser Extension)"
-date: 2026-06-25 12:00:00 -0600
+date: 2026-06-25
 categories: [PROYECTOS]
 ---
 
