@@ -1,0 +1,150 @@
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    background-color: #191b1f;
+}
+
+span,
+div,
+h1,
+h2 {
+    color: #faf9fd;
+}
+
+.page {
+    position: relative;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    max-width: 64rem;
+    flex-direction: column;
+    align-items: center;
+    align-self: center;
+    justify-self: center;
+}
+
+.welcome {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.portrait {
+    width: 200px;
+    height: 200px;
+    margin-top: 2.5rem;
+    border-radius: 100%;
+    animation: spin 5000ms linear infinite;
+}
+
+.decor {
+    position: absolute;
+}
+
+.fire-top-left {
+    top: 5rem;
+    left: 2.5rem;
+}
+
+.fire-upper {
+    top: 10rem;
+}
+
+.fire-bottom-left {
+    bottom: 5rem;
+    left: 2.5rem;
+    transform: rotate(45deg);
+}
+
+.fire-bottom-right {
+    right: 5rem;
+    bottom: 5rem;
+}
+
+.fire-right {
+    top: 20rem;
+    right: 2.5rem;
+}
+
+.homer-bottom-left {
+    bottom: 10rem;
+    left: 0;
+    transform: rotate(90deg);
+}
+
+.homer-top-left {
+    top: 5rem;
+    left: 0;
+    transform: rotate(90deg);
+}
+
+.homer-bottom-right {
+    right: 0;
+    bottom: 5rem;
+    transform: rotate(270deg);
+}
+
+.plane-left {
+    top: 20rem;
+    left: 5rem;
+    transform: rotate(45deg);
+}
+
+.plane-bottom-right {
+    right: 5rem;
+    bottom: 2.5rem;
+    transform: rotate(140deg);
+}
+
+.plane-top-right {
+    top: 5rem;
+    right: 1.25rem;
+}
+
+.netscape {
+    bottom: 5rem;
+}
+
+.oldman {
+    right: 0;
+    bottom: 0;
+}
+
+.skeleton-tall {
+    top: 0;
+    right: 1.25rem;
+}
+
+.skeleton {
+    height: 15rem;
+}
+
+.skeleton-bottom-left {
+    bottom: 0;
+    left: 0;
+}
+
+.skeleton-left {
+    top: 15rem;
+    left: -5rem;
+    transform: rotate(90deg);
+}
+
+.skeleton-front {
+    margin-top: 2.5rem;
+}
+
+@keyframes spin {
+    from {
+        transform: rotateY(0deg);
+    }
+
+    to {
+        transform: rotateY(360deg);
+    }
+}
