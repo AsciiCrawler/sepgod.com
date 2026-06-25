@@ -2,7 +2,7 @@
 layout: post
 title: "Personal Project: Navi - The Wired (Browser Extension)"
 date: 2026-06-25 12:00:00 -0600
-categories: [Personal Projects, Experiments]
+categories: [PROYECTOS]
 ---
 
 Un pequeño vistazo detrás de escena a mis experimentos digitales. Esta vez quise recrear la estética netrunner de *Serial Experiments Lain* (Copland OS) en algo pragmático y de uso diario sin caer en desarrollos pesados. 
